@@ -1,0 +1,11 @@
+*~
+*.pyc
+*.o
+*.lo
+*.la
+*.defs
+*.log
+.deps
+*.db
+*.tar.gz
+autom4te.cache/*
