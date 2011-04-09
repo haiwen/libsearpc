@@ -231,11 +231,10 @@ Dependency
 
 The following packages are required to build libsearpc:
 
-  | lib           | minmum requirement |
-  | glib-2.0      |        2.16.0      |
-  | gobject-2.0   |        2.16.0      |
-  | json-glib-1.0 |        0.10.2      |
-  | pygobject-2.0 |        2.0         |
+  glib-2.0      >=        2.16.0      
+  gobject-2.0   >=        2.16.0
+  json-glib-1.0 >=        0.10.2
+  pygobject-2.0 >=        2.0
   
 
 License
