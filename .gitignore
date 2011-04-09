@@ -11,11 +11,12 @@
 config.*
 autom4te.cache/*
 aclocal.m4
-configure.status
-configure.sub
+config.*
 configure
 Makefile
 */Makefile
+Makefile.in
+*/Makefile.in
 .libs/
 */.libs/
 stamp-h1
@@ -23,3 +24,9 @@ searpc-demo-server
 searpc-demo-client
 pysearpc/fcallfret.h
 m4/l*
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+py-compile
