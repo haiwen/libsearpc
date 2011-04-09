@@ -17,10 +17,12 @@ pkgpyexec_LTLIBRARIES = fcallfret.la
 fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret
 fcallfret_la_SOURCES = fcallfret.c fcallfret.h
 fcallfret_la_LIBADD = @GLIB2_LIBS@ @GOBJECT_LIBS@ $(top_builddir)/libsearpc.la
-endif
+
 CLEANFILES = fcallfret.h
 
 fcallfret.c: gen-dfun-macro.py
 	python $< gen-searpcclient > fcallfret.h
-
 .PHONY: fcallfret.c
+endif
+
+

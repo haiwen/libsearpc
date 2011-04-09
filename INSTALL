@@ -10,13 +10,43 @@ MAKE SURE the required packages have been installed in your system.
 
 2. run the following commands sequentially:
 
+   ./autogen.sh
    ./configure
    make
    make install
 
-   Note that `make install` requires root privilege, like `sudo make install` in Debian distribution.
-
+   Note that `make install` requires root privilege, for example `sudo make install` in Debian distribution.
 
 
 Extra Options
 ======
+
+Optionally compile pysearpc
+------
+
+By default, Pysearpc are not compiled. If you'd like to not compile pysearpc, use the following command:
+
+   ./configure --enable-compile-python=yes
+
+In this way, Pysearpc would not be compiled or installed.
+ 
+
+Optionally compoile demos
+------
+
+By default, a pair of client/server demo programs are compiled. If you'd like to disable this, use
+the following command:
+
+    ./configure --enable-compile-demo=no
+
+Note that whatever your choice is, the demos would never be installed. They just stay in the source
+directory.
+
+Other options
+------
+
+Other options provided by Autoconf can be found in the manual of GNU Autoconf.
+
+http://www.gnu.org/software/autoconf/manual/autoconf.html
+
+

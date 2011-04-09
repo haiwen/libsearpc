@@ -30,20 +30,22 @@ AC_CHECK_FUNCS([memset socket strerror strndup])
 # Options about demos and pysearpc
 
 # option: compile-demo
+# default: yes 
 AC_ARG_ENABLE([compile-demo],
-[AS_HELP_STRING([--compile-demo],
+[AS_HELP_STRING([--enable-compile-demo],
 [compile demo programs @<:@default: yes@:>@])],
 [compile_demo=${enableval}], [compile_demo=yes])
 
 AM_CONDITIONAL([COMPILE_DEMO], [test x${compile_demo} = xyes])
 
 # option: compile-python
+# default: no
 AC_ARG_ENABLE([compile-python],
-[AS_HELP_STRING([--compile-python],
-[compile python programs @<:@default: yes@:>@])],
-[compile_python=${enableval}], [compile_python=yes])
+[AS_HELP_STRING([--enable-compile-python],
+[compile pysearpc @<:@default: no@:>@])],
+[compile_python=${enableval}], [compile_python=no])
 
-AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_demo} = xyes])
+AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_python} = xyes])
 
 # Checks for libraries.
 
