@@ -1,3 +1,15 @@
+libsearpc 1.0
+
+Last Modified: 2011-4-8
+
+This file is free software; as a special exception the author gives
+unlimited permission to copy and/or distribute it, with or without
+modifications, as long as this notice is preserved.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 
 Introduction
 ======
@@ -17,6 +29,8 @@ contains three fields:
     reports an error.
 * **err_msg**:      error message. This field is only set if the RPC function 
     reports an error.
+
+  
 
 Example
 ======
@@ -210,3 +224,22 @@ To support new rpc function types,
 2. call **make genrpc**.
 3. If the return type is not supported yet, you need also define the 
    corresponding **`searpc_fret_*`** function.
+
+
+Dependency
+=====
+
+The following packages are required to build libsearpc:
+
+  | lib           | minmum requirement |
+  | glib-2.0      |        2.16.0      |
+  | gobject-2.0   |        2.16.0      |
+  | json-glib-1.0 |        0.10.2      |
+  | pygobject-2.0 |        2.0         |
+  
+
+License
+======
+
+You may redistribute copies of libsearpc under the terms of the GNU General Public License. For
+more information about these matters, see the files named 'LICENSE' and 'COPYING'.
