@@ -12,8 +12,8 @@ AM_INIT_AUTOMAKE([1.9])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL
-AM_PATH_PYTHON([2.4])
-# Checks for libraries.
+
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
@@ -27,29 +27,58 @@ AC_TYPE_UINT16_T
 # Checks for library functions.
 AC_CHECK_FUNCS([memset socket strerror strndup])
 
+# Options about demos and pysearpc
 
-# glib and json-glib
+# option: compile-demo
+AC_ARG_ENABLE([compile-demo],
+[AS_HELP_STRING([--compile-demo],
+[compile demo programs @<:@default: yes@:>@])],
+[compile_demo=${enableval}], [compile_demo=yes])
+
+AM_CONDITIONAL([COMPILE_DEMO], [test x${compile_demo} = xyes])
+
+# option: compile-python
+AC_ARG_ENABLE([compile-python],
+[AS_HELP_STRING([--compile-python],
+[compile python programs @<:@default: yes@:>@])],
+[compile_python=${enableval}], [compile_python=yes])
+
+AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_demo} = xyes])
+
+# Checks for libraries.
+
 GLIB_REQUIRED=2.16.0
 JSON_GLIB_REQUIRED=0.10.2
 PYGOBJECT_REQUIRED=2.0
 
+# check and subst glib
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
+# check and subst gobject
 PKG_CHECK_MODULES(GOBJECT, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GOBJECT_CFLAGS)
 AC_SUBST(GOBJECT_LIBS)
 
+# check and subst json-glib
 PKG_CHECK_MODULES(JSON_GLIB, [json-glib-1.0 >= $JSON_GLIB_REQUIRED])
 AC_SUBST(JSON_GLIB_CFLAGS)
 AC_SUBST(JSON_GLIB_LIBS)
 
-PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
-AC_SUBST(PYGOBJECT_CFLAGS)
-AC_SUBST(PYGOBJECT_LIBS)
+# conditinally check python and subst
+if test x${compile_python} = xyes; then
+   AM_PATH_PYTHON([2.4]) 
+   AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
+   PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
+   AC_SUBST(PYGOBJECT_CFLAGS)
+   AC_SUBST(PYGOBJECT_LIBS)
+fi
+
 
 AC_CONFIG_FILES([Makefile
                  pysearpc/Makefile
                  tests/Makefile])
 AC_OUTPUT
+
+

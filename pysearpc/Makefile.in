@@ -35,13 +35,13 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = pysearpc
-DIST_COMMON = $(pysearpc_PYTHON) $(srcdir)/Makefile.am \
+DIST_COMMON = $(am__pkgpyexec_PYTHON_DIST) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/python.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -69,15 +69,18 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(pysearpcdir)" \
-	"$(DESTDIR)$(pysearpcdir)"
-LTLIBRARIES = $(pysearpc_LTLIBRARIES)
-fcallfret_la_DEPENDENCIES = $(top_builddir)/libsearpc.la
-am_fcallfret_la_OBJECTS = fcallfret.lo
+am__installdirs = "$(DESTDIR)$(pkgpyexecdir)" \
+	"$(DESTDIR)$(pkgpyexecdir)"
+LTLIBRARIES = $(pkgpyexec_LTLIBRARIES)
+@COMPILE_PYTHON_TRUE@fcallfret_la_DEPENDENCIES =  \
+@COMPILE_PYTHON_TRUE@	$(top_builddir)/libsearpc.la
+am__fcallfret_la_SOURCES_DIST = fcallfret.c fcallfret.h
+@COMPILE_PYTHON_TRUE@am_fcallfret_la_OBJECTS = fcallfret.lo
 fcallfret_la_OBJECTS = $(am_fcallfret_la_OBJECTS)
 fcallfret_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(fcallfret_la_LDFLAGS) $(LDFLAGS) -o $@
+@COMPILE_PYTHON_TRUE@am_fcallfret_la_rpath = -rpath $(pkgpyexecdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -92,7 +95,8 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(fcallfret_la_SOURCES)
-DIST_SOURCES = $(fcallfret_la_SOURCES)
+DIST_SOURCES = $(am__fcallfret_la_SOURCES_DIST)
+am__pkgpyexec_PYTHON_DIST = __init__.py client.py gen-dfun-macro.py
 py_compile = $(top_srcdir)/py-compile
 ETAGS = etags
 CTAGS = ctags
@@ -163,6 +167,7 @@ PYGOBJECT_CFLAGS = @PYGOBJECT_CFLAGS@
 PYGOBJECT_LIBS = @PYGOBJECT_LIBS@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_INCLUDES = @PYTHON_INCLUDES@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
@@ -237,18 +242,13 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	@PYGOBJECT_CFLAGS@ \
 	-I/usr/include/python$(PYTHON_VERSION)
 
-
-# define the destination to install pysearpc files
-pysearpcdir = ${pyexecdir}/pysearpc
-pysearpc_PYTHON = __init__.py client.py gen-dfun-macro.py
+@COMPILE_PYTHON_TRUE@pkgpyexec_PYTHON = __init__.py client.py gen-dfun-macro.py
 
 # generating the fcallfret module
-pysearpc_LTLIBRARIES = fcallfret.la
-fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret
-fcallfret_la_SOURCES = fcallfret.c fcallfret.h
-fcallfret_la_LIBADD = @GLIB2_LIBS@ @GOBJECT_LIBS@ \
-	$(top_builddir)/libsearpc.la
-
+@COMPILE_PYTHON_TRUE@pkgpyexec_LTLIBRARIES = fcallfret.la
+@COMPILE_PYTHON_TRUE@fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret
+@COMPILE_PYTHON_TRUE@fcallfret_la_SOURCES = fcallfret.c fcallfret.h
+@COMPILE_PYTHON_TRUE@fcallfret_la_LIBADD = @GLIB2_LIBS@ @GOBJECT_LIBS@ $(top_builddir)/libsearpc.la
 CLEANFILES = fcallfret.h
 all: all-am
 
@@ -263,9 +263,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign pysearpc/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu pysearpc/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign pysearpc/Makefile
+	  $(AUTOMAKE) --gnu pysearpc/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -284,39 +284,39 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-pysearpcLTLIBRARIES: $(pysearpc_LTLIBRARIES)
+install-pkgpyexecLTLIBRARIES: $(pkgpyexec_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	test -z "$(pysearpcdir)" || $(MKDIR_P) "$(DESTDIR)$(pysearpcdir)"
-	@list='$(pysearpc_LTLIBRARIES)'; test -n "$(pysearpcdir)" || list=; \
+	test -z "$(pkgpyexecdir)" || $(MKDIR_P) "$(DESTDIR)$(pkgpyexecdir)"
+	@list='$(pkgpyexec_LTLIBRARIES)'; test -n "$(pkgpyexecdir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
 	  else :; fi; \
 	done; \
 	test -z "$$list2" || { \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pysearpcdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pysearpcdir)"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkgpyexecdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkgpyexecdir)"; \
 	}
 
-uninstall-pysearpcLTLIBRARIES:
+uninstall-pkgpyexecLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pysearpc_LTLIBRARIES)'; test -n "$(pysearpcdir)" || list=; \
+	@list='$(pkgpyexec_LTLIBRARIES)'; test -n "$(pkgpyexecdir)" || list=; \
 	for p in $$list; do \
 	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pysearpcdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pysearpcdir)/$$f"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkgpyexecdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkgpyexecdir)/$$f"; \
 	done
 
-clean-pysearpcLTLIBRARIES:
-	-test -z "$(pysearpc_LTLIBRARIES)" || rm -f $(pysearpc_LTLIBRARIES)
-	@list='$(pysearpc_LTLIBRARIES)'; for p in $$list; do \
+clean-pkgpyexecLTLIBRARIES:
+	-test -z "$(pkgpyexec_LTLIBRARIES)" || rm -f $(pkgpyexec_LTLIBRARIES)
+	@list='$(pkgpyexec_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" != "$$p" || dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
 fcallfret.la: $(fcallfret_la_OBJECTS) $(fcallfret_la_DEPENDENCIES) 
-	$(fcallfret_la_LINK) -rpath $(pysearpcdir) $(fcallfret_la_OBJECTS) $(fcallfret_la_LIBADD) $(LIBS)
+	$(fcallfret_la_LINK) $(am_fcallfret_la_rpath) $(fcallfret_la_OBJECTS) $(fcallfret_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -352,10 +352,10 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-pysearpcPYTHON: $(pysearpc_PYTHON)
+install-pkgpyexecPYTHON: $(pkgpyexec_PYTHON)
 	@$(NORMAL_INSTALL)
-	test -z "$(pysearpcdir)" || $(MKDIR_P) "$(DESTDIR)$(pysearpcdir)"
-	@list='$(pysearpc_PYTHON)'; dlist=; list2=; test -n "$(pysearpcdir)" || list=; \
+	test -z "$(pkgpyexecdir)" || $(MKDIR_P) "$(DESTDIR)$(pkgpyexecdir)"
+	@list='$(pkgpyexec_PYTHON)'; dlist=; list2=; test -n "$(pkgpyexecdir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then b=; else b="$(srcdir)/"; fi; \
 	  if test -f $$b$$p; then \
@@ -366,30 +366,30 @@ install-pysearpcPYTHON: $(pysearpc_PYTHON)
 	done; \
 	for file in $$list2; do echo $$file; done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pysearpcdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pysearpcdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgpyexecdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgpyexecdir)" || exit $$?; \
 	done || exit $$?; \
 	if test -n "$$dlist"; then \
 	  if test -z "$(DESTDIR)"; then \
-	    PYTHON=$(PYTHON) $(py_compile) --basedir "$(pysearpcdir)" $$dlist; \
+	    PYTHON=$(PYTHON) $(py_compile) --basedir "$(pkgpyexecdir)" $$dlist; \
 	  else \
-	    PYTHON=$(PYTHON) $(py_compile) --destdir "$(DESTDIR)" --basedir "$(pysearpcdir)" $$dlist; \
+	    PYTHON=$(PYTHON) $(py_compile) --destdir "$(DESTDIR)" --basedir "$(pkgpyexecdir)" $$dlist; \
 	  fi; \
 	else :; fi
 
-uninstall-pysearpcPYTHON:
+uninstall-pkgpyexecPYTHON:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pysearpc_PYTHON)'; test -n "$(pysearpcdir)" || list=; \
+	@list='$(pkgpyexec_PYTHON)'; test -n "$(pkgpyexecdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	test -n "$$files" || exit 0; \
 	filesc=`echo "$$files" | sed 's|$$|c|'`; \
 	fileso=`echo "$$files" | sed 's|$$|o|'`; \
-	echo " ( cd '$(DESTDIR)$(pysearpcdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pysearpcdir)" && rm -f $$files || exit $$?; \
-	echo " ( cd '$(DESTDIR)$(pysearpcdir)' && rm -f" $$filesc ")"; \
-	cd "$(DESTDIR)$(pysearpcdir)" && rm -f $$filesc || exit $$?; \
-	echo " ( cd '$(DESTDIR)$(pysearpcdir)' && rm -f" $$fileso ")"; \
-	cd "$(DESTDIR)$(pysearpcdir)" && rm -f $$fileso
+	echo " ( cd '$(DESTDIR)$(pkgpyexecdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pkgpyexecdir)" && rm -f $$files || exit $$?; \
+	echo " ( cd '$(DESTDIR)$(pkgpyexecdir)' && rm -f" $$filesc ")"; \
+	cd "$(DESTDIR)$(pkgpyexecdir)" && rm -f $$filesc || exit $$?; \
+	echo " ( cd '$(DESTDIR)$(pkgpyexecdir)' && rm -f" $$fileso ")"; \
+	cd "$(DESTDIR)$(pkgpyexecdir)" && rm -f $$fileso
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -477,7 +477,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
-	for dir in "$(DESTDIR)$(pysearpcdir)" "$(DESTDIR)$(pysearpcdir)"; do \
+	for dir in "$(DESTDIR)$(pkgpyexecdir)" "$(DESTDIR)$(pkgpyexecdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -508,7 +508,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-pysearpcLTLIBRARIES \
+clean-am: clean-generic clean-libtool clean-pkgpyexecLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -529,13 +529,13 @@ info: info-am
 
 info-am:
 
-install-data-am: install-pysearpcLTLIBRARIES install-pysearpcPYTHON
+install-data-am:
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-pkgpyexecLTLIBRARIES install-pkgpyexecPYTHON
 
 install-html: install-html-am
 
@@ -575,24 +575,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-pysearpcLTLIBRARIES uninstall-pysearpcPYTHON
+uninstall-am: uninstall-pkgpyexecLTLIBRARIES uninstall-pkgpyexecPYTHON
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-pysearpcLTLIBRARIES ctags distclean \
+	clean-libtool clean-pkgpyexecLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-pysearpcLTLIBRARIES install-pysearpcPYTHON \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-pysearpcLTLIBRARIES uninstall-pysearpcPYTHON
+	install-pdf install-pdf-am install-pkgpyexecLTLIBRARIES \
+	install-pkgpyexecPYTHON install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-pkgpyexecLTLIBRARIES \
+	uninstall-pkgpyexecPYTHON
 
 
 fcallfret.c: gen-dfun-macro.py

@@ -8,6 +8,8 @@ AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  \
 	-I$(top_builddir)/include \
 	@JSON_GLIB_CFLAGS@
 
+
+if COMPILE_DEMO
 noinst_PROGRAMS = searpc-demo-server searpc-demo-client
 
 searpc_demo_server_SOURCES = searpc-demo-server.c searpc-demo-packet.h
@@ -17,6 +19,7 @@ searpc_demo_server_LDADD = ./libsearpc.la
 searpc_demo_client_SOURCES = searpc-demo-client.c searpc-demo-packet.h
 
 searpc_demo_client_LDADD = ./libsearpc.la
+endif
 
 # we need to generate the headers first
 BUILT_SOURCES = genrpc

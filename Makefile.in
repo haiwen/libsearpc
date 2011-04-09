@@ -36,19 +36,19 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = searpc-demo-server$(EXEEXT) \
-	searpc-demo-client$(EXEEXT)
+@COMPILE_DEMO_TRUE@noinst_PROGRAMS = searpc-demo-server$(EXEEXT) \
+@COMPILE_DEMO_TRUE@	searpc-demo-client$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config.h.in $(top_srcdir)/configure AUTHORS COPYING \
-	COPYING.LESSER ChangeLog INSTALL config.guess config.sub \
+	COPYING.LESSER ChangeLog INSTALL NEWS config.guess config.sub \
 	depcomp install-sh ltmain.sh missing py-compile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/python.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -87,12 +87,18 @@ libsearpc_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libsearpc_la_LDFLAGS) $(LDFLAGS) -o $@
 PROGRAMS = $(noinst_PROGRAMS)
-am_searpc_demo_client_OBJECTS = searpc-demo-client.$(OBJEXT)
+am__searpc_demo_client_SOURCES_DIST = searpc-demo-client.c \
+	searpc-demo-packet.h
+@COMPILE_DEMO_TRUE@am_searpc_demo_client_OBJECTS =  \
+@COMPILE_DEMO_TRUE@	searpc-demo-client.$(OBJEXT)
 searpc_demo_client_OBJECTS = $(am_searpc_demo_client_OBJECTS)
-searpc_demo_client_DEPENDENCIES = ./libsearpc.la
-am_searpc_demo_server_OBJECTS = searpc-demo-server.$(OBJEXT)
+@COMPILE_DEMO_TRUE@searpc_demo_client_DEPENDENCIES = ./libsearpc.la
+am__searpc_demo_server_SOURCES_DIST = searpc-demo-server.c \
+	searpc-demo-packet.h
+@COMPILE_DEMO_TRUE@am_searpc_demo_server_OBJECTS =  \
+@COMPILE_DEMO_TRUE@	searpc-demo-server.$(OBJEXT)
 searpc_demo_server_OBJECTS = $(am_searpc_demo_server_OBJECTS)
-searpc_demo_server_DEPENDENCIES = ./libsearpc.la
+@COMPILE_DEMO_TRUE@searpc_demo_server_DEPENDENCIES = ./libsearpc.la
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -108,8 +114,9 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libsearpc_la_SOURCES) $(searpc_demo_client_SOURCES) \
 	$(searpc_demo_server_SOURCES)
-DIST_SOURCES = $(libsearpc_la_SOURCES) $(searpc_demo_client_SOURCES) \
-	$(searpc_demo_server_SOURCES)
+DIST_SOURCES = $(libsearpc_la_SOURCES) \
+	$(am__searpc_demo_client_SOURCES_DIST) \
+	$(am__searpc_demo_server_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -228,6 +235,7 @@ PYGOBJECT_CFLAGS = @PYGOBJECT_CFLAGS@
 PYGOBJECT_LIBS = @PYGOBJECT_LIBS@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_INCLUDES = @PYTHON_INCLUDES@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
@@ -302,10 +310,10 @@ AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  \
 	-I$(top_builddir)/include \
 	@JSON_GLIB_CFLAGS@
 
-searpc_demo_server_SOURCES = searpc-demo-server.c searpc-demo-packet.h
-searpc_demo_server_LDADD = ./libsearpc.la
-searpc_demo_client_SOURCES = searpc-demo-client.c searpc-demo-packet.h
-searpc_demo_client_LDADD = ./libsearpc.la
+@COMPILE_DEMO_TRUE@searpc_demo_server_SOURCES = searpc-demo-server.c searpc-demo-packet.h
+@COMPILE_DEMO_TRUE@searpc_demo_server_LDADD = ./libsearpc.la
+@COMPILE_DEMO_TRUE@searpc_demo_client_SOURCES = searpc-demo-client.c searpc-demo-packet.h
+@COMPILE_DEMO_TRUE@searpc_demo_client_LDADD = ./libsearpc.la
 
 # we need to generate the headers first
 BUILT_SOURCES = genrpc
@@ -327,15 +335,15 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
-	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign'; \
-	      $(am__cd) $(srcdir) && $(AUTOMAKE) --foreign \
+	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu'; \
+	      $(am__cd) $(srcdir) && $(AUTOMAKE) --gnu \
 		&& exit 0; \
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign Makefile
+	  $(AUTOMAKE) --gnu Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

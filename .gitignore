@@ -11,7 +11,6 @@
 config.*
 autom4te.cache/*
 aclocal.m4
-m4/*
 configure.status
 configure.sub
 configure
@@ -23,3 +22,4 @@ stamp-h1
 searpc-demo-server
 searpc-demo-client
 pysearpc/fcallfret.h
+m4/l*
