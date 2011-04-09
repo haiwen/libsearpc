@@ -1,0 +1,22 @@
+Basic Installation
+==================
+
+Libsearpc requires several other packages to be built. Before installing, read the `README` file and
+MAKE SURE the required packages have been installed in your system.
+
+
+1. If you downladed a tarball. Extract it to some path like `~/dev`, and cd ~/dev/libsearpc-1.0
+   If you git-cloned it from the repo, just cd into the directory.
+
+2. run the following commands sequentially:
+
+   ./configure
+   make
+   make install
+
+   Note that `make install` requires root privilege, like `sudo make install` in Debian distribution.
+
+
+
+Extra Options
+======

@@ -41,10 +41,14 @@ noinst_PROGRAMS = searpc-demo-server$(EXEEXT) \
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/config.h.in $(top_srcdir)/configure config.guess \
-	config.sub depcomp install-sh ltmain.sh missing py-compile
+	$(srcdir)/config.h.in $(top_srcdir)/configure AUTHORS COPYING \
+	COPYING.LESSER ChangeLog INSTALL config.guess config.sub \
+	depcomp install-sh ltmain.sh missing py-compile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -290,7 +294,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README rpc_table.py gen-dfun-macro.py
+GNU_STANDARD_FILES = README README.markdown COPYING COPYING.LESSER AUTHORS ChangeLog News
+EXTRA_DIST = $(GNU_STANDARD_FILES) rpc_table.py gen-dfun-macro.py
 SUBDIRS = tests . pysearpc
 AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  \
 	-I$(top_srcdir)/include -I$(top_srcdir)/include/ccnet \

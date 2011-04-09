@@ -1,5 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README rpc_table.py gen-dfun-macro.py
+GNU_STANDARD_FILES = README README.markdown COPYING COPYING.LESSER AUTHORS ChangeLog News
+EXTRA_DIST = $(GNU_STANDARD_FILES) rpc_table.py gen-dfun-macro.py
 SUBDIRS = tests . pysearpc
 
 AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  \
