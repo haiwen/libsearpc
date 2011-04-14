@@ -22,7 +22,7 @@ searpc_demo_client_LDADD = ./libsearpc.la
 endif
 
 # we need to generate the headers first
-BUILT_SOURCES = genrpc
+# BUILT_SOURCES = genrpc
 
 
 pkglib_LTLIBRARIES = libsearpc.la
