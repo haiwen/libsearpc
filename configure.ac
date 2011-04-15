@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.67])
 AC_INIT([libsearpc], [1.0], [freeplant@gmail.com])
-AC_CONFIG_SRCDIR([searpc-server.c])
+AC_CONFIG_SRCDIR([lib/searpc-server.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -79,6 +79,8 @@ fi
 
 
 AC_CONFIG_FILES([Makefile
+                 lib/Makefile
+                 demo/Makefile
                  pysearpc/Makefile
                  tests/Makefile])
 AC_OUTPUT

@@ -24,7 +24,7 @@
 #include <glib-object.h>
 #include <pygobject.h>
 
-#include <../searpc-client.h>
+#include <../lib/searpc-client.h>
 #include <structmember.h>
 
 static PyObject *SearpcError;
