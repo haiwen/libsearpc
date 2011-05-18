@@ -20,7 +20,7 @@ contains three fields:
   
 
 Example
-======
+=======
 
 Client
 ------
@@ -41,7 +41,7 @@ a SearpcClient object and supply a transport function. For example:
      * define a RPC function which takes a string argument and returns
      * an integer. The xxx_INT__STRING naming convention is used to
      * indicate the types of the param(string) and the return value(int).
-    */
+     */
     SEARPC_CLIENT_DEFUN_INT__STRING(searpc_strlen)
 
     /* create an rpc_client and supply the transport function. */
@@ -124,7 +124,7 @@ prototype of this function is:
      *              function in the fucntion hash table.
      * signature:   the identifier used to get the corresponding marshal.
      * Returns:     a gboolean value indicating success or failure
-    */
+     */
     gboolean searpc_server_register_function (void *func, const gchar *fname, const gchar *signature)
 
     Before calling `searpc_server_register_function`, you need to call
@@ -150,7 +150,7 @@ The prototype of `searpc_server_call_function` is:
      * len:     The length of **`data`**.
      * ret_len: Place to hold the length of the JSON data stream to be returned
      * Returns: The JSON data containing the result of the RPC
-    */
+     */
     gchar* searpc_server_call_function (gchar *data, gsize len, gsize *ret_len)
     
 The value returned by `searpc_server_call_function()` is the JSON data
@@ -183,7 +183,7 @@ See the demo program for a more detailed example.
 
 
 Demos
-======
+=====
 
 There are well-commented demos in both C and Python. 
 
@@ -220,5 +220,3 @@ The following packages are required to build libsearpc:
 *  gobject-2.0   >=        2.16.0
 *  json-glib-1.0 >=        0.10.2
 *  pygobject-2.0 >=        2.0 (if you choose to build pysearpc)
-  
-

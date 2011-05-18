@@ -54,6 +54,6 @@ gchar *searpc_server_call_function (gchar *func, gsize len, gsize *ret_len);
 char* searpc_compute_signature (gchar *ret_type, int pnum, ...);
 
 /* Signatures */
-#include "searpc-signature.h"
+#include <searpc-signature.h>
 
 #endif

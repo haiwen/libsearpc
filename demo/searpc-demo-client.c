@@ -27,7 +27,7 @@ static char *transport_callback(void *arg, const char *fcall_str,
     char buf[BUFLEN];
     packet *pac, *pac_ret;
    
-    fd = (int) arg;
+    fd = (int)(long) arg;
     pac = (packet *)buf;
 
     /* construct the packet */
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
     /* create an rpc_client and supply the transport function. */
     rpc_client = searpc_client_new();
     rpc_client->transport = transport_callback;
-    rpc_client->arg = (void *)sockfd;
+    rpc_client->arg = (void *)(long)sockfd;
 
     /* call the client-side funcion */
     ret = searpc_strlen(rpc_client, "hello searpc", &error);

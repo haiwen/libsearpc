@@ -100,7 +100,7 @@ marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
 }
 
 /* include the generated marshal functions */
-#include <searpc-marshal.h>
+#include "marshal.h"
 
 void
 searpc_server_init ()

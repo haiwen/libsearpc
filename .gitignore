@@ -30,3 +30,11 @@ libtool
 ltmain.sh
 missing
 py-compile
+cscope.files
+cscope.out
+lib/fcall-impr.h
+lib/marshal.h
+lib/searpc-dfun.h
+lib/searpc-fcall.h
+lib/searpc-signature.h
+tests/test-searpc

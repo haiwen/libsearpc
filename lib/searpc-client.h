@@ -13,6 +13,7 @@ typedef struct {
 } SearpcClient;
 
 SearpcClient *searpc_client_new ();
+
 void searpc_client_free (SearpcClient *client);
 
 char* searpc_client_transport_send (SearpcClient *client,
@@ -22,24 +23,23 @@ char* searpc_client_transport_send (SearpcClient *client,
 
 #include <searpc-fcall.h>
 
-/**
- * searpc_client_fret__string:
- * @data:  the return string of RPC call
- * @len: then length of @data
- * @error: return location for a #GError, or %NULL
- * 
- * Extract return value of type `char*` from the return string of RPC
- * call.
- */
-char* searpc_client_fret__string (char *data, size_t len, GError **error);
 
-int   searpc_client_fret__int (char *data, size_t len, GError **error);
-GObject* searpc_client_fret__object (GType gtype, char *data,
-                                     size_t len, GError **error);
-GList* searpc_client_fret__objlist (GType gtype, char *data,
-                                    size_t len, GError **error);
+char*
+searpc_client_fret__string (char *data, size_t len, GError **error);
 
+int
+searpc_client_fret__int (char *data, size_t len, GError **error);
 
+GObject*
+searpc_client_fret__object (GType gtype, char *data,
+                            size_t len, GError **error);
+
+GList*
+searpc_client_fret__objlist (GType gtype, char *data,
+                             size_t len, GError **error);
+
+/* in case of transport error, the following code and message will be
+ * set in GError */
 #define TRANSPORT_ERROR  "Transport Error"
 #define TRANSPORT_ERROR_CODE 500
 

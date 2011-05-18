@@ -13,8 +13,6 @@ AM_INIT_AUTOMAKE([1.9 foreign])
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
-
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
@@ -43,7 +41,7 @@ AM_CONDITIONAL([COMPILE_DEMO], [test x${compile_demo} = xyes])
 AC_ARG_ENABLE([compile-python],
 [AS_HELP_STRING([--enable-compile-python],
 [compile pysearpc @<:@default: no@:>@])],
-[compile_python=${enableval}], [compile_python=no])
+[compile_python=${enableval}], [compile_python=yes])
 
 AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_python} = xyes])
 

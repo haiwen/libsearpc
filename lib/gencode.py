@@ -342,3 +342,5 @@ if __name__ == "__main__":
         gen_fcall_declare_list()
     elif command == "gen-dfun-macro":
         gen_dfun_macro_list()
+    else:
+        print "Unknown command %s" % (command) 
