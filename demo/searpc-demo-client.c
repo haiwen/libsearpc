@@ -18,7 +18,7 @@
 #define MAGIC_STRING "ABCD"
 
 /* define the client-side function */
-SEARPC_CLIENT_DEFUN_INT__STRING(searpc_demo_int__string);
+SEARPC_CLIENT_DEFUN_INT__STRING(searpc_strlen);
 
 static char *transport_callback(void *arg, const char *fcall_str,
                                 size_t fcall_len, size_t *ret_len)
@@ -52,7 +52,7 @@ static char *transport_callback(void *arg, const char *fcall_str,
     return strndup(pac_ret->data, *ret_len);
 }
 
-
+int
 main(int argc, char *argv[])
 {
     int sockfd, ret;
@@ -91,12 +91,12 @@ main(int argc, char *argv[])
     rpc_client->arg = (void *)sockfd;
 
     /* call the client-side funcion */
-    ret = searpc_demo_int__string(rpc_client, "hello searpc", &error);
+    ret = searpc_strlen(rpc_client, "hello searpc", &error);
     if (error != NULL) {
         fprintf(stderr, "error: %s\n", error->message);
         exit(-1);
     } else
-        printf("%d\n", ret);
+        printf("the length of string 'hello searpc' is %d.\n", ret);
 
     close(sockfd);
 

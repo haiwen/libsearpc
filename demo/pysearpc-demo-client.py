@@ -2,7 +2,7 @@
 import sys
 import socket
 from struct import pack, unpack
- 
+
 from pysearpc import SearpcClient, searpc_func
 
 SERVER_ADDR = '127.0.0.1'
@@ -48,10 +48,10 @@ class SampleRpcClient(SearpcClient):
         return ret_str
 
     @searpc_func("int", ["string"])
-    def searpc_demo_int__string(self):
+    def searpc_strlen(self):
         pass
 
 client = SampleRpcClient()
-res = client.searpc_demo_int__string("hello world")
+res = client.searpc_strlen("hello world")
 print 'result from server:', res
 

@@ -14,7 +14,7 @@
 #define BUFLEN 256
 
 static int
-searpc_demo_int__string(const char *str)
+searpc_strlen(const char *str)
 {
     if (str == NULL)
         return -1;
@@ -27,8 +27,13 @@ start_rpc_service(void)
 {
     searpc_server_init();
 
-    searpc_server_register_function(searpc_demo_int__string,
-                                    "searpc_demo_int__string",
+    /* The first parameter is the implementation function.
+     * The second parameter is the name of the rpc function the 
+     * client would call.
+     * The third parameter is the signature.
+     */
+    searpc_server_register_function(searpc_strlen,
+                                    "searpc_strlen",
                                     searpc_signature_int__string());
 }
 

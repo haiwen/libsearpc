@@ -10,7 +10,7 @@ AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  @JSON_GLIB_CFLAGS@ -I${top_builddir
 # we need to generate the headers first
 BUILT_SOURCES = genrpc
 
-pkglib_LTLIBRARIES = libsearpc.la
+lib_LTLIBRARIES = libsearpc.la
 
 include_HEADERS = searpc-client.h searpc-server.h  searpc-utils.h
 
@@ -18,7 +18,7 @@ libsearpc_la_SOURCES = searpc-client.c searpc-server.c
 
 EXTRA_libsearpc_la_SOURCES = ${genrpc_files}
 
-libsearpc_la_LDFLAGS = -Wl,-z -Wl,defs
+libsearpc_la_LDFLAGS = -Wl,-z -Wl,defs -version-info 1:0:0
 
 libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@
 

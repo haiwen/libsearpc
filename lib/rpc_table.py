@@ -6,9 +6,11 @@ Define RPC functions needed to generate
 func_table = [
     [ "int", ["string"] ],
     [ "int", ["string", "string"] ],
+    [ "int", ["string", "string", "string"] ],
     [ "string", [] ],
     [ "string", ["string"] ],
     [ "string", ["string", "int"] ],
+    [ "string", ["string", "string"] ],
     [ "objlist", [] ],
     [ "objlist", ["string"] ],
     [ "objlist", ["int", "int"] ],
