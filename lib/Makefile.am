@@ -38,7 +38,7 @@ libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@
 
 genrpc_files = gencode.py rpc_table.py
 
-dist_data_DATA = ${genrpc_files}
+EXTRA_DIST = ${genrpc_files}
 
 gensource: ${generated_sources}
 
