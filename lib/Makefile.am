@@ -26,7 +26,8 @@ BUILT_SOURCES = gensource
 
 lib_LTLIBRARIES = libsearpc.la
 
-include_HEADERS = searpc-fcall.h searpc-client.h searpc-dfun.h searpc-server.h
+include_HEADERS = searpc-fcall.h searpc-client.h searpc-dfun.h \
+	searpc-server.h searpc-signature.h searpc-utils.h
 
 noinst_HEADERS = searpc-utils.h fcall-impr.h marshal.h
 
