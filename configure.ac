@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.67])
+AC_PREREQ([2.61])
 AC_INIT([libsearpc], [1.0], [freeplant@gmail.com])
 AC_CONFIG_SRCDIR([lib/searpc-server.c])
 AC_CONFIG_HEADERS([config.h])
