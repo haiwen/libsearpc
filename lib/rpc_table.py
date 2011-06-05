@@ -4,6 +4,7 @@ Define RPC functions needed to generate
 
 # [ <ret-type>, [<arg_types>] ]
 func_table = [
+    [ "int", [] ],
     [ "int", ["string"] ],
     [ "int", ["string", "int"] ],
     [ "int", ["string", "string"] ],
