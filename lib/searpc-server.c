@@ -169,6 +169,7 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len)
     if (!json_parser_load_from_data (parser, func, len, &error)) {
         g_warning ("[SeaRPC] failed to parse RPC call: %s\n", error->message);
         g_error_free (error);
+        g_object_unref (parser);
         return NULL;
     }
 
