@@ -33,9 +33,10 @@ noinst_HEADERS = searpc-utils.h fcall-impr.h marshal.h
 
 libsearpc_la_SOURCES = searpc-client.c searpc-server.c $(generated_sources)
 
-libsearpc_la_LDFLAGS = -Wl,-z -Wl,defs -version-info 1:1:0
+libsearpc_la_LDFLAGS =  -version-info 1:1:0  -no-undefined
 
-libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@
+libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@ \
+                     -lglib-2.0 -lgobject-2.0 -ljson-glib-1.0
 
 genrpc_files = gencode.py rpc_table.py
 

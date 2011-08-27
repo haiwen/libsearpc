@@ -50,5 +50,7 @@ if test "$DIE" -eq 1; then
 	exit 1
 fi
 
-autoreconf --install
+cp -f lib/rpc_table.py pysearpc/
+
+autoreconf --install -I/local/share/aclocal
 

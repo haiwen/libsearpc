@@ -69,7 +69,7 @@ AC_SUBST(JSON_GLIB_LIBS)
 # conditinally check python and subst
 if test x${compile_python} = xyes; then
    AM_PATH_PYTHON([2.4]) 
-   AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
+#   AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
    PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
    AC_SUBST(PYGOBJECT_CFLAGS)
    AC_SUBST(PYGOBJECT_LIBS)
