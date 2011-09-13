@@ -32,6 +32,71 @@ searpc_client_transport_send (SearpcClient *client,
                              fcall_len, ret_len);
 }
 
+typedef struct {
+    SearpcClient *client;
+    AsyncCallback callback;
+    const gchar *ret_type;
+    int gtype;
+    void *cbdata;
+} AsyncCallData;
+
+int
+searpc_client_generic_callback (char *retstr, size_t len,
+                                void *vdata, const char *errstr)
+{
+    AsyncCallData *data = vdata;
+    GError *error = NULL;
+    void *result = NULL;
+
+    if (errstr) {
+        g_set_error (&error, 0, 500, "Transport error: %s", errstr);
+        data->callback (NULL, data->cbdata, error);
+        g_error_free (error);
+    } else {
+        /* parse result and call the callback */
+        if (strcmp(data->ret_type, "int") == 0) {
+            int ret = searpc_client_fret__int (retstr, len, &error);
+            printf ("ret is %d\n", ret);
+            result = (void *)(long)ret;
+        } else if (strcmp(data->ret_type, "string") == 0) {
+            result = (void *)searpc_client_fret__string (retstr, len, &error);
+        } else if (strcmp(data->ret_type, "object") == 0) {
+            result = (void *)searpc_client_fret__object (
+                data->gtype, retstr, len, &error);
+        } else if (strcmp(data->ret_type, "objlist") == 0) {
+            result = (void *)searpc_client_fret__objlist (
+                data->gtype, retstr, len, &error);
+        }
+        data->callback (result, data->cbdata, error);
+    }
+    g_free (data);
+}
+
+int
+searpc_client_async_call (SearpcClient *client,
+                          const gchar *fcall_str,
+                          size_t fcall_len,
+                          AsyncCallback callback,
+                          const gchar *ret_type,
+                          int gtype,
+                          void *cbdata)
+{
+    int ret;
+    AsyncCallData *data = g_new0(AsyncCallData, 1);
+    data->client = client;
+    data->callback = callback;
+    data->ret_type = ret_type;
+    data->gtype = gtype;
+    data->cbdata = cbdata;
+
+    ret = client->async_send (client->async_arg, fcall_str, fcall_len, data);
+    if (ret < 0) {
+        g_free (data);
+        return -1;
+    }
+    return 0;
+}
+
 /*
  * serialize function call from array to string
  */
@@ -77,7 +142,7 @@ handle_ret_common (char *data, size_t len, JsonParser **parser,
     g_return_val_if_fail (root != 0 || object != 0, -1);
 
     *parser = json_parser_new ();
-    if (!json_parser_load_from_data (*parser, data, strlen(data), error)) {
+    if (!json_parser_load_from_data (*parser, data, len, error)) {
         g_object_unref (*parser);
         *parser = NULL;
         return -1;

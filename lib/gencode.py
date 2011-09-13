@@ -329,6 +329,53 @@ def gen_dfun_macro_list():
     for item in func_table:
         print gen_dfun_macro(item[0], item[1])
 
+
+async_dfun_template = r"""
+#define SEARPC_CLIENT_ASYNC_DEFUN_${RET_TYPE}__${ARG_TYPES}(funcname, gtype)   \
+int                                                                     \
+funcname (SearpcClient *client, ${args},                                \
+          AsyncCallback callback, void *user_data)                      \
+{                                                                       \
+    char *fcall;                                                        \
+    size_t fcall_len;                                                   \
+                                                                        \
+    fcall = searpc_client_fcall__${arg_types} (#funcname,               \
+                                               ${fcall_args});          \
+    return searpc_client_async_call (client, fcall,                     \
+                             fcall_len, callback, "${ret_type}",        \
+                             gtype, user_data);                         \
+}
+"""
+
+
+def gen_async_dfun_macro(ret_type, arg_types):
+    template = string.Template(async_dfun_template)
+
+    if len(arg_types) == 0:
+        arg_types_str = "void"
+    else:
+        arg_types_str = "_".join(arg_types)
+
+    args = ""
+    for i, arg_type in enumerate(arg_types):
+        args += type_table[arg_type][0] + " param" + str(i+1)
+
+    fcall_args = ""
+    for i, arg_type in enumerate(arg_types):
+        fcall_args += " param" + str(i+1) + ", "
+    fcall_args += "&fcall_len"
+    
+    return template.substitute(ret_type=ret_type, RET_TYPE=ret_type.upper(),
+                               arg_types=arg_types_str,
+                               ARG_TYPES=arg_types_str.upper(),
+                               args=args, fcall_args=fcall_args)
+
+
+def gen_async_dfun_macro_list():
+    from rpc_table import func_table
+    for item in func_table:
+        print gen_async_dfun_macro(item[0], item[1])
+
 if __name__ == "__main__":
     command = sys.argv[1]
     if command == "gen-marshal":
@@ -342,5 +389,6 @@ if __name__ == "__main__":
         gen_fcall_declare_list()
     elif command == "gen-dfun-macro":
         gen_dfun_macro_list()
+        gen_async_dfun_macro_list()
     else:
         print "Unknown command %s" % (command) 

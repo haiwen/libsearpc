@@ -7,9 +7,19 @@
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 
+/* rpc_priv is used by the rpc_client to store information related to
+ * this rpc call. */
+typedef int (*AsyncTransportSend)(void *arg, const gchar *fcall_str,
+                                  size_t fcall_len, void *rpc_priv);
+
+typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
+
 typedef struct {
     TransportCB transport;
     void *arg;
+    
+    AsyncTransportSend async_send;
+    void *async_arg;
 } SearpcClient;
 
 SearpcClient *searpc_client_new ();
@@ -20,6 +30,28 @@ char* searpc_client_transport_send (SearpcClient *client,
                                     const gchar *fcall_str,
                                     size_t fcall_len,
                                     size_t *ret_len);
+
+
+/**
+ * Send the serialized function call to server.
+ *
+ * @fcall_str: the serialized function.
+ * @ret_type: the return type.
+ * @gtype: specify the type id if @ret_type is `object` or `objlist`,
+ *         or 0 otherwise.
+ * @cbdata: the data that will be given to the callback.
+ */
+int searpc_client_async_call (SearpcClient *client,
+                              const gchar *fcall_str,
+                              size_t fcall_len,
+                              AsyncCallback callback,
+                              const gchar *ret_type,
+                              int gtype,
+                              void *cbdata);
+
+int
+searpc_client_generic_callback (char *retstr, size_t len,
+                                void *vdata, const char *errstr);
 
 #include <searpc-fcall.h>
 

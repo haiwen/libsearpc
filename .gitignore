@@ -22,6 +22,7 @@ Makefile.in
 stamp-h1
 searpc-demo-server
 searpc-demo-client
+searpc-async-client
 pysearpc/fcallfret.h
 m4/l*
 depcomp
