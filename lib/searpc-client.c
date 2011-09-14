@@ -74,7 +74,7 @@ searpc_client_generic_callback (char *retstr, size_t len,
 
 int
 searpc_client_async_call (SearpcClient *client,
-                          const gchar *fcall_str,
+                          gchar *fcall_str,
                           size_t fcall_len,
                           AsyncCallback callback,
                           const gchar *ret_type,

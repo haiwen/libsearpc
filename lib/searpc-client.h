@@ -7,9 +7,13 @@
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 
-/* rpc_priv is used by the rpc_client to store information related to
- * this rpc call. */
-typedef int (*AsyncTransportSend)(void *arg, const gchar *fcall_str,
+/**
+ * @rpc_priv is used by the rpc_client to store information related to
+ * this rpc call.
+ * @fcall_str is an allocated string, and the sender should free it
+ * when not needed.
+ */
+typedef int (*AsyncTransportSend)(void *arg, gchar *fcall_str,
                                   size_t fcall_len, void *rpc_priv);
 
 typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
@@ -42,13 +46,15 @@ char* searpc_client_transport_send (SearpcClient *client,
  * @cbdata: the data that will be given to the callback.
  */
 int searpc_client_async_call (SearpcClient *client,
-                              const gchar *fcall_str,
+                              gchar *fcall_str,
                               size_t fcall_len,
                               AsyncCallback callback,
                               const gchar *ret_type,
                               int gtype,
                               void *cbdata);
 
+/* called by the transport layer, the rpc layer should be able to
+ * modify the str, but not take ownership of it */
 int
 searpc_client_generic_callback (char *retstr, size_t len,
                                 void *vdata, const char *errstr);

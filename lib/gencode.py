@@ -333,7 +333,7 @@ def gen_dfun_macro_list():
 async_dfun_template = r"""
 #define SEARPC_CLIENT_ASYNC_DEFUN_${RET_TYPE}__${ARG_TYPES}(funcname, gtype)   \
 int                                                                     \
-funcname (SearpcClient *client, ${args},                                \
+funcname (SearpcClient *client, ${args}                                 \
           AsyncCallback callback, void *user_data)                      \
 {                                                                       \
     char *fcall;                                                        \
@@ -358,7 +358,7 @@ def gen_async_dfun_macro(ret_type, arg_types):
 
     args = ""
     for i, arg_type in enumerate(arg_types):
-        args += type_table[arg_type][0] + " param" + str(i+1)
+        args += type_table[arg_type][0] + " param" + str(i+1) + ", "
 
     fcall_args = ""
     for i, arg_type in enumerate(arg_types):

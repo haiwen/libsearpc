@@ -28,7 +28,7 @@ typedef struct {
 
 /* rpc_priv is used by the rpc_client to store information related to
  * this rpc call. */
-static int transport_send(void *arg, const char *fcall_str,
+static int transport_send(void *arg, char *fcall_str,
                           size_t fcall_len, void *rpc_priv)
 {
     TcpTransport *trans = arg;
@@ -49,6 +49,7 @@ static int transport_send(void *arg, const char *fcall_str,
     }
 
     trans->rpc_priv = rpc_priv;
+    g_free (fcall_str);
     
     return 0;
 }
