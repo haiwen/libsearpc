@@ -26,4 +26,7 @@ EXTRA_DIST = ${genrpc_files}
 fcallfret.h: ${genrpc_files}
 	python pygencode.py > fcallfret.h
 
-DISTCLEANFILES = fcallfret.h
+rpc_table.py: ../lib/rpc_table.py
+	cp -f ../lib/rpc_table.py .
+
+DISTCLEANFILES = fcallfret.h rpc_table.py
