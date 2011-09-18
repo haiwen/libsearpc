@@ -35,8 +35,7 @@ libsearpc_la_SOURCES = searpc-client.c searpc-server.c $(generated_sources)
 
 libsearpc_la_LDFLAGS =  -version-info 1:1:0  -no-undefined
 
-libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@ \
-                     -lglib-2.0 -lgobject-2.0 -ljson-glib-1.0
+libsearpc_la_LIBADD = @GLIB2_LIBS@  @GOBJECT_LIBS@ @JSON_GLIB_LIBS@
 
 genrpc_files = gencode.py rpc_table.py
 

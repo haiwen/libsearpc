@@ -9,6 +9,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 
 AM_INIT_AUTOMAKE([1.9 foreign])
+AC_MINGW32
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL
@@ -35,6 +36,20 @@ AC_ARG_ENABLE([compile-demo],
 [compile_demo=${enableval}], [compile_demo=yes])
 
 AM_CONDITIONAL([COMPILE_DEMO], [test x${compile_demo} = xyes])
+
+dnl - check if the macro WIN32 is defined on this compiler.
+AC_MSG_CHECKING(for WIN32)
+
+if test "$MINGW32" = yes; then
+  bwin32=true
+  AC_MSG_RESULT(compile in mingw32)
+fi
+
+dnl
+if test "$bwin32" = true; then
+  LIB_PYTHON=-lpython26
+fi
+AC_SUBST(LIB_PYTHON)
 
 # option: compile-python
 # default: no
@@ -68,7 +83,7 @@ AC_SUBST(JSON_GLIB_LIBS)
 
 # conditinally check python and subst
 if test x${compile_python} = xyes; then
-   AM_PATH_PYTHON([2.4]) 
+   AM_PATH_PYTHON([2.4])
    AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
    PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
    AC_SUBST(PYGOBJECT_CFLAGS)
