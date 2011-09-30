@@ -50,5 +50,8 @@ if test "$DIE" -eq 1; then
 	exit 1
 fi
 
-autoreconf --install -I/local/share/aclocal
-
+if test x"$MSYSTEM" = x"MINGW32"; then
+    autoreconf --install -I/local/share/aclocal
+else
+    autoreconf --install
+fi
