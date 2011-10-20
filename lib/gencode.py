@@ -26,6 +26,12 @@ type_table = {
             "set_int_to_ret_object",
             "json_array_add_int_element",
             "-1"),
+    "int64": ("gint64", 
+              "gint64", 
+              "json_array_get_int_element",
+              "set_int_to_ret_object",
+              "json_array_add_int_element",
+              "-1"),
     "object": ("GObject*", 
                "GObject*",
                "",
@@ -240,7 +246,7 @@ def gen_fcall_declare_list():
 
 dfun_template_with_gtype = r"""
 #define SEARPC_CLIENT_DEFUN_${RET_TYPE}__${ARG_TYPES}(funcname, gtype)        \
-${ret_type_in_c}                                                              \
+static ${ret_type_in_c}                                                              \
 funcname (SearpcClient *client, ${args})                                \
 {                                                                       \
     char *fcall, *fret;                                                 \
@@ -268,7 +274,7 @@ funcname (SearpcClient *client, ${args})                                \
 
 dfun_template_without_gtype = r"""
 #define SEARPC_CLIENT_DEFUN_${RET_TYPE}__${ARG_TYPES}(funcname)         \
-${ret_type_in_c}                                                        \
+static ${ret_type_in_c}                                                        \
 funcname (SearpcClient *client, ${args}) \
 {                                                                       \
     char *fcall, *fret;                                                 \
@@ -332,7 +338,7 @@ def gen_dfun_macro_list():
 
 async_dfun_template = r"""
 #define SEARPC_CLIENT_ASYNC_DEFUN_${RET_TYPE}__${ARG_TYPES}(funcname, gtype)   \
-int                                                                     \
+static int                                                                     \
 funcname (SearpcClient *client, ${args}                                 \
           AsyncCallback callback, void *user_data)                      \
 {                                                                       \

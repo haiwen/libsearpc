@@ -47,6 +47,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
     AsyncCallData *data = vdata;
     GError *error = NULL;
     void *result = NULL;
+    int ret;
+    gint64 ret64;
 
     if (errstr) {
         g_set_error (&error, 0, 500, "Transport error: %s", errstr);
@@ -55,9 +57,11 @@ searpc_client_generic_callback (char *retstr, size_t len,
     } else {
         /* parse result and call the callback */
         if (strcmp(data->ret_type, "int") == 0) {
-            int ret = searpc_client_fret__int (retstr, len, &error);
-            printf ("ret is %d\n", ret);
-            result = (void *)(long)ret;
+            ret = searpc_client_fret__int (retstr, len, &error);
+            result = (void *)&ret;
+        } if (strcmp(data->ret_type, "int64") == 0) {
+            ret64 = searpc_client_fret__int64 (retstr, len, &error);
+            result = (void *)&ret64;
         } else if (strcmp(data->ret_type, "string") == 0) {
             result = (void *)searpc_client_fret__string (retstr, len, &error);
         } else if (strcmp(data->ret_type, "object") == 0) {
@@ -201,6 +205,23 @@ searpc_client_fret__int (char *data, size_t len, GError **error)
 
     if (handle_ret_common(data, len, &parser, &root, &object, error) == 0) {
         ret = (int) json_object_get_int_member(object, "ret");
+        g_object_unref (parser);
+        return ret;
+    }
+
+    return -1;
+}
+
+gint64
+searpc_client_fret__int64 (char *data, size_t len, GError **error)
+{
+    JsonParser *parser = NULL;
+    JsonNode   *root = NULL;
+    JsonObject *object = NULL;
+    gint64 ret;
+
+    if (handle_ret_common(data, len, &parser, &root, &object, error) == 0) {
+        ret = json_object_get_int_member(object, "ret");
         g_object_unref (parser);
         return ret;
     }

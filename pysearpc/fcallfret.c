@@ -128,6 +128,26 @@ SearpcClient_Fret__Int(PyObject *self, PyObject *args)
 }
 
 
+static PyObject *
+SearpcClient_Fret__Int64(PyObject *self, PyObject *args)
+{
+    char *data;
+    gint64 res;
+    GError *error = NULL;
+
+    if (!PyArg_ParseTuple(args, "s", &data))
+        return NULL;
+
+    res = searpc_client_fret__int64(data, strlen(data), &error);
+    if (error) {
+        PyErr_SetString(SearpcError, error->message);
+        return NULL;
+    }
+
+    return PyLong_FromLongLong(res);;
+}
+
+
 #include "fcallfret.h"
 
 

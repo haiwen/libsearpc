@@ -68,6 +68,9 @@ searpc_client_fret__string (char *data, size_t len, GError **error);
 int
 searpc_client_fret__int (char *data, size_t len, GError **error);
 
+gint64
+searpc_client_fret__int64 (char *data, size_t len, GError **error);
+
 GObject*
 searpc_client_fret__object (GType gtype, char *data,
                             size_t len, GError **error);
