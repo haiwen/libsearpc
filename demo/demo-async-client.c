@@ -126,7 +126,7 @@ main(int argc, char *argv[])
     rpc_client->async_arg = (void *)(long)transport;
 
     /* call the client-side funcion */
-    searpc_strlen(rpc_client, "hello searpc", strlen_callback, "user data");
+    searpc_strlen_async(rpc_client, "hello searpc", strlen_callback, "user data");
 
     /* call the transport to receive response */
     transport_read (transport);
