@@ -16,21 +16,34 @@ typedef gchar* (*SearpcMarshalFunc) (void *func, struct _JsonArray *param_array,
 void searpc_server_init ();
 
 /**
+ * searpc_server_final:
+ * 
+ * Free the server structure.
+ */
+void searpc_server_final ();
+
+/**
  * searpc_server_register_marshal:
  *
  * For user to extend marshal functions.
+ *
+ * @signature: the signature of the marshal, register_marshal() will take
+ * owner of this string.
  */
-gboolean searpc_server_register_marshal (const gchar *signature,
+gboolean searpc_server_register_marshal (gchar *signature,
                                          SearpcMarshalFunc marshal);
 
 /**
  * searpc_server_register_function:
  *
  * Register a rpc function with given signature.
+ * 
+ * @signature: the signature of the function, register_function() will take
+ * owner of this string.
  */
 gboolean searpc_server_register_function (void* func,
                                           const gchar *fname,
-                                          const gchar *signature);
+                                          gchar *signature);
 
 /**
  * searpc_server_call_function:

@@ -139,7 +139,7 @@ def gen_marshal_register_function():
     print "}"
 
 signature_template = r"""
-inline static const gchar *
+inline static gchar *
 ${signature_name}()
 {
     return searpc_compute_signature (${args});

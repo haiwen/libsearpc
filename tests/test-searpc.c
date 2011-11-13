@@ -94,6 +94,17 @@ maman_bar_get_property (GObject    *object,
 }
 
 static void
+maman_bar_finalize (GObject *gobject)
+{
+  MamanBar *self = MAMAN_BAR (gobject);
+
+  g_free (self->name);
+
+  /* Chain up to the parent class */
+  G_OBJECT_CLASS (maman_bar_parent_class)->finalize (gobject);
+}
+
+static void
 maman_bar_class_init (MamanBarClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -101,6 +112,7 @@ maman_bar_class_init (MamanBarClass *klass)
 
     gobject_class->set_property = maman_bar_set_property;
     gobject_class->get_property = maman_bar_get_property;
+    gobject_class->finalize = maman_bar_finalize;
 
     pspec = g_param_spec_string ("name",
                                  "Maman name",
@@ -163,14 +175,20 @@ void test_simple_call (void *fixture, const void *data)
     fret = searpc_server_call_function (fcall, fcall_len, &ret_len);
     result = searpc_client_fret__string (fret, ret_len, &error);
     g_assert (strcmp(result, "he") == 0);
+    g_free (fcall);
+    g_free (fret);
     g_free (result);
 
     /* error should return */
+    result = NULL;
     fcall = searpc_client_fcall__string_int ("get_substring", "hello", 7,
                                              &fcall_len);
     fret = searpc_server_call_function (fcall, fcall_len, &ret_len);
     result = searpc_client_fret__string (fret, ret_len, &error);
     g_assert (error->message);
+    g_free (fcall);
+    g_free (fret);
+    g_free (result);
 }
 
 GObject *
@@ -190,6 +208,10 @@ void test_object_call (void *fixture, const void *data)
                                          &fcall_len);
     fret = searpc_server_call_function (fcall, fcall_len, &ret_len);
     result = searpc_client_fret__object (MAMAN_TYPE_BAR, fret, ret_len, &error);
+
+    g_free (fcall);
+    g_free (fret);
+    g_object_unref (result);
 }
 
 
@@ -231,14 +253,22 @@ void test_objlist_call (void *fixture, const void *data)
                                              &fcall_len);
     fret = searpc_server_call_function (fcall, fcall_len, &ret_len);
     result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
+    g_free (fcall);
+    g_free (fret);
     for (ptr = result; ptr; ptr = ptr->next)
         g_object_unref (ptr->data);
     g_list_free (result);
+
 
     fcall = searpc_client_fcall__string_int ("get_maman_bar_list", "kitty", 0,
                                              &fcall_len);
     fret = searpc_server_call_function (fcall, fcall_len, &ret_len);
     result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
+    g_free (fcall);
+    g_free (fret);
+    for (ptr = result; ptr; ptr = ptr->next)
+        g_object_unref (ptr->data);
+    g_list_free (result);
 }
 
 
@@ -269,5 +299,9 @@ main (int argc, char *argv[])
     g_test_add ("/searpc/objlist", void, NULL,
                 NULL, test_objlist_call, NULL);
 
-    return g_test_run();
+    int ret = g_test_run();
+
+    /* free memory for memory debug with valgrind */
+    searpc_server_final();
+    return ret;
 }

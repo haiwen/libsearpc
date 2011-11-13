@@ -14,14 +14,29 @@ struct FuncItem;
 
 typedef struct MarshalItem {
     SearpcMarshalFunc mfunc;
-    const gchar *signature;
+    gchar *signature;
 } MarshalItem;
 
 typedef struct FuncItem {
     void        *func;
-    const gchar *fname;
+    gchar       *fname;
     MarshalItem *marshal;
 } FuncItem;
+
+
+static void
+func_item_free (FuncItem *item)
+{
+    g_free (item->fname);
+    g_free (item);
+}
+
+static void
+marshal_item_free (MarshalItem *item)
+{
+    g_free (item->signature);
+    g_free (item);
+}
 
 static GHashTable *marshal_table;
 static GHashTable *func_table;
@@ -106,15 +121,23 @@ void
 searpc_server_init ()
 {
     func_table = g_hash_table_new_full (g_str_hash, g_str_equal, 
-                                        NULL, g_free);
-    marshal_table = g_hash_table_new (g_str_hash, g_str_equal);
+                                        NULL, func_item_free);
+    marshal_table = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                           NULL, marshal_item_free);
 
     /* register buildin marshal functions */
     register_marshals(marshal_table);
 }
 
+void
+searpc_server_final()
+{
+    g_hash_table_destroy (func_table);
+    g_hash_table_destroy (marshal_table);
+}
+
 gboolean 
-searpc_server_register_marshal (const gchar *signature, SearpcMarshalFunc marshal)
+searpc_server_register_marshal (gchar *signature, SearpcMarshalFunc marshal)
 {
     MarshalItem *mitem;
 
@@ -122,6 +145,7 @@ searpc_server_register_marshal (const gchar *signature, SearpcMarshalFunc marsha
 
     if (g_hash_table_lookup (marshal_table, signature) != NULL) {
         g_warning ("[Sea RPC] cannot register duplicate marshal.\n");
+        g_free (signature);
         return FALSE;
     }
 
@@ -134,7 +158,7 @@ searpc_server_register_marshal (const gchar *signature, SearpcMarshalFunc marsha
 }
 
 gboolean 
-searpc_server_register_function (void *func, const gchar *fname, const gchar *signature)
+searpc_server_register_function (void *func, const gchar *fname, gchar *signature)
 {
     FuncItem *item;
     MarshalItem *mitem;
@@ -142,8 +166,10 @@ searpc_server_register_function (void *func, const gchar *fname, const gchar *si
     g_assert (func != NULL && fname != NULL && signature != NULL);
 
     mitem = g_hash_table_lookup (marshal_table, signature);
-    if (!mitem)
+    if (!mitem) {
+        g_free (signature);
         return FALSE;
+    }
 
     item = g_new0 (FuncItem, 1);
     item->marshal = mitem;
@@ -152,6 +178,7 @@ searpc_server_register_function (void *func, const gchar *fname, const gchar *si
 
     g_hash_table_insert (func_table, (gpointer)item->fname, item);
 
+    g_free (signature);
     return TRUE;
 }
 
