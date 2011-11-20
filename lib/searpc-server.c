@@ -121,9 +121,9 @@ void
 searpc_server_init ()
 {
     func_table = g_hash_table_new_full (g_str_hash, g_str_equal, 
-                                        NULL, func_item_free);
+                                        NULL, (GDestroyNotify)func_item_free);
     marshal_table = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                           NULL, marshal_item_free);
+                                           NULL, (GDestroyNotify)marshal_item_free);
 
     /* register buildin marshal functions */
     register_marshals(marshal_table);
@@ -184,18 +184,18 @@ searpc_server_register_function (void *func, const gchar *fname, gchar *signatur
 
 /* Called by RPC transport. */
 gchar* 
-searpc_server_call_function (gchar *func, gsize len, gsize *ret_len)
+searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **error)
 {
     JsonParser *parser;
-    GError *error = NULL;
     JsonNode *root;
     JsonArray *array;
+
+    g_return_val_if_fail (error == NULL || *error == NULL, NULL);
           
     parser = json_parser_new ();
     
-    if (!json_parser_load_from_data (parser, func, len, &error)) {
-        g_warning ("[SeaRPC] failed to parse RPC call: %s\n", error->message);
-        g_error_free (error);
+    if (!json_parser_load_from_data (parser, func, len, error)) {
+        g_warning ("[SeaRPC] failed to parse RPC call: %s\n", (*error)->message);
         g_object_unref (parser);
         return NULL;
     }
@@ -207,6 +207,7 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len)
     FuncItem *fitem = g_hash_table_lookup(func_table, fname);
     if (!fitem) {
         g_warning ("[SeaRPC] cannot find function %s.\n", fname);
+        g_set_error (error, 0, 500, "cannot find function %s.", fname); 
         return NULL;
     }
 

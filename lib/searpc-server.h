@@ -55,7 +55,8 @@ gboolean searpc_server_register_function (void* func,
  *
  * Returns the serialized representatio of the returned value.
  */
-gchar *searpc_server_call_function (gchar *func, gsize len, gsize *ret_len);
+gchar *searpc_server_call_function (gchar *func, gsize len, gsize *ret_len,
+                                    GError **error);
 
 /**
  * searpc_compute_signature:

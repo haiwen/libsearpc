@@ -9,6 +9,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <glib.h>
+#include <glib-object.h>
+
 #include "searpc-server.h"
 #include "searpc-demo-packet.h"
 #define BUFLEN 256
@@ -47,6 +50,7 @@ main(int argc, char *argv[])
     socklen_t clilen;
     char buf[BUFLEN];
     packet *pac, *pac_ret;
+
     g_type_init();
 
     start_rpc_service();
@@ -83,6 +87,8 @@ main(int argc, char *argv[])
     }
 
     while (1) {
+        GError *error = NULL;
+
         clilen = sizeof(client_addr);
         connfd = accept(listenfd, (struct sockaddr *)&client_addr, &clilen);
         if (connfd < 0) {
@@ -100,7 +106,8 @@ main(int argc, char *argv[])
         gsize ret_len;
         int fcall_len = ntohs(pac->length);
         /* Execute the RPC function */
-        char *res = searpc_server_call_function (pac->data, fcall_len, &ret_len);
+        char *res = searpc_server_call_function (pac->data, fcall_len,
+                                                 &ret_len, &error);
 
         pac_ret = (packet *)buf;
         pac_ret->length = htons((uint16_t)ret_len);
