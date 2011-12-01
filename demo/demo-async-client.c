@@ -3,16 +3,23 @@
 #include <string.h>
 #include <errno.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include <glib-object.h>
 
 #include "searpc-client.h"
 #include "searpc-demo-packet.h"
+
+#ifdef WIN32
+    #include <inttypes.h>
+    #include <winsock2.h>
+    typedef int socklen_t;
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+#endif
 
 #define BUFLEN 256
 #define MAGIC_STRING "ABCD"
@@ -95,6 +102,11 @@ main(int argc, char *argv[])
 
     g_type_init();
 
+#ifdef WIN32
+    WSADATA     wsadata;
+    WSAStartup(0x0101, &wsadata);
+#endif
+
     ret = sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (ret < 0) {
         fprintf(stderr, "socket failed: %s\n", strerror(errno));
@@ -102,7 +114,7 @@ main(int argc, char *argv[])
     }
 
     int on = 1;
-    if (setsockopt (sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
+    if (setsockopt (sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on)) < 0) {
         fprintf (stderr, "setsockopt of SO_REUSEADDR error: %s\n", strerror(errno));
         exit(-1);
     }

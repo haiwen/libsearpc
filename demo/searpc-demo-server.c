@@ -4,10 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+
 
 #include <glib.h>
 #include <glib-object.h>
@@ -15,6 +12,17 @@
 #include "searpc-server.h"
 #include "searpc-demo-packet.h"
 #define BUFLEN 256
+
+#ifdef WIN32
+    #include <inttypes.h>
+    #include <winsock2.h>
+    typedef int socklen_t;
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+#endif
 
 static int
 searpc_strlen(const char *str)
@@ -55,6 +63,11 @@ main(int argc, char *argv[])
 
     g_type_init();
 
+#ifdef WIN32
+    WSADATA     wsadata;
+    WSAStartup(0x0101, &wsadata);
+#endif
+
     start_rpc_service();
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -64,7 +77,7 @@ main(int argc, char *argv[])
     }
 
     int on = 1;
-    if (setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
+    if (setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on)) < 0) {
         fprintf (stderr, "setsockopt of SO_REUSEADDR error: %s\n", strerror(errno));
         exit(-1);
     }

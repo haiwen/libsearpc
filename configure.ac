@@ -42,8 +42,13 @@ AC_MSG_CHECKING(for WIN32)
 
 if test "$MINGW32" = yes; then
   bwin32=true
+  LIB_WS32=-lws2_32
+  AC_SUBST(LIB_WS32)
   AC_MSG_RESULT(compile in mingw32)
 fi
+
+AM_CONDITIONAL([WIN32], [test "$MINGW32" = "yes"])
+AC_SUBST(WIN32)
 
 dnl
 if test "$bwin32" = true; then
@@ -84,6 +89,11 @@ AC_SUBST(JSON_GLIB_LIBS)
 # conditinally check python and subst
 if test x${compile_python} = xyes; then
    AM_PATH_PYTHON([2.4])
+   if test "$bwin32" = true; then
+      if test x$PYTHON_DIR != x; then
+         pyexecdir=$PYTHON_DIR/Lib/site-packages
+      fi
+   fi    
    AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
    PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
    AC_SUBST(PYGOBJECT_CFLAGS)
