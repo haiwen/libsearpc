@@ -91,7 +91,11 @@ if test x${compile_python} = xyes; then
    AM_PATH_PYTHON([2.4])
    if test "$bwin32" = true; then
       if test x$PYTHON_DIR != x; then
-         pyexecdir=$PYTHON_DIR/Lib/site-packages
+      # set pyexecdir to somewhere like /c/Python26/Lib/site-packages
+         pyexecdir=${PYTHON_DIR}/Lib/site-packages
+         pythondir=${pyexecdir}
+         pkgpyexecdir=${pyexecdir}/${PACKAGE}
+         pkgpythondir=${pythondir}/${PACKAGE}
       fi
    fi    
    AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
