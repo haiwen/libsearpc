@@ -88,6 +88,13 @@ if test x${compile_python} = xyes; then
    PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
    AC_SUBST(PYGOBJECT_CFLAGS)
    AC_SUBST(PYGOBJECT_LIBS)
+
+   if test "$bwin32" = true; then
+       pyexecdir=${PYTHON_DIR}/Lib/site-packages
+       pythondir=${pyexecdir}
+       pkgpyexecdir=${pyexecdir}/${PACKAGE}
+       pkgpythondir=${pythondir}/${PACKAGE}
+   fi
 fi
 
 
