@@ -77,7 +77,7 @@ static void
 strlen_callback(void *vresult, void *user_data, GError *error)
 {
     const char *str = user_data;
-    int len = (int)(long)vresult;
+    int len = *((int *)vresult);
     
     g_assert (strcmp(str, "user data") == 0);
     printf("the length of string 'hello searpc' is %d.\n", len);

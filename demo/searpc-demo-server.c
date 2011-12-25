@@ -29,13 +29,15 @@ static void
 start_rpc_service(void)
 {
     searpc_server_init();
+    searpc_create_service("searpc-demo");
 
     /* The first parameter is the implementation function.
      * The second parameter is the name of the rpc function the 
      * client would call.
      * The third parameter is the signature.
      */
-    searpc_server_register_function(searpc_strlen,
+    searpc_server_register_function("searpc-demo",
+                                    searpc_strlen,
                                     "searpc_strlen",
                                     searpc_signature_int__string());
 }
@@ -106,7 +108,7 @@ main(int argc, char *argv[])
         gsize ret_len;
         int fcall_len = ntohs(pac->length);
         /* Execute the RPC function */
-        char *res = searpc_server_call_function (pac->data, fcall_len,
+        char *res = searpc_server_call_function ("searpc-demo", pac->data, fcall_len,
                                                  &ret_len, &error);
 
         pac_ret = (packet *)buf;

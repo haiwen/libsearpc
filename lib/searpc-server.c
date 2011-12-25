@@ -27,6 +27,13 @@ typedef struct FuncItem {
     MarshalItem *marshal;
 } FuncItem;
 
+typedef struct {
+    char *name;
+    GHashTable *func_table;
+} SearpcService;
+
+static GHashTable *marshal_table;
+static GHashTable *service_table;
 
 static void
 func_item_free (FuncItem *item)
@@ -42,9 +49,42 @@ marshal_item_free (MarshalItem *item)
     g_free (item);
 }
 
-static GHashTable *marshal_table;
-static GHashTable *func_table;
+int
+searpc_create_service (const char *svc_name)
+{
+    SearpcService *service;
 
+    if (!svc_name)
+        return -1;
+
+    if (g_hash_table_lookup (service_table, svc_name) != NULL)
+        return 0;
+
+    service = g_new0 (SearpcService, 1);
+    service->name = g_strdup(svc_name);
+    service->func_table = g_hash_table_new_full (g_str_hash, g_str_equal, 
+                                                 NULL, (GDestroyNotify)func_item_free);
+
+    g_hash_table_insert (service_table, service->name, service);
+
+    return 0;
+}
+
+static void
+service_free (SearpcService *service)
+{
+    g_free (service->name);
+    g_hash_table_destroy (service->func_table);
+    g_free (service);
+}
+
+void
+searpc_remove_service (const char *svc_name)
+{
+    if (!svc_name)
+        return;
+    g_hash_table_remove (service_table, svc_name);
+}
 
 /* Marshal functions */
 static inline void
@@ -124,10 +164,10 @@ marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
 void
 searpc_server_init ()
 {
-    func_table = g_hash_table_new_full (g_str_hash, g_str_equal, 
-                                        NULL, (GDestroyNotify)func_item_free);
     marshal_table = g_hash_table_new_full (g_str_hash, g_str_equal,
                                            NULL, (GDestroyNotify)marshal_item_free);
+    service_table = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                           NULL, (GDestroyNotify)service_free);
 
     /* register buildin marshal functions */
     register_marshals(marshal_table);
@@ -136,7 +176,7 @@ searpc_server_init ()
 void
 searpc_server_final()
 {
-    g_hash_table_destroy (func_table);
+    g_hash_table_destroy (service_table);
     g_hash_table_destroy (marshal_table);
 }
 
@@ -162,12 +202,18 @@ searpc_server_register_marshal (gchar *signature, SearpcMarshalFunc marshal)
 }
 
 gboolean 
-searpc_server_register_function (void *func, const gchar *fname, gchar *signature)
+searpc_server_register_function (const char *svc_name,
+                                 void *func, const gchar *fname, gchar *signature)
 {
+    SearpcService *service;
     FuncItem *item;
     MarshalItem *mitem;
 
-    g_assert (func != NULL && fname != NULL && signature != NULL);
+    g_assert (svc_name != NULL && func != NULL && fname != NULL && signature != NULL);
+
+    service = g_hash_table_lookup (service_table, svc_name);
+    if (!service)
+        return FALSE;
 
     mitem = g_hash_table_lookup (marshal_table, signature);
     if (!mitem) {
@@ -180,7 +226,7 @@ searpc_server_register_function (void *func, const gchar *fname, gchar *signatur
     item->fname = g_strdup(fname);
     item->func = func;
 
-    g_hash_table_insert (func_table, (gpointer)item->fname, item);
+    g_hash_table_insert (service->func_table, (gpointer)item->fname, item);
 
     g_free (signature);
     return TRUE;
@@ -188,8 +234,10 @@ searpc_server_register_function (void *func, const gchar *fname, gchar *signatur
 
 /* Called by RPC transport. */
 gchar* 
-searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **error)
+searpc_server_call_function (const char *svc_name,
+                             gchar *func, gsize len, gsize *ret_len, GError **error)
 {
+    SearpcService *service;
     JsonParser *parser;
     JsonNode *root;
     JsonArray *array;
@@ -200,6 +248,13 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **er
 #endif
 
     g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+    service = g_hash_table_lookup (service_table, svc_name);
+    if (!service) {
+        g_warning ("[SeaRPC] cannot find service %s.\n", svc_name);
+        g_set_error (error, 0, 501, "cannot find service %s.", svc_name);
+        return NULL;
+    }
           
     parser = json_parser_new ();
     
@@ -213,7 +268,7 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **er
     array = json_node_get_array (root);
 
     const char *fname = json_array_get_string_element(array, 0);
-    FuncItem *fitem = g_hash_table_lookup(func_table, fname);
+    FuncItem *fitem = g_hash_table_lookup(service->func_table, fname);
     if (!fitem) {
         g_warning ("[SeaRPC] cannot find function %s.\n", fname);
         g_set_error (error, 0, 500, "cannot find function %s.", fname); 

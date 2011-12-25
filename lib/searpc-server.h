@@ -23,6 +23,23 @@ void searpc_server_init ();
 void searpc_server_final ();
 
 /**
+ * searpc_create_service:
+ *
+ * Create a new service. Service is a set of functions.
+ * The new service will be registered to the server.
+ *
+ * @svc_name: Service name.
+ */
+int searpc_create_service (const char *svc_name);
+
+/**
+ * searpc_remove_service:
+ *
+ * Remove the service from the server.
+ */
+void searpc_remove_service (const char *svc_name);
+
+/**
  * searpc_server_register_marshal:
  *
  * For user to extend marshal functions.
@@ -36,26 +53,29 @@ gboolean searpc_server_register_marshal (gchar *signature,
 /**
  * searpc_server_register_function:
  *
- * Register a rpc function with given signature.
- * 
+ * Register a rpc function with given signature to a service.
+ *
  * @signature: the signature of the function, register_function() will take
  * owner of this string.
  */
-gboolean searpc_server_register_function (void* func,
+gboolean searpc_server_register_function (const char *service,
+                                          void* func,
                                           const gchar *fname,
                                           gchar *signature);
 
 /**
  * searpc_server_call_function:
+ * @service: service name.
  * @func: the serialized representation of the function to call.
  * @len: length of @func.
  * @ret_len: the length of the returned string.
  *
- * Call a registered function @func.
+ * Call a registered function @func of a service.
  *
  * Returns the serialized representatio of the returned value.
  */
-gchar *searpc_server_call_function (gchar *func, gsize len, gsize *ret_len,
+gchar *searpc_server_call_function (const char *service,
+                                    gchar *func, gsize len, gsize *ret_len,
                                     GError **error);
 
 /**

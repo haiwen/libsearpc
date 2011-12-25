@@ -172,7 +172,7 @@ void test_simple_call (void *fixture, const void *data)
 
     fcall = searpc_client_fcall__string_int ("get_substring", "hello", 2,
                                              &fcall_len);
-    fret = searpc_server_call_function (fcall, fcall_len, &ret_len, &error);
+    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
     g_assert (error == NULL);
     result = searpc_client_fret__string (fret, ret_len, &error);
     g_assert (strcmp(result, "he") == 0);
@@ -184,7 +184,7 @@ void test_simple_call (void *fixture, const void *data)
     result = NULL;
     fcall = searpc_client_fcall__string_int ("get_substring", "hello", 7,
                                              &fcall_len);
-    fret = searpc_server_call_function (fcall, fcall_len, &ret_len, &error);
+    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
     g_assert (error == NULL);
     result = searpc_client_fret__string (fret, ret_len, &error);
     g_assert (error->message);
@@ -208,7 +208,7 @@ void test_object_call (void *fixture, const void *data)
 
     fcall = searpc_client_fcall__string ("get_maman_bar", "kitty",
                                          &fcall_len);
-    fret = searpc_server_call_function (fcall, fcall_len, &ret_len, &error);
+    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
     g_assert (error == NULL);
     result = searpc_client_fret__object (MAMAN_TYPE_BAR, fret, ret_len, &error);
 
@@ -254,7 +254,7 @@ void test_objlist_call (void *fixture, const void *data)
 
     fcall = searpc_client_fcall__string_int ("get_maman_bar_list", "kitty", 10,
                                              &fcall_len);
-    fret = searpc_server_call_function (fcall, fcall_len, &ret_len, &error);
+    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
     g_assert (error == NULL);
     result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
     g_free (fcall);
@@ -266,7 +266,7 @@ void test_objlist_call (void *fixture, const void *data)
 
     fcall = searpc_client_fcall__string_int ("get_maman_bar_list", "kitty", 0,
                                              &fcall_len);
-    fret = searpc_server_call_function (fcall, fcall_len, &ret_len, &error);
+    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
     g_assert (error == NULL);
     result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
     g_free (fcall);
@@ -284,11 +284,12 @@ main (int argc, char *argv[])
     g_test_init (&argc, &argv, NULL);
 
     searpc_server_init ();
-    searpc_server_register_function (get_substring, "get_substring", 
+    searpc_create_service ("test");
+    searpc_server_register_function ("test", get_substring, "get_substring", 
                                      searpc_signature_string__string_int());
-    searpc_server_register_function (get_maman_bar, "get_maman_bar", 
+    searpc_server_register_function ("test", get_maman_bar, "get_maman_bar", 
                                      searpc_signature_object__string());
-    searpc_server_register_function (get_maman_bar_list, "get_maman_bar_list", 
+    searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list", 
                                      searpc_signature_objlist__string_int());
 
     g_test_add ("/searpc/simple", void, NULL,
