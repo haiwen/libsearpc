@@ -17,7 +17,18 @@ contains three fields:
 * **err_msg**:      error message. This field is only set if the RPC function 
     reports an error.
 
-  
+Compile
+=======
+
+Just
+
+    ./autogen.sh; ./configure; make; make install
+    
+To enable profile, Use
+   
+    CFLAGS="-DPROFILE" ./configure
+    
+When profile is enabled, the time spend in each rpc call will be printed.
 
 Example
 =======

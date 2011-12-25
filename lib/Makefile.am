@@ -19,7 +19,10 @@ generated_sources = fcall-impr.h searpc-fcall.h searpc-dfun.h \
 
 # rpc_headers = fcall-impr.h searpc-fcall.h searpc-dfun.h searpc-signature.h searpc-marshal.h
 
-AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  @JSON_GLIB_CFLAGS@ -I${top_builddir}/lib -I${top_srcdir}/lib
+AM_CFLAGS = @GLIB2_CFLAGS@ @GOBJECT_CFLAGS@  @JSON_GLIB_CFLAGS@ \
+	-I${top_builddir}/lib \
+	-I${top_srcdir}/lib \
+	-DG_LOG_DOMAIN=\"Searpc\"
 
 # we need to generate the  first
 BUILT_SOURCES = gensource

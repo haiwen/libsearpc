@@ -10,6 +10,10 @@
 #include "searpc-server.h"
 #include "searpc-utils.h"
 
+#ifdef PROFILE
+    #include <sys/time.h>
+#endif
+
 struct FuncItem;
 
 typedef struct MarshalItem {
@@ -189,6 +193,11 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **er
     JsonParser *parser;
     JsonNode *root;
     JsonArray *array;
+#ifdef PROFILE
+    struct timeval start, end, intv;
+
+    gettimeofday(&start, NULL);
+#endif
 
     g_return_val_if_fail (error == NULL || *error == NULL, NULL);
           
@@ -212,6 +221,13 @@ searpc_server_call_function (gchar *func, gsize len, gsize *ret_len, GError **er
     }
 
     gchar* ret = fitem->marshal->mfunc (fitem->func, array, ret_len);
+
+#ifdef PROFILE
+    gettimeofday(&end, NULL);
+    timersub(&end, &start, &intv);
+    g_debug ("[searpc] Time spend in call %s: %ds %dus\n",
+             fname, intv.tv_sec, intv.tv_usec);
+#endif
 
     g_object_unref (parser);
 
