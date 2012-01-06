@@ -13,6 +13,8 @@
     #include <ctype.h>
     #include <ws2tcpip.h>
     #define UNUSED 
+#else
+    #include <arpa/inet.h>
 #endif
 
 typedef struct packet {
