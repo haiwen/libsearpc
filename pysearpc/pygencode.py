@@ -88,7 +88,7 @@ def gen_module_funcs_array():
 
 
 type_table = {
-    "string" : ("char *", "s"),
+    "string" : ("char *", "z"),
     "int" : ("int", "i"),
     "int64" : ("gint64", "L"),
     "object" : ("GObject *", "O"),
