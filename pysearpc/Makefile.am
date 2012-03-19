@@ -18,7 +18,7 @@ BUILT_SOURCES = fcallfret.h
 # generating the fcallfret module
 pysearpc_LTLIBRARIES = fcallfret.la
 
-fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret  -no-undefined
+fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret  -no-undefined @SERVER_PKG_RPATH@
 fcallfret_la_SOURCES = fcallfret.c fcallfret.h
 fcallfret_la_LIBADD = @GLIB2_LIBS@ @GOBJECT_LIBS@ $(top_builddir)/lib/libsearpc.la @LIB_PYTHON@
 

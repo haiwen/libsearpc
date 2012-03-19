@@ -37,6 +37,10 @@ AC_ARG_ENABLE([compile-demo],
 
 AM_CONDITIONAL([COMPILE_DEMO], [test x${compile_demo} = xyes])
 
+AC_ARG_ENABLE(server-pkg, 
+    AC_HELP_STRING([--enable-server-pkg], [enable static compile]),
+    [server_pkg=$enableval],[server_pkg="no"])
+
 dnl - check if the macro WIN32 is defined on this compiler.
 AC_MSG_CHECKING(for WIN32)
 
@@ -64,6 +68,17 @@ AC_ARG_ENABLE([compile-python],
 [compile_python=${enableval}], [compile_python=yes])
 
 AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_python} = xyes])
+
+# If we're building server release package, set the run-time path
+# for the executables. So that the loader will lookup shared libs
+# in 'lib' dir of the release package.
+# Read "man ld.so" for description of $ORIGIN.
+# Refer to http://blog.linuxgamepublishing.com/2009/02/08/our-new-way-to-meet-the-lgpl/
+if test x${server_pkg} = xyes; then
+   SERVER_PKG_RPATH=-Wl,-R,\'\$\$ORIGIN/../../..\'
+fi
+
+AC_SUBST(SERVER_PKG_RPATH)
 
 # Checks for libraries.
 
