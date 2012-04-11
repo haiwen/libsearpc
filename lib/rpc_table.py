@@ -6,10 +6,12 @@ Define RPC functions needed to generate
 func_table = [
     [ "int", [] ],
     [ "int", ["int"] ],
+    [ "int", ["int", "string", "int", "int"] ],    
     [ "int", ["string"] ],
     [ "int", ["string", "int"] ],
     [ "int", ["string", "string"] ],
     [ "int", ["string", "string", "string"] ],
+    [ "int", ["string", "string", "int", "int"] ],
     [ "int64", [] ],
     [ "int64", ["string"] ],
     [ "string", [] ],
@@ -27,5 +29,6 @@ func_table = [
     [ "objlist", ["string", "int", "int"] ],
     [ "objlist", ["string", "string", "int"] ],
     [ "object", [] ],
+    [ "object", ["int"] ],
     [ "object", ["string"] ],
 ]
