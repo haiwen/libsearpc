@@ -47,18 +47,30 @@ AC_MSG_CHECKING(for WIN32)
 if test "$MINGW32" = yes; then
   bwin32=true
   LIB_WS32=-lws2_32
+  LIB_PYTHON=-lpython26
   AC_SUBST(LIB_WS32)
+  AC_SUBST(LIB_PYTHON)
   AC_MSG_RESULT(compile in mingw32)
 fi
 
 AM_CONDITIONAL([WIN32], [test "$MINGW32" = "yes"])
 AC_SUBST(WIN32)
 
-dnl
-if test "$bwin32" = true; then
-  LIB_PYTHON=-lpython26
+AC_MSG_CHECKING(for Mac)
+
+if test ${TERM_PROGRAM} = "Apple_Terminal" ; then
+   bmac=yes
 fi
-AC_SUBST(LIB_PYTHON)
+
+if test x$bmac = "xyes"; then
+  server_pkg=no
+  LIB_PYTHON=-lpython
+  AC_SUBST(LIB_PYTHON)
+  AC_MSG_RESULT(compile in mac)
+fi
+
+AM_CONDITIONAL([MACOS], [test "$bmac" = "yes"])
+AC_SUBST(MACOS)
 
 # option: compile-python
 # default: no

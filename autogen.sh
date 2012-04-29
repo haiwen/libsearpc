@@ -36,6 +36,7 @@ DIE=0
 	DIE=1
 }
 
+if test "${TERM_PROGRAM}" != "Apple_Terminal" ; then
 (grep "^AC_PROG_LIBTOOL" $CONFIGURE >/dev/null) && {
   ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
     echo
@@ -45,6 +46,7 @@ DIE=0
     DIE=1
   }
 }
+fi
 
 if test "$DIE" -eq 1; then
 	exit 1
@@ -52,6 +54,8 @@ fi
 
 if test x"$MSYSTEM" = x"MINGW32"; then
     autoreconf --install -I/local/share/aclocal
+elif test "${TERM_PROGRAM}" = "Apple_Terminal" ; then
+    autoreconf --install -I/usr/local/share/aclocal
 else
     autoreconf --install
 fi
