@@ -3,6 +3,7 @@
 
 #include <json-glib/json-glib.h>
 
+
 inline static const gchar *
 json_object_get_string_or_null_member (JsonObject *object, const gchar *member_name)
 {

@@ -4,6 +4,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#ifndef DFT_DOMAIN
+#define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
+#endif
+
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 

@@ -51,7 +51,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
     gint64 ret64;
 
     if (errstr) {
-        g_set_error (&error, 0, 500, "Transport error: %s", errstr);
+        g_set_error (&error, DFT_DOMAIN,
+                     500, "Transport error: %s", errstr);
         data->callback (NULL, data->cbdata, error);
         g_error_free (error);
     } else {
@@ -155,7 +156,8 @@ handle_ret_common (char *data, size_t len, JsonParser **parser,
     *root = json_parser_get_root (*parser);
     *object = json_node_get_object (*root);
     if (*object == NULL) {
-        g_set_error (error, 0, 502, "Invalid data: not a object");
+        g_set_error (error, DFT_DOMAIN,
+                     502, "Invalid data: not a object");
         g_object_unref (*parser);
         *parser = NULL;
         *root = NULL;
@@ -165,7 +167,8 @@ handle_ret_common (char *data, size_t len, JsonParser **parser,
     if (json_object_has_member (*object, "err_code")) {
         err_code = json_object_get_int_member (*object, "err_code");
         err_msg = json_object_get_string_or_null_member (*object, "err_msg");
-        g_set_error (error, 0, err_code, "%s", err_msg);
+        g_set_error (error, DFT_DOMAIN,
+                     err_code, "%s", err_msg);
         g_object_unref (*parser);
         *parser = NULL;
         *object = NULL;
@@ -287,7 +290,7 @@ searpc_client_fret__objlist (GType gtype, char *data, size_t len, GError **error
             JsonNode *member = json_array_get_element (array, i);
             GObject *obj = json_gobject_deserialize(gtype, member);
             if (obj == NULL) {
-                g_set_error (error, 0, 503, 
+                g_set_error (error, DFT_DOMAIN, 503, 
                              "Invalid data: object list contains null");
                 clean_objlist(ret);
                 g_object_unref (parser);

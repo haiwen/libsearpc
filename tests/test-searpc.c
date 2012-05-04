@@ -4,8 +4,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#define DFT_DOMAIN g_quark_from_string("TEST")
+
 #include "searpc-server.h"
 #include "searpc-client.h"
+
+
 
 #define MAMAN_TYPE_BAR                  (maman_bar_get_type ())
 #define MAMAN_BAR(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MAMAN_TYPE_BAR, MamanBar))
@@ -153,7 +157,7 @@ gchar *
 get_substring (const gchar *orig_str, int sub_len, GError **error)
 {
     if (sub_len > strlen(orig_str)) {
-        g_set_error (error, 0, 100,
+        g_set_error (error, DFT_DOMAIN, 100,
                      "Substring length larger than the length of origin string");
         return NULL;
     }
@@ -227,11 +231,11 @@ get_maman_bar_list (const char *name, int num, GError **error)
     GObject *obj;
 
     if (num < 0) {
-        g_set_error (error, 0, 100, "num must be positive.");
+        g_set_error (error, DFT_DOMAIN, 100, "num must be positive.");
         return NULL;
     }
     if (num > 1000) {
-        g_set_error (error, 0, 100, "num must no larger than 1000.");
+        g_set_error (error, DFT_DOMAIN, 100, "num must no larger than 1000.");
         return NULL;
     }
 

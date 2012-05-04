@@ -261,7 +261,7 @@ funcname (SearpcClient *client, ${args})                                \
                                          &ret_len);                     \
     if (!fret) {                                                        \
         g_free (fcall);                                                 \
-        g_set_error (error, 0, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);  \
+        g_set_error (error, DFT_DOMAIN, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);  \
         return ${default_value};                                        \
     }                                                                   \
     result = searpc_client_fret__${ret_type} (gtype, fret, ret_len, error); \
@@ -289,7 +289,7 @@ funcname (SearpcClient *client, ${args}) \
                                          &ret_len);                     \
     if (!fret) {                                                        \
         g_free (fcall);                                                 \
-        g_set_error (error, 0, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);  \
+        g_set_error (error, DFT_DOMAIN, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);  \
         return ${default_value};                                        \
     }                                                                   \
     result = searpc_client_fret__${ret_type} (fret, ret_len, error);    \

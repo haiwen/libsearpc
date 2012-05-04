@@ -3,6 +3,9 @@
 
 #include <glib.h>
 
+#ifndef DFT_DOMAIN
+#define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
+#endif
 
 struct _JsonArray;
 typedef gchar* (*SearpcMarshalFunc) (void *func, struct _JsonArray *param_array,

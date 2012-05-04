@@ -252,7 +252,7 @@ searpc_server_call_function (const char *svc_name,
     service = g_hash_table_lookup (service_table, svc_name);
     if (!service) {
         g_warning ("[SeaRPC] cannot find service %s.\n", svc_name);
-        g_set_error (error, 0, 501, "cannot find service %s.", svc_name);
+        g_set_error (error, DFT_DOMAIN, 501, "cannot find service %s.", svc_name);
         return NULL;
     }
           
@@ -271,7 +271,7 @@ searpc_server_call_function (const char *svc_name,
     FuncItem *fitem = g_hash_table_lookup(service->func_table, fname);
     if (!fitem) {
         g_warning ("[SeaRPC] cannot find function %s.\n", fname);
-        g_set_error (error, 0, 500, "cannot find function %s.", fname); 
+        g_set_error (error, DFT_DOMAIN, 500, "cannot find function %s.", fname); 
         return NULL;
     }
 
