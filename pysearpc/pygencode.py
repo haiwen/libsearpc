@@ -72,11 +72,7 @@ def gen_module_funcs_array():
 
     # generate fret methods array
     fret_array = ""
-    ret_types_list = []
-    for item in func_table:
-        if item[0] not in ret_types_list:
-            ret_types_list.append(item[0])
-
+    ret_types_list = ["int", "int64", "string"]
     for item in ret_types_list:
         fret_array += gen_fret_funcs_array(item)
 
