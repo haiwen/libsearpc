@@ -39,3 +39,5 @@ lib/searpc-dfun.h
 lib/searpc-fcall.h
 lib/searpc-signature.h
 tests/test-searpc
+cscope*
+pysearpc/rpc_table.py

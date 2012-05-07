@@ -3,7 +3,7 @@ genrpc_files = pygencode.py rpc_table.py
 
 AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
-	@GLIB2_CFLAGS@ @PYGOBJECT_CFLAGS@ \
+	@GLIB2_CFLAGS@  \
 	-I/usr/include/python$(PYTHON_VERSION) \
 	-I${top_builddir}/lib \
 	-I${top_srcdir}/lib

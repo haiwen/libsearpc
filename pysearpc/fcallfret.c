@@ -22,64 +22,11 @@
 #include <sys/types.h>
 
 #include <glib-object.h>
-#include <pygobject.h>
 
 #include <../lib/searpc-client.h>
 #include <structmember.h>
 
 static PyObject *SearpcError;
-
-
-static PyObject *
-SearpcClient_Fret__Object(PyObject *self, PyObject *args)
-{
-    char *data;
-    GType type;
-    PyObject *type_obj;
-    GObject *res;
-    GError *error = NULL;
-
-    if (!PyArg_ParseTuple(args, "Os", &type_obj, &data))
-        return NULL;
-
-    type = pyg_type_from_object(type_obj);
-    res = searpc_client_fret__object(type, data, strlen(data), &error);
-    if (error) {
-        PyErr_SetString(SearpcError, error->message);
-        return NULL;
-    }
-
-    return pygobject_new(res);
-}
-
-
-static PyObject *
-SearpcClient_Fret__Objlist(PyObject *self, PyObject *args)
-{
-    char *data;
-    GType type;
-    PyObject *type_obj, *res, *tmp;
-    GList *list, *p;
-    GError *error = NULL;
-
-    if (!PyArg_ParseTuple(args, "Os", &type_obj, &data))
-        return NULL;
-
-    type = pyg_type_from_object(type_obj);
-    list = searpc_client_fret__objlist(type, data, strlen(data), &error);
-    if (error) {
-        PyErr_SetString(SearpcError, error->message);
-        return NULL;
-    }
-
-    res = PyList_New(0);
-    for (p = list; p; p = p->next) {
-        tmp = pygobject_new(p->data);
-        PyList_Append(res, tmp);
-    }
-
-    return res;
-}
 
 
 static PyObject *
@@ -154,8 +101,6 @@ SearpcClient_Fret__Int64(PyObject *self, PyObject *args)
 DL_EXPORT(void) initfcallfret(void)
 {
     PyObject *m, *d;
-
-    init_pygobject();
 
     m = Py_InitModule("fcallfret", SearpcClientModule_Functions);
     d = PyModule_GetDict(m);

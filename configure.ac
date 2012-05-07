@@ -96,7 +96,6 @@ AC_SUBST(SERVER_PKG_RPATH)
 
 GLIB_REQUIRED=2.16.0
 JSON_GLIB_REQUIRED=0.10.2
-PYGOBJECT_REQUIRED=2.0
 
 # check and subst glib
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -126,9 +125,6 @@ if test x${compile_python} = xyes; then
       fi
    fi    
    AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
-   PKG_CHECK_MODULES(PYGOBJECT, [pygobject-2.0 >= $PYGOBJECT_REQUIRED])
-   AC_SUBST(PYGOBJECT_CFLAGS)
-   AC_SUBST(PYGOBJECT_LIBS)
 
    if test "$bwin32" = true; then
        pyexecdir=${PYTHON_DIR}/Lib/site-packages
