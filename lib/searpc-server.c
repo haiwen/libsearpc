@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <json-glib/json-glib.h>
+#include "json-glib/json-glib.h"
 
 #include "searpc-server.h"
 #include "searpc-utils.h"

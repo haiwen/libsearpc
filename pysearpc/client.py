@@ -67,7 +67,7 @@ def _fret_objlist(ret_str):
         
     return l
 
-def searpc_func(ret_type, param_types, ret_obj_class=None):
+def searpc_func(ret_type, param_types):
     def decorate(func):
         if len(param_types) == 0:
             fcall = getattr(fcallfret, 'fcall__void')

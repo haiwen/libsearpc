@@ -1,0 +1,24 @@
+# this file should only be used in directories that generate test
+# or example binaries through noinst_PROGRAMS; it is *not* a full
+# generator of Git ignore files, and it's not meant to be used as
+# the top-level Git ignore file generator.
+
+$(srcdir)/.gitignore: Makefile.am
+	$(QUIET_GEN)( \
+	  echo "*.o" ; \
+	  echo ".gitignore" ; \
+	) > $(srcdir)/.gitignore ; \
+	for p in $(noinst_PROGRAMS); do \
+		echo "/$$p" >> $(srcdir)/.gitignore ; \
+	done
+
+gitignore: $(srcdir)/.gitignore
+
+gitignore-clean:
+	$(QUIET_RM)rm -f $(srcdir)/.gitignore
+
+.PHONY: gitignore gitignore-clean
+
+all: gitignore
+
+maintainer-clean: gitignore-clean

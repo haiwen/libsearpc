@@ -1,7 +1,7 @@
 #ifndef SEARPC_UTILS_H
 #define SEARPC_UTILS_H
 
-#include <json-glib/json-glib.h>
+#include "json-glib/json-glib.h"
 
 
 inline static const gchar *

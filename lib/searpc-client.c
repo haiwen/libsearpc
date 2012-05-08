@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <json-glib/json-glib.h>
+#include "json-glib/json-glib.h"
 
 #include "searpc-client.h"
 #include "searpc-utils.h"

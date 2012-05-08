@@ -3,7 +3,7 @@ genrpc_files = pygencode.py rpc_table.py
 
 AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
-	@GLIB2_CFLAGS@  \
+	@GLIB_CFLAGS@  \
 	-I/usr/include/python$(PYTHON_VERSION) \
 	-I${top_builddir}/lib \
 	-I${top_srcdir}/lib
@@ -20,7 +20,7 @@ pysearpc_LTLIBRARIES = fcallfret.la
 
 fcallfret_la_LDFLAGS = -module -avoid-version -export-symbols-regex initfcallfret  -no-undefined @SERVER_PKG_RPATH@
 fcallfret_la_SOURCES = fcallfret.c fcallfret.h
-fcallfret_la_LIBADD = @GLIB2_LIBS@ @GOBJECT_LIBS@ $(top_builddir)/lib/libsearpc.la @LIB_PYTHON@
+fcallfret_la_LIBADD = @GLIB_LIBS@ $(top_builddir)/lib/libsearpc.la @LIB_PYTHON@
 
 EXTRA_DIST = ${genrpc_files}
 

@@ -94,23 +94,12 @@ AC_SUBST(SERVER_PKG_RPATH)
 
 # Checks for libraries.
 
-GLIB_REQUIRED=2.16.0
-JSON_GLIB_REQUIRED=0.10.2
-
-# check and subst glib
-PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
-AC_SUBST(GLIB2_CFLAGS)
-AC_SUBST(GLIB2_LIBS)
+GLIB_REQUIRED=2.26.0
 
 # check and subst gobject
-PKG_CHECK_MODULES(GOBJECT, [gobject-2.0 >= $GLIB_REQUIRED])
-AC_SUBST(GOBJECT_CFLAGS)
-AC_SUBST(GOBJECT_LIBS)
-
-# check and subst json-glib
-PKG_CHECK_MODULES(JSON_GLIB, [json-glib-1.0 >= $JSON_GLIB_REQUIRED])
-AC_SUBST(JSON_GLIB_CFLAGS)
-AC_SUBST(JSON_GLIB_LIBS)
+PKG_CHECK_MODULES(GLIB, [gobject-2.0 >= $GLIB_REQUIRED])
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
 
 # conditinally check python and subst
 if test x${compile_python} = xyes; then
@@ -134,11 +123,13 @@ if test x${compile_python} = xyes; then
    fi
 fi
 
+AC_CONFIG_SUBDIRS([json-glib])
 
 AC_CONFIG_FILES([Makefile
                  lib/Makefile
                  demo/Makefile
                  pysearpc/Makefile
+                 libsearpc.pc
                  tests/Makefile])
 AC_OUTPUT
 

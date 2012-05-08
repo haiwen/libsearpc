@@ -1,0 +1,108 @@
+Overview of changes for 0.14.2
+==============================
+• Build fixes for compiling against the latest GLib [Matthias Clasen]
+• Documentation fixes
+
+Overview of changes for 0.14.0
+==============================
+• Documentation fixes
+• Bump the dependency on GLib to 2.26
+• Allow building on Windows using VisualStudio [Chun-wei Fan]
+• Add JSON ↔ GVariant translation [Eduardo Lima Mitev]
+• Improve sanity checks when (de)serializing GObject
+  properties [Tristan Van Berkom]
+• Add missing introspection annotations [Luca Bruno]
+• Add JsonReader.list_members()
+• Allow using JsonReader.read_element() on JSON objects
+• Remove all G_CONST_RETURN usage after the deprecation
+• Allow JsonSerializable to override the introspection and
+  modification of properties
+• Add i18n support for GError messages
+• Do not serialize GObject properties that match their default
+  values.
+• Make JsonReader perform a stricter validation especially when using
+  the strongly typed accessors.
+
+Overview of changes for 0.12.0
+==============================
+• Support surrogate pairs in JSON strings [Eiichi Sato]
+• Update the test suite
+• Add (optional) coverage reports
+• Improve strictness of JsonParser
+• Improve error reporting of JsonParser
+• Add JsonBuilder, a convenience API for programmatic building
+  of JSON trees [Luca Bruno]
+• Add methods for JsonParser and JsonGenerator to handle Input|OutputStream
+  objects coming from GIO.
+• Add JsonReader, a convenience API for cursor-based parsing of
+  JSON trees
+• Depend on GObject-Introspection ≥ 0.9.5
+
+Overview of changes for 0.10.0
+==============================
+• Fix generation of doubles [Cornelius Hald]
+• Add more units to the test suite
+• Add JsonNode macros for quick type checking
+• Guarantee insertion order when parsing and generating JSON Objects
+• Serialize GParamSpecObject properties
+• Add serialization and deserialization for GBoxed types
+• Add API for serializing GObjects to, and deserializing from, JsonNode
+• Build environment fixes
+• Documentation fixes
+• Generate correct introspection data
+• Make JsonSerializable in complete control of deserialization [Tristan Van
+  Berkom]
+
+Overview of changes for 0.8.0
+=============================
+* Remove the in-tree Vala bindings: they are part of Vala, now
+* Remove the in-tree Debian packaging
+* Fix bug #958: JsonGenerator does not escape special characters
+* Fix bug #965: Conditionally compile the test suite
+* Display the filename and line inside the error messages when
+  loading from a file
+* Fix bug #1203: Correctly terminate a string array
+* Fix bug #1393: Regression tests fail on OpenBSD
+* Do not leak memory on error code paths
+* Improve and clean up the build system
+* Make JsonNode completely opaque
+* Conditionally generate introspection data on build
+* Fix bug #1353: Do not overwrite when copying
+* Deprecate json_object_add_member()
+* Add convenience accessors for JsonObject and JsonArray
+* Add convenience iteration functions for JsonObject and JsonArray
+* Automatically promote integers to gint64, to compensate for the
+  lack of integer size in the JSON specificiation
+* Disallow the inclusion of single header files: only json-glib,h
+  and json-gobject.h can be included directly
+* Documentation fixes
+* Clean up and remove code duplication inside the Parser object
+
+Overview of changes for 0.6.0
+=============================
+* Allow deserialization of strings into enum and flag types
+* Add the :indent-char property to JsonGenerator
+* Add functions to retrieve copies of the nodes inside Object and Array
+* Fix leaks and invalid accesses
+* Use the right type for the buffer length parameter in JsonParser
+* Provide a default implementation for JsonSerializable
+* Provide our own JSON tokenizer (using GScanner) for the JSON-only
+  features that would have been lost by using GScanner
+* Add a fully automated test suite, using the GTest framework
+* Allow 'null' nodes to return a value without warnings
+* Add support for parsing Unicode characters escaped using \uXXXX
+* Make the deserialization of G_TYPE_STRV properties more robust
+* Export the public symbols only
+* Provide GTypes for the enumerations
+* Avoid a warning when trying to copy an empty JsonNode
+* Fix gtk-doc cross-references with GLib and GObject documentation
+
+Overview of changes for 0.4.0
+=============================
+* Support parsing of negative numbers
+* Fix parse error propagation and message
+* More parser sanity checks
+* GObject deserialization support
+* Detect and parse JSON masked as a JavaScript assignment
+* Allow using JsonNode with GObject properties and signals
+* Add JsonGenerator:root property
