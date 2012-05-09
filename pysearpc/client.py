@@ -51,7 +51,6 @@ def _fret_obj(ret_str):
 
     
 def _fret_objlist(ret_str):
-    print ret_str
     try:
        dicts = json.loads(ret_str)
     except:
