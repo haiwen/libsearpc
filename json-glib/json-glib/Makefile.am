@@ -74,11 +74,11 @@ glib_marshal_list = json-marshal.list
 glib_marshal_prefix = _json_marshal
 include $(top_srcdir)/build/autotools/Makefile.am.marshal
 
-noinst_LTLIBRARIES = libjson-glib.la
+lib_LTLIBRARIES = libsearpc-json-glib.la
 
-libjson_glib_la_LIBADD = $(JSON_LIBS)
-libjson_glib_la_SOURCES = $(source_c) $(source_h) $(source_h_private) $(BUILT_SOURCES)
-libjson_glib_la_LDFLAGS = $(JSON_LT_LDFLAGS) -export-dynamic -export-symbols-regex "^json.*" -rpath $(libdir)
+libsearpc_json_glib_la_LIBADD = $(JSON_LIBS)
+libsearpc_json_glib_la_SOURCES = $(source_c) $(source_h) $(source_h_private) $(BUILT_SOURCES)
+libsearpc_json_glib_la_LDFLAGS = $(JSON_LT_LDFLAGS) -export-dynamic -export-symbols-regex "^json.*" -rpath $(libdir)
 
 jsonincludedir = $(includedir)/searpc/json-glib
 jsoninclude_DATA = \

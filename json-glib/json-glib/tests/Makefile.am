@@ -13,7 +13,7 @@ INCLUDES = \
 AM_CPPFLAGS = $(JSON_DEBUG_CFLAGS) -DTESTS_DATA_DIR=\""$(top_srcdir)/json-glib/tests"\"
 AM_CFLAGS = -g $(JSON_CFLAGS) $(MAINTAINER_CFLAGS)
 LDADD = \
-	../libjson-glib.la \
+	../libsearpc-json-glib.la \
 	$(JSON_LIBS) \
 	$(NULL)
 

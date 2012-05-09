@@ -42,8 +42,8 @@ AM_PATH_GLIB_2_0
 AM_PROG_CC_C_O
 
 LT_PREREQ([2.2.6])
-LT_INIT([disable-shared])
-dnl LT_INIT([disable-static])
+dnl LT_INIT([disable-shared])
+LT_INIT([disable-static])
 
 # Honor aclocal flags
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"

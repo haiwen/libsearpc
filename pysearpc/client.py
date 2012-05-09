@@ -97,7 +97,7 @@ def searpc_func(ret_type, param_types):
 
             return fret(ret_str)
 
-        if ret_obj_class:
+        if ret_type == "objlist" or ret_type == "object":
             return newfunc_obj
         else:
             return newfunc
