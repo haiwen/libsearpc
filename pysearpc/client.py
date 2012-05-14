@@ -18,6 +18,9 @@ class _SearpcObjProps(object):
             value = dicts[key]
             # replace hyphen with with underline
             new_key = key.replace('-', '_')
+            # encode all strings in UTF-8
+            if isinstance(value, unicode):
+                value = value.encode('utf-8')
             new_dict[new_key] = value
             
         self._dicts = new_dict
