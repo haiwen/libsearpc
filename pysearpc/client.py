@@ -9,8 +9,8 @@ class SearpcError(Exception):
     def __str__(self):
         return self.msg
 
-class _SearpcObjProps(object):
-    '''A compact class to emulate gobject.GProps
+class _SearpcObj(object):
+    '''A compact class to emulate gobject.GObject
     '''
     def __init__(self, dicts):
         new_dict = {}
@@ -18,29 +18,20 @@ class _SearpcObjProps(object):
             value = dicts[key]
             # replace hyphen with with underline
             new_key = key.replace('-', '_')
-            # encode all strings in UTF-8
-            if isinstance(value, unicode):
-                value = value.encode('utf-8')
             new_dict[new_key] = value
-            
-        self._dicts = new_dict
+        # For compatibility with old usage peer.props.name
+        self.props = self
+        self._dict = new_dict
 
     def __getattr__(self, key):
         try:
-            return self._dicts[key]
+            return self._dict[key]
         except:
             return None
 
-class _SearpcObj(object):
-    '''A compact class to emulate gobject.GObject
-    '''
-    def __init__(self, dicts):
-        self.props = _SearpcObjProps(dicts)
-
-
 def _fret_obj(ret_str):
     try:
-       dicts = json.loads(ret_str)
+        dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
         
@@ -51,11 +42,10 @@ def _fret_obj(ret_str):
         return _SearpcObj(dicts['ret'])
     else:
         return None
-
     
 def _fret_objlist(ret_str):
     try:
-       dicts = json.loads(ret_str)
+        dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
         
