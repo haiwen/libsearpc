@@ -81,7 +81,7 @@ def searpc_func(ret_type, param_types):
                 try:
                     return fret(ret_str)
                 except fcallfret.error, e:
-                    raise SearpcError(e)
+                    raise SearpcError(str(e))
 
         def newfunc_obj(self, *args):
             fcall_str = fcall(func.__name__, *args)
