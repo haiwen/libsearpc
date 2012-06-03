@@ -34,28 +34,74 @@ SearpcClient *searpc_client_new ();
 
 void searpc_client_free (SearpcClient *client);
 
+void
+searpc_client_call (SearpcClient *client, const char *fname,
+                    const char *ret_type, int gobject_type,
+                    void *ret_ptr, GError **error,
+                    int n_params, ...);
+
+int
+searpc_client_call__int (SearpcClient *client, const char *fname,
+                         GError **error, int n_params, ...);
+
+gint64
+searpc_client_call__int64 (SearpcClient *client, const char *fname,
+                           GError **error, int n_params, ...);
+
+char *
+searpc_client_call__string (SearpcClient *client, const char *fname,
+                            GError **error, int n_params, ...);
+
+GObject *
+searpc_client_call__object (SearpcClient *client, const char *fname,
+                            int object_type,
+                            GError **error, int n_params, ...);
+
+GList*
+searpc_client_call__objlist (SearpcClient *client, const char *fname,
+                             int object_type,
+                             GError **error, int n_params, ...);
+
+
 char* searpc_client_transport_send (SearpcClient *client,
                                     const gchar *fcall_str,
                                     size_t fcall_len,
                                     size_t *ret_len);
 
 
-/**
- * Send the serialized function call to server.
- *
- * @fcall_str: the serialized function.
- * @ret_type: the return type.
- * @gtype: specify the type id if @ret_type is `object` or `objlist`,
- *         or 0 otherwise.
- * @cbdata: the data that will be given to the callback.
- */
-int searpc_client_async_call (SearpcClient *client,
-                              gchar *fcall_str,
-                              size_t fcall_len,
-                              AsyncCallback callback,
-                              const gchar *ret_type,
-                              int gtype,
-                              void *cbdata);
+
+int
+searpc_client_async_call__int (SearpcClient *client,
+                               const char *fname,
+                               AsyncCallback callback, void *cbdata,
+                               int n_params, ...);
+
+int
+searpc_client_async_call__int64 (SearpcClient *client,
+                                 const char *fname,
+                                 AsyncCallback callback, void *cbdata,
+                                 int n_params, ...);
+
+int
+searpc_client_async_call__string (SearpcClient *client,
+                                  const char *fname,
+                                  AsyncCallback callback, void *cbdata,
+                                  int n_params, ...);
+
+int
+searpc_client_async_call__object (SearpcClient *client,
+                                  const char *fname,
+                                  AsyncCallback callback, 
+                                  int object_type, void *cbdata,
+                                  int n_params, ...);
+
+int
+searpc_client_async_call__objlist (SearpcClient *client,
+                                   const char *fname,
+                                   AsyncCallback callback, 
+                                   int object_type, void *cbdata,
+                                   int n_params, ...);
+
 
 /* called by the transport layer, the rpc layer should be able to
  * modify the str, but not take ownership of it */
@@ -64,7 +110,6 @@ searpc_client_generic_callback (char *retstr, size_t len,
                                 void *vdata, const char *errstr);
 
 #include <searpc-fcall.h>
-
 
 char*
 searpc_client_fret__string (char *data, size_t len, GError **error);
@@ -87,8 +132,6 @@ searpc_client_fret__objlist (GType gtype, char *data,
  * set in GError */
 #define TRANSPORT_ERROR  "Transport Error"
 #define TRANSPORT_ERROR_CODE 500
-
-#include <searpc-dfun.h>
 
 
 #endif

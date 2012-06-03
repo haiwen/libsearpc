@@ -4,8 +4,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-
-
 #include <glib.h>
 #include <glib-object.h>
 
@@ -122,11 +120,11 @@ main(int argc, char *argv[])
         int fcall_len = ntohs(pac->length);
         /* Execute the RPC function */
         char *res = searpc_server_call_function ("searpc-demo", pac->data, fcall_len,
-                                                 &ret_len, &error);
+                                                 &ret_len);
 
         pac_ret = (packet *)buf;
         pac_ret->length = htons((uint16_t)ret_len);
-        strncpy(pac_ret->data, res, ret_len);
+        memcpy(pac_ret->data, res, ret_len);
 
         /* send the ret packet */
         if (writen (connfd, buf, PACKET_HEADER_LENGTH + ret_len) == -1) {

@@ -24,10 +24,6 @@
 #define BUFLEN 256
 #define MAGIC_STRING "ABCD"
 
-/* define the client-side function */
-SEARPC_CLIENT_ASYNC_DEFUN_INT__STRING(searpc_strlen, 0);
-
-
 typedef struct {
     int fd;
     void *rpc_priv;
@@ -47,7 +43,7 @@ static int transport_send(void *arg, char *fcall_str,
 
     /* construct the packet */
     pac->length = htons((uint16_t)fcall_len);
-    strncpy(pac->data, fcall_str, fcall_len);
+    memcpy(pac->data, fcall_str, fcall_len);
 
     /* send the packet */
     if ( writen (trans->fd, buf, PACKET_HEADER_LENGTH + fcall_len) == -1) {
@@ -138,7 +134,9 @@ main(int argc, char *argv[])
     rpc_client->async_arg = (void *)(long)transport;
 
     /* call the client-side funcion */
-    searpc_strlen_async(rpc_client, "hello searpc", strlen_callback, "user data");
+    searpc_client_async_call__int(rpc_client, "searpc_strlen",
+                                  strlen_callback, "user data",
+                                  1, "string", "hello searpc");
 
     /* call the transport to receive response */
     transport_read (transport);

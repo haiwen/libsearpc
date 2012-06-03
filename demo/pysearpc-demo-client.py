@@ -3,6 +3,8 @@ import sys
 import socket
 from struct import pack, unpack
 
+sys.path += ['..']
+
 from pysearpc import SearpcClient, searpc_func
 
 SERVER_ADDR = '127.0.0.1'

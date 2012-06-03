@@ -1,4 +1,3 @@
-import fcallfret
 import simplejson as json
 
 class SearpcError(Exception):
@@ -8,6 +7,31 @@ class SearpcError(Exception):
 
     def __str__(self):
         return self.msg
+
+
+def _fret_int(ret_str):
+    try:
+        dicts = json.loads(ret_str)
+    except:
+        raise SearpcError('Invalid response format')
+        
+    if dicts.has_key('err_code'):
+        raise SearpcError(dicts['err_msg'])
+        
+    if dicts['ret']:
+        return dicts['ret']
+
+def _fret_string(ret_str):
+    try:
+        dicts = json.loads(ret_str)
+    except:
+        raise SearpcError('Invalid response format')
+        
+    if dicts.has_key('err_code'):
+        raise SearpcError(dicts['err_msg'])
+        
+    if dicts['ret']:
+        return dicts['ret']
 
 class _SearpcObj(object):
     '''A compact class to emulate gobject.GObject
@@ -59,40 +83,33 @@ def _fret_objlist(ret_str):
         
     return l
 
+
 def searpc_func(ret_type, param_types):
+
     def decorate(func):
-        if len(param_types) == 0:
-            fcall = getattr(fcallfret, 'fcall__void')
-        else:
-            fcall = getattr(fcallfret, 'fcall__' + '_'.join(param_types))
         if ret_type == "void":
             fret = None
         elif ret_type == "object":
             fret = _fret_obj
         elif ret_type == "objlist":
             fret = _fret_objlist
+        elif ret_type == "int":
+            fret = _fret_int
+        elif ret_type == "int64":
+            fret = _fret_int
+        elif ret_type == "string":
+            fret = _fret_string
         else:
-            fret = getattr(fcallfret, 'fret__' + ret_type)
+            raise SearpcError('Invial return type')
 
         def newfunc(self, *args):
-            fcall_str = fcall(func.__name__, *args)
+            array = [func.__name__] + list(args)
+            fcall_str = json.dumps(array)
             ret_str = self.call_remote_func_sync(fcall_str)
             if fret:
-                try:
-                    return fret(ret_str)
-                except fcallfret.error, e:
-                    raise SearpcError(str(e))
+                return fret(ret_str)
 
-        def newfunc_obj(self, *args):
-            fcall_str = fcall(func.__name__, *args)
-            ret_str = self.call_remote_func_sync(fcall_str)
-
-            return fret(ret_str)
-
-        if ret_type == "objlist" or ret_type == "object":
-            return newfunc_obj
-        else:
-            return newfunc
+        return newfunc
 
     return decorate
 

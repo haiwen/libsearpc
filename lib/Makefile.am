@@ -14,8 +14,7 @@
 # * searpc-marshal.h: contains functions like `marshal_int__string()`
 #
 
-generated_sources = fcall-impr.h searpc-fcall.h searpc-dfun.h \
-	searpc-signature.h marshal.h
+generated_sources = searpc-signature.h marshal.h
 
 # rpc_headers = fcall-impr.h searpc-fcall.h searpc-dfun.h searpc-signature.h searpc-marshal.h
 
@@ -30,14 +29,14 @@ BUILT_SOURCES = gensource
 
 lib_LTLIBRARIES = libsearpc.la
 
-include_HEADERS = searpc-fcall.h searpc-client.h searpc-dfun.h \
+include_HEADERS = searpc-client.h \
 	searpc-server.h searpc-signature.h searpc-utils.h
 
-noinst_HEADERS = searpc-utils.h fcall-impr.h marshal.h
+noinst_HEADERS = searpc-utils.h marshal.h
 
 libsearpc_la_SOURCES = searpc-client.c searpc-server.c $(generated_sources)
 
-libsearpc_la_LDFLAGS =  -version-info 1:1:0  -no-undefined
+libsearpc_la_LDFLAGS =  -version-info 1:2:0  -no-undefined
 
 libsearpc_la_LIBADD = @GLIB_LIBS@ \
 	${top_builddir}/json-glib/json-glib/libsearpc-json-glib.la
@@ -50,9 +49,6 @@ gensource: ${generated_sources}
 
 ${generated_sources}: gencode.py rpc_table.py
 	@echo "[libsearpc]: generating rpc header files"
-	python gencode.py gen-fcall > fcall-impr.h
-	python gencode.py gen-fcall-declare > searpc-fcall.h
-	python gencode.py gen-dfun-macro > searpc-dfun.h
 	python gencode.py gen-signature > searpc-signature.h
 	python gencode.py gen-marshal > marshal.h
 	@echo "[libsearpc]: done"

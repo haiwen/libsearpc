@@ -10,6 +10,7 @@
 #include "searpc-client.h"
 
 
+/* sample class */
 
 #define MAMAN_TYPE_BAR                  (maman_bar_get_type ())
 #define MAMAN_BAR(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MAMAN_TYPE_BAR, MamanBar))
@@ -58,12 +59,10 @@ maman_bar_set_property (GObject      *object,
     case PROP_MAMAN_NAME:
         g_free (self->name);
         self->name = g_value_dup_string (value);
-        g_print ("maman: %s\n", self->name);
         break;
 
     case PROP_PAPA_NUMBER:
         self->papa_number = g_value_get_uchar (value);
-        g_print ("papa: %u\n", self->papa_number);
         break;
         
     default:
@@ -145,13 +144,30 @@ maman_bar_init (MamanBar *self)
     
 }
 
-/* test function define macro */
-SEARPC_CLIENT_DEFUN_INT__STRING(func4);
-SEARPC_CLIENT_DEFUN_INT__STRING_STRING(func1);
-SEARPC_CLIENT_DEFUN_STRING__VOID(func0);
-SEARPC_CLIENT_DEFUN_OBJECT__STRING(func2, 0);
-SEARPC_CLIENT_DEFUN_OBJLIST__STRING_INT(func3, 0);
+/* sample client */
+SearpcClient *client;
 
+char *
+sample_transport(void *arg, const gchar *fcall_str,
+                 size_t fcall_len, size_t *ret_len)
+{
+    g_assert (strcmp(arg, "test") == 0);
+
+    char *ret;
+    /* directly call in memory, instead of send via network */
+    gchar *temp = g_strdup(fcall_str);
+    ret = searpc_server_call_function ("test", temp, fcall_len, ret_len);
+    g_free (temp);
+    return ret;
+}
+
+void
+init_sample_client ()
+{
+    client = searpc_client_new();
+    client->transport = sample_transport;
+    client->arg = "test";
+}
 
 gchar *
 get_substring (const gchar *orig_str, int sub_len, GError **error)
@@ -169,31 +185,34 @@ get_substring (const gchar *orig_str, int sub_len, GError **error)
 
 void test_simple_call (void *fixture, const void *data)
 {
+    gchar* result;
+    GError *error = NULL;
+
+    result = searpc_client_call__string (client, "get_substring", &error,
+                                         2, "string", "hello", "int", 2);
+    g_assert (error == NULL);
+    g_assert (strcmp(result, "he") == 0);
+    g_free (result);
+
+    /* error should return */
+    result = NULL;
+    result = searpc_client_call__string (client, "get_substring", &error,
+                                         2, "string", "hello", "int", 10);
+    g_assert (error->message);
+    g_free (result);
+}
+
+void
+test_invalid_call (void *fixture, const void *data)
+{
     char *fcall, *fret;
     gsize fcall_len, ret_len;
     gchar* result;
     GError *error = NULL;
 
-    fcall = searpc_client_fcall__string_int ("get_substring", "hello", 2,
-                                             &fcall_len);
-    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
-    g_assert (error == NULL);
-    result = searpc_client_fret__string (fret, ret_len, &error);
-    g_assert (strcmp(result, "he") == 0);
-    g_free (fcall);
-    g_free (fret);
-    g_free (result);
-
-    /* error should return */
-    result = NULL;
-    fcall = searpc_client_fcall__string_int ("get_substring", "hello", 7,
-                                             &fcall_len);
-    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
-    g_assert (error == NULL);
-    result = searpc_client_fret__string (fret, ret_len, &error);
-    g_assert (error->message);
-    g_free (fcall);
-    g_free (fret);
+    result = searpc_client_call__string (client, "nonexist_func", &error,
+                                         2, "string", "hello", "int", 2);
+    g_assert (error != NULL);
     g_free (result);
 }
 
@@ -205,22 +224,15 @@ get_maman_bar(const char *name, GError **error)
 
 void test_object_call (void *fixture, const void *data)
 {
-    char *fcall, *fret;
-    gsize fcall_len, ret_len;
     GObject *result;
     GError *error = NULL;
 
-    fcall = searpc_client_fcall__string ("get_maman_bar", "kitty",
-                                         &fcall_len);
-    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
+    result = searpc_client_call__object (client, "get_maman_bar",
+                                         MAMAN_TYPE_BAR, &error,
+                                         1, "string", "kitty");
     g_assert (error == NULL);
-    result = searpc_client_fret__object (MAMAN_TYPE_BAR, fret, ret_len, &error);
-
-    g_free (fcall);
-    g_free (fret);
     g_object_unref (result);
 }
-
 
 GList *
 get_maman_bar_list (const char *name, int num, GError **error)
@@ -251,30 +263,22 @@ get_maman_bar_list (const char *name, int num, GError **error)
 
 void test_objlist_call (void *fixture, const void *data)
 {
-    char *fcall, *fret;
-    gsize fcall_len, ret_len;
     GList *result, *ptr;
     GError *error = NULL;
 
-    fcall = searpc_client_fcall__string_int ("get_maman_bar_list", "kitty", 10,
-                                             &fcall_len);
-    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
+    result = searpc_client_call__objlist (client, "get_maman_bar_list",
+                                          MAMAN_TYPE_BAR, &error,
+                                          2, "string", "kitty", "int", 10);
     g_assert (error == NULL);
-    result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
-    g_free (fcall);
-    g_free (fret);
     for (ptr = result; ptr; ptr = ptr->next)
         g_object_unref (ptr->data);
     g_list_free (result);
 
 
-    fcall = searpc_client_fcall__string_int ("get_maman_bar_list", "kitty", 0,
-                                             &fcall_len);
-    fret = searpc_server_call_function ("test", fcall, fcall_len, &ret_len, &error);
+    result =  searpc_client_call__objlist (client, "get_maman_bar_list",
+                                           MAMAN_TYPE_BAR, &error,
+                                           2, "string", "kitty", "int", 0);
     g_assert (error == NULL);
-    result = searpc_client_fret__objlist (MAMAN_TYPE_BAR, fret, ret_len, &error);
-    g_free (fcall);
-    g_free (fret);
     for (ptr = result; ptr; ptr = ptr->next)
         g_object_unref (ptr->data);
     g_list_free (result);
@@ -296,12 +300,18 @@ main (int argc, char *argv[])
     searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list", 
                                      searpc_signature_objlist__string_int());
 
+    /* sample client */
+    init_sample_client();
+
     g_test_add ("/searpc/simple", void, NULL,
                 NULL, test_simple_call, NULL);
 
     /* test twice to detect memory error, for example, freed twice */
     g_test_add ("/searpc/simple2", void, NULL,
                 NULL, test_simple_call, NULL);
+
+    g_test_add ("/searpc/invalid_call", void, NULL,
+                NULL, test_invalid_call, NULL);
 
     g_test_add ("/searpc/object", void, NULL,
                 NULL, test_object_call, NULL);

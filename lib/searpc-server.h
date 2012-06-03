@@ -78,8 +78,7 @@ gboolean searpc_server_register_function (const char *service,
  * Returns the serialized representatio of the returned value.
  */
 gchar *searpc_server_call_function (const char *service,
-                                    gchar *func, gsize len, gsize *ret_len,
-                                    GError **error);
+                                    gchar *func, gsize len, gsize *ret_len);
 
 /**
  * searpc_compute_signature:

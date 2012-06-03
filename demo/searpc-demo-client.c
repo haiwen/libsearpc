@@ -25,8 +25,6 @@
     #include <arpa/inet.h>
 #endif
 
-/* define the client-side function */
-SEARPC_CLIENT_DEFUN_INT__STRING(searpc_strlen);
 
 static char *transport_callback(void *arg, const char *fcall_str,
                                 size_t fcall_len, size_t *ret_len)
@@ -40,7 +38,7 @@ static char *transport_callback(void *arg, const char *fcall_str,
 
     /* construct the packet */
     pac->length = htons((uint16_t)fcall_len);
-    strncpy(pac->data, fcall_str, fcall_len);
+    memcpy(pac->data, fcall_str, fcall_len);
 
     /* send the packet */
     if ( writen (fd, buf, PACKET_HEADER_LENGTH + fcall_len) == -1) {
@@ -104,7 +102,8 @@ main(int argc, char *argv[])
     rpc_client->arg = (void *)(long)sockfd;
 
     /* call the client-side funcion */
-    ret = searpc_strlen(rpc_client, "hello searpc", &error);
+    ret = searpc_client_call__int(rpc_client, "searpc_strlen", &error,
+                                  1, "string", "hello searpc");
     if (error != NULL) {
         fprintf(stderr, "error: %s\n", error->message);
         exit(-1);

@@ -158,6 +158,29 @@ marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
     return data;
 }
 
+static gchar *
+error_to_json (int code, const char *msg, gsize *len)
+{
+    JsonObject *object = json_object_new ();
+    JsonNode *root = json_node_new (JSON_NODE_OBJECT);
+    JsonGenerator *generator = json_generator_new ();
+    gchar *data;
+
+    json_object_set_int_member (object, "err_code", code);
+    json_object_set_string_or_null_member (object, "err_msg", msg);
+    
+    json_node_take_object (root, object);
+    json_generator_set_root (generator, root);
+
+    g_object_set (generator, "pretty", FALSE, NULL);
+    data = json_generator_to_data (generator, len);
+
+    json_node_free (root);
+    g_object_unref (generator);
+
+    return data;
+}
+
 /* include the generated marshal functions */
 #include "marshal.h"
 
@@ -235,33 +258,34 @@ searpc_server_register_function (const char *svc_name,
 /* Called by RPC transport. */
 gchar* 
 searpc_server_call_function (const char *svc_name,
-                             gchar *func, gsize len, gsize *ret_len, GError **error)
+                             gchar *func, gsize len, gsize *ret_len)
 {
     SearpcService *service;
     JsonParser *parser;
     JsonNode *root;
     JsonArray *array;
+    gchar* ret;
+    GError *error = NULL;
 #ifdef PROFILE
     struct timeval start, end, intv;
 
     gettimeofday(&start, NULL);
 #endif
 
-    g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
     service = g_hash_table_lookup (service_table, svc_name);
     if (!service) {
-        g_warning ("[SeaRPC] cannot find service %s.\n", svc_name);
-        g_set_error (error, DFT_DOMAIN, 501, "cannot find service %s.", svc_name);
-        return NULL;
+        char buf[256];
+        snprintf (buf, 255, "cannot find service %s.", svc_name);
+        return error_to_json (501, buf, ret_len);
     }
           
     parser = json_parser_new ();
     
-    if (!json_parser_load_from_data (parser, func, len, error)) {
-        g_warning ("[SeaRPC] failed to parse RPC call: %s\n", (*error)->message);
-        g_object_unref (parser);
-        return NULL;
+    if (!json_parser_load_from_data (parser, func, len, &error)) {
+        char buf[512];
+        snprintf (buf, 511, "failed to parse RPC call: %s\n", error->message);
+        g_object_unref (parser);        
+        return error_to_json (511, buf, ret_len);
     }
 
     root = json_parser_get_root (parser);
@@ -270,12 +294,13 @@ searpc_server_call_function (const char *svc_name,
     const char *fname = json_array_get_string_element(array, 0);
     FuncItem *fitem = g_hash_table_lookup(service->func_table, fname);
     if (!fitem) {
-        g_warning ("[SeaRPC] cannot find function %s.\n", fname);
-        g_set_error (error, DFT_DOMAIN, 500, "cannot find function %s.", fname); 
-        return NULL;
+        char buf[256];
+        snprintf (buf, 255, "cannot find function %s.", fname);
+        g_object_unref (parser);
+        return error_to_json (500, buf, ret_len);
     }
 
-    gchar* ret = fitem->marshal->mfunc (fitem->func, array, ret_len);
+    ret = fitem->marshal->mfunc (fitem->func, array, ret_len);
 
 #ifdef PROFILE
     gettimeofday(&end, NULL);

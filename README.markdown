@@ -229,4 +229,4 @@ The following packages are required to build libsearpc:
 
 *  glib-2.0      >=        2.16.0      
 *  gobject-2.0   >=        2.16.0
-*  simplejson (for pysearpc)
+*  python simplejson (for pysearpc)
