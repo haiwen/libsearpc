@@ -148,8 +148,8 @@ maman_bar_init (MamanBar *self)
 SearpcClient *client;
 
 char *
-sample_transport(void *arg, const gchar *fcall_str,
-                 size_t fcall_len, size_t *ret_len)
+sample_send(void *arg, const gchar *fcall_str,
+            size_t fcall_len, size_t *ret_len)
 {
     g_assert (strcmp(arg, "test") == 0);
 
@@ -161,12 +161,33 @@ sample_transport(void *arg, const gchar *fcall_str,
     return ret;
 }
 
+int
+sample_async_send (void *arg, gchar *fcall_str,
+                   size_t fcall_len, void *rpc_priv)
+{
+    g_assert (strcmp(arg, "test_async") == 0);
+    
+    char *ret;
+    size_t ret_len;
+    gchar *temp = g_strdup(fcall_str);
+
+    ret = searpc_server_call_function ("test", temp, fcall_len, &ret_len);
+    g_free (temp);
+
+    searpc_client_generic_callback (ret, ret_len, rpc_priv, NULL);
+
+    return 0;
+}
+
 void
 init_sample_client ()
 {
     client = searpc_client_new();
-    client->transport = sample_transport;
+    client->send = sample_send;
     client->arg = "test";
+
+    client->async_send = sample_async_send;
+    client->async_arg = "test_async";
 }
 
 gchar *
@@ -284,6 +305,31 @@ void test_objlist_call (void *fixture, const void *data)
     g_list_free (result);
 }
 
+void simple_callback (void *result, void *user_data, GError *error)
+{
+    char *res = (char *)result;
+    
+    g_assert (strcmp(res, "he") == 0);
+}
+
+void simple_callback_error (void *result, void *user_data, GError *error)
+{
+    char *res = (char *)result;
+
+    g_assert (result == NULL);
+    g_assert (error != NULL);
+}
+
+void test_simple_call_async (void *fixture, const void *data)
+{
+    searpc_client_async_call__string (client, "get_substring",
+                                      simple_callback, NULL,
+                                      2, "string", "hello", "int", 2);
+
+    searpc_client_async_call__string (client, "get_substring",
+                                      simple_callback_error, NULL,
+                                      2, "string", "hello", "int", 10);
+}
 
 int
 main (int argc, char *argv[])
@@ -318,6 +364,9 @@ main (int argc, char *argv[])
 
     g_test_add ("/searpc/objlist", void, NULL,
                 NULL, test_objlist_call, NULL);
+
+    g_test_add ("/searpc/async/simple", void, NULL,
+                NULL, test_simple_call_async, NULL);
 
     int ret = g_test_run();
 

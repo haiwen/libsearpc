@@ -23,7 +23,7 @@ typedef int (*AsyncTransportSend)(void *arg, gchar *fcall_str,
 typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
 
 typedef struct {
-    TransportCB transport;
+    TransportCB send;
     void *arg;
     
     AsyncTransportSend async_send;

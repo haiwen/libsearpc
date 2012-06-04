@@ -7,6 +7,16 @@
 #include "searpc-client.h"
 #include "searpc-utils.h"
 
+
+static void clean_objlist(GList *list)
+{
+    GList *ptr;
+    for (ptr = list; ptr; ptr = ptr->next)
+        g_object_unref(ptr->data);
+    g_list_free (list);
+}
+
+
 SearpcClient *
 searpc_client_new ()
 {
@@ -28,8 +38,8 @@ searpc_client_transport_send (SearpcClient *client,
                               size_t fcall_len,
                               size_t *ret_len)
 {
-    return client->transport(client->arg, fcall_str,
-                             fcall_len, ret_len);
+    return client->send(client->arg, fcall_str,
+                        fcall_len, ret_len);
 }
 
 static char *
@@ -319,7 +329,16 @@ searpc_client_generic_callback (char *retstr, size_t len,
             result = (void *)searpc_client_fret__objlist (
                 data->gtype, retstr, len, &error);
         }
+
         data->callback (result, data->cbdata, error);
+
+        if (strcmp(data->ret_type, "string") == 0) {
+            g_free ((char *)result);
+        } else if (strcmp(data->ret_type, "object") == 0) {
+            if (result) g_object_unref ((GObject*)result);
+        } else if (strcmp(data->ret_type, "objlist") == 0) {
+            clean_objlist ((GList *)result);
+        }
     }
     g_free (data);
 }
@@ -579,15 +598,6 @@ searpc_client_fret__object (GType gtype, char *data, size_t len, GError **error)
     }
 
     return NULL;
-}
-
-
-static void clean_objlist(GList *list)
-{
-    GList *ptr;
-    for (ptr = list; ptr; ptr = ptr->next)
-        g_object_unref(ptr->data);
-    g_list_free (list);
 }
 
 GList*

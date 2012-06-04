@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 
     /* create an rpc_client and supply the transport function. */
     rpc_client = searpc_client_new();
-    rpc_client->transport = transport_callback;
+    rpc_client->send = transport_callback;
     rpc_client->arg = (void *)(long)sockfd;
 
     /* call the client-side funcion */
