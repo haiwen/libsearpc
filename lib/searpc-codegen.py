@@ -101,16 +101,15 @@ def generate_marshal(ret_type, arg_types):
 
 def gen_marshal_functions():
     from rpc_table import func_table
+    f = open('marshal.h', 'w')
     for item in func_table:
-        print generate_marshal(item[0], item[1])
+        print >>f, generate_marshal(item[0], item[1])
+    f.close()
 
 
 marshal_register_item = r"""
     {
-        MarshalItem *item = g_new0(MarshalItem, 1);
-        item->mfunc = ${marshal_name};
-        item->signature = ${signature_name}();
-        g_hash_table_insert (marshal_table, (gpointer)item->signature, item);
+        searpc_server_register_marshal (${signature_name}(), ${marshal_name});
     }
 """
 
@@ -132,11 +131,13 @@ def generate_marshal_register_item(ret_type, arg_types):
 
 def gen_marshal_register_function():
     from rpc_table import func_table
-    print "static void register_marshals(GHashTable *marshal_table)"""
-    print "{"
+    f = open('marshal.h', 'a')
+    print >>f, "static void register_marshals()"""
+    print >>f, "{"
     for item in func_table:
-        print generate_marshal_register_item(item[0], item[1]),
-    print "}"
+        print >>f, generate_marshal_register_item(item[0], item[1]),
+    print >>f, "}"
+    f.close()
 
 signature_template = r"""
 inline static gchar *
@@ -165,16 +166,13 @@ def generate_signature(ret_type, arg_types):
 
 def gen_signature_list():
     from rpc_table import func_table
+    f = open('searpc-signature.h', 'w')
     for item in func_table:
-        print generate_signature(item[0], item[1])
+        print >>f,generate_signature(item[0], item[1])
+    f.close()
 
 
 if __name__ == "__main__":
-    command = sys.argv[1]
-    if command == "gen-marshal":
-        gen_marshal_functions()
-        gen_marshal_register_function()
-    elif command == "gen-signature":
-        gen_signature_list()
-    else:
-        print "Unknown command %s" % (command) 
+    gen_marshal_functions()
+    gen_marshal_register_function()
+    gen_signature_list()
