@@ -27,6 +27,11 @@ By default, Pysearpc are compiled. If you'd like to not compile pysearpc, use th
 
 In this way, Pysearpc would not be compiled or installed.
  
+In MacOs, if you want to use py2app, you would better run the following commnads:
+   ./configure LDFLAGS="-Xlinker -headerpad_max_install_names"
+In this way, the following error will be avoided:
+   raise ValueError("New Mach-O header is too large to relocate")
+
 
 Optionally compile demos
 ========================

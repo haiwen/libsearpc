@@ -55,7 +55,7 @@ fi
 if test x"$MSYSTEM" = x"MINGW32"; then
     autoreconf --install -I/local/share/aclocal
 elif test "${TERM_PROGRAM}" = "Apple_Terminal" ; then
-    autoreconf --install -I/usr/local/share/aclocal
+    autoreconf --install -I/opt/local/share/aclocal
 else
     autoreconf --install
 fi
