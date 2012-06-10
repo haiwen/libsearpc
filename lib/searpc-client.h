@@ -109,24 +109,6 @@ int
 searpc_client_generic_callback (char *retstr, size_t len,
                                 void *vdata, const char *errstr);
 
-#include <searpc-fcall.h>
-
-char*
-searpc_client_fret__string (char *data, size_t len, GError **error);
-
-int
-searpc_client_fret__int (char *data, size_t len, GError **error);
-
-gint64
-searpc_client_fret__int64 (char *data, size_t len, GError **error);
-
-GObject*
-searpc_client_fret__object (GType gtype, char *data,
-                            size_t len, GError **error);
-
-GList*
-searpc_client_fret__objlist (GType gtype, char *data,
-                             size_t len, GError **error);
 
 /* in case of transport error, the following code and message will be
  * set in GError */

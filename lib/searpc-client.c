@@ -8,6 +8,24 @@
 #include "searpc-utils.h"
 
 
+static char*
+searpc_client_fret__string (char *data, size_t len, GError **error);
+
+static int
+searpc_client_fret__int (char *data, size_t len, GError **error);
+
+static gint64
+searpc_client_fret__int64 (char *data, size_t len, GError **error);
+
+static GObject*
+searpc_client_fret__object (GType gtype, char *data,
+                            size_t len, GError **error);
+
+static GList*
+searpc_client_fret__objlist (GType gtype, char *data,
+                             size_t len, GError **error);
+
+
 static void clean_objlist(GList *list)
 {
     GList *ptr;
