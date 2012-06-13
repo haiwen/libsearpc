@@ -101,7 +101,7 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
 
 void
 searpc_client_call (SearpcClient *client, const char *fname,
-                    const char *ret_type, int gobject_type,
+                    const char *ret_type, GType gobject_type,
                     void *ret_ptr, GError **error,
                     int n_params, ...)
 {
@@ -241,7 +241,7 @@ searpc_client_call__string (SearpcClient *client, const char *fname,
 
 GObject *
 searpc_client_call__object (SearpcClient *client, const char *fname,
-                            int object_type,
+                            GType object_type,
                             GError **error, int n_params, ...)
 {
     g_return_val_if_fail (fname != NULL, NULL);
@@ -274,7 +274,7 @@ searpc_client_call__object (SearpcClient *client, const char *fname,
 
 GList*
 searpc_client_call__objlist (SearpcClient *client, const char *fname,
-                             int object_type,
+                             GType object_type,
                              GError **error, int n_params, ...)
 {
     g_return_val_if_fail (fname != NULL, NULL);
@@ -367,7 +367,7 @@ searpc_client_async_call_v (SearpcClient *client,
                             const char *fname,
                             AsyncCallback callback,
                             const gchar *ret_type,
-                            int gtype,
+                            GType gtype,
                             void *cbdata,
                             int n_params,
                             va_list args)
@@ -453,7 +453,7 @@ int
 searpc_client_async_call__object (SearpcClient *client,
                                   const char *fname,
                                   AsyncCallback callback, 
-                                  int object_type, void *cbdata,
+                                  GType object_type, void *cbdata,
                                   int n_params, ...)
 {
     g_return_val_if_fail (fname != NULL, -1);
@@ -473,7 +473,7 @@ int
 searpc_client_async_call__objlist (SearpcClient *client,
                                    const char *fname,
                                    AsyncCallback callback, 
-                                   int object_type, void *cbdata,
+                                   GType object_type, void *cbdata,
                                    int n_params, ...)
 {
     g_return_val_if_fail (fname != NULL, -1);

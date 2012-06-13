@@ -36,7 +36,7 @@ void searpc_client_free (SearpcClient *client);
 
 void
 searpc_client_call (SearpcClient *client, const char *fname,
-                    const char *ret_type, int gobject_type,
+                    const char *ret_type, GType gobject_type,
                     void *ret_ptr, GError **error,
                     int n_params, ...);
 
@@ -54,12 +54,12 @@ searpc_client_call__string (SearpcClient *client, const char *fname,
 
 GObject *
 searpc_client_call__object (SearpcClient *client, const char *fname,
-                            int object_type,
+                            GType object_type,
                             GError **error, int n_params, ...);
 
 GList*
 searpc_client_call__objlist (SearpcClient *client, const char *fname,
-                             int object_type,
+                             GType object_type,
                              GError **error, int n_params, ...);
 
 
@@ -92,14 +92,14 @@ int
 searpc_client_async_call__object (SearpcClient *client,
                                   const char *fname,
                                   AsyncCallback callback, 
-                                  int object_type, void *cbdata,
+                                  GType object_type, void *cbdata,
                                   int n_params, ...);
 
 int
 searpc_client_async_call__objlist (SearpcClient *client,
                                    const char *fname,
                                    AsyncCallback callback, 
-                                   int object_type, void *cbdata,
+                                   GType object_type, void *cbdata,
                                    int n_params, ...);
 
 
