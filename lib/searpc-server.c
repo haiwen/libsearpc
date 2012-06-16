@@ -193,7 +193,7 @@ searpc_server_init ()
                                            NULL, (GDestroyNotify)service_free);
 
     /* register buildin marshal functions */
-    register_marshals(marshal_table);
+    register_marshals();
 }
 
 void
