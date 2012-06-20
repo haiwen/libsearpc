@@ -6,6 +6,7 @@ Generate function define macros.
 
 import string
 import sys
+import os
 
 
 # type -> (<c type if used as parameter>, <c type if used as ret type>,
@@ -173,6 +174,7 @@ def gen_signature_list():
 
 
 if __name__ == "__main__":
+    sys.path.append(os.getcwd())
     gen_marshal_functions()
     gen_marshal_register_function()
     gen_signature_list()
