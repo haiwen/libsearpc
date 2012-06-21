@@ -6,6 +6,7 @@ Generate function define macros.
 
 import string
 import sys
+import os
 
 
 # type -> (<c type if used as parameter>, <c type if used as ret type>,
@@ -17,31 +18,31 @@ type_table = {
     "string": ("const gchar*",
                "gchar*", 
                "json_array_get_string_or_null_element",
-               "set_string_to_ret_object",
+               "searpc_set_string_to_ret_object",
                "json_array_add_string_or_null_element",
                "NULL"),
     "int": ("int", 
             "int", 
             "json_array_get_int_element",
-            "set_int_to_ret_object",
+            "searpc_set_int_to_ret_object",
             "json_array_add_int_element",
             "-1"),
     "int64": ("gint64", 
               "gint64", 
               "json_array_get_int_element",
-              "set_int_to_ret_object",
+              "searpc_set_int_to_ret_object",
               "json_array_add_int_element",
               "-1"),
     "object": ("GObject*", 
                "GObject*",
                "",
-               "set_object_to_ret_object",
+               "searpc_set_object_to_ret_object",
                "",
                "NULL"),
     "objlist": ("GList*",
                 "GList*",
                 "",
-                "set_objlist_to_ret_object",
+                "searpc_set_objlist_to_ret_object",
                 "",
                 "NULL"),
 }
@@ -56,7 +57,7 @@ ${get_parameters}
 
     JsonObject *object = json_object_new ();
     ${convert_ret}
-    return marshal_set_ret_common (object, ret_len, error);
+    return searpc_marshal_set_ret_common (object, ret_len, error);
 }
 """
 
@@ -101,7 +102,7 @@ def generate_marshal(ret_type, arg_types):
 
 def gen_marshal_functions():
     from rpc_table import func_table
-    f = open('marshal.h', 'w')
+    f = open('searpc-marshal.h', 'w')
     for item in func_table:
         print >>f, generate_marshal(item[0], item[1])
     f.close()
@@ -131,7 +132,7 @@ def generate_marshal_register_item(ret_type, arg_types):
 
 def gen_marshal_register_function():
     from rpc_table import func_table
-    f = open('marshal.h', 'a')
+    f = open('searpc-marshal.h', 'a')
     print >>f, "static void register_marshals()"""
     print >>f, "{"
     for item in func_table:
@@ -173,6 +174,7 @@ def gen_signature_list():
 
 
 if __name__ == "__main__":
+    sys.path.append(os.getcwd())
     gen_marshal_functions()
     gen_marshal_register_function()
     gen_signature_list()

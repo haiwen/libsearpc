@@ -7,7 +7,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "searpc-server.h"
+#include <searpc.h>
+
 #include "searpc-demo-packet.h"
 #define BUFLEN 256
 
@@ -31,10 +32,13 @@ searpc_strlen(const char *str)
         return strlen(str);
 }
 
+#include "searpc-signature.h"
+#include "searpc-marshal.h"
+
 static void
 start_rpc_service(void)
 {
-    searpc_server_init();
+    searpc_server_init(register_marshals);
     searpc_create_service("searpc-demo");
 
     /* The first parameter is the implementation function.

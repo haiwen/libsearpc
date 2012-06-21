@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
 #include <sys/stat.h>
-
 #include <glib-object.h>
 
-#include "searpc-client.h"
+#include <searpc.h>
+
 #include "searpc-demo-packet.h"
 
 #ifdef WIN32

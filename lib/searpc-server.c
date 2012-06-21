@@ -5,8 +5,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "json-glib/json-glib.h"
-
 #include "searpc-server.h"
 #include "searpc-utils.h"
 
@@ -87,8 +85,8 @@ searpc_remove_service (const char *svc_name)
 }
 
 /* Marshal functions */
-static inline void
-set_string_to_ret_object (JsonObject *object, gchar *ret)
+void
+searpc_set_string_to_ret_object (JsonObject *object, gchar *ret)
 {
     if (ret == NULL)
         json_object_set_null_member (object, "ret");
@@ -98,14 +96,14 @@ set_string_to_ret_object (JsonObject *object, gchar *ret)
     }
 }
 
-static inline void
-set_int_to_ret_object (JsonObject *object, gint64 ret)
+void
+searpc_set_int_to_ret_object (JsonObject *object, gint64 ret)
 {
     json_object_set_int_member (object, "ret", ret);
 }
 
-static inline void
-set_object_to_ret_object (JsonObject *object, GObject *ret)
+void
+searpc_set_object_to_ret_object (JsonObject *object, GObject *ret)
 {
     if (ret == NULL)
         json_object_set_null_member (object, "ret");
@@ -115,8 +113,8 @@ set_object_to_ret_object (JsonObject *object, GObject *ret)
     }
 }
 
-static inline void
-set_objlist_to_ret_object (JsonObject *object, GList *ret)
+void
+searpc_set_objlist_to_ret_object (JsonObject *object, GList *ret)
 {
     GList *ptr;
     
@@ -134,8 +132,8 @@ set_objlist_to_ret_object (JsonObject *object, GList *ret)
     }
 }
 
-static gchar *
-marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
+gchar *
+searpc_marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
 {
     JsonNode *root = json_node_new (JSON_NODE_OBJECT);
     JsonGenerator *generator = json_generator_new ();
@@ -158,7 +156,7 @@ marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
     return data;
 }
 
-static gchar *
+gchar *
 error_to_json (int code, const char *msg, gsize *len)
 {
     JsonObject *object = json_object_new ();
@@ -181,19 +179,15 @@ error_to_json (int code, const char *msg, gsize *len)
     return data;
 }
 
-/* include the generated marshal functions */
-#include "marshal.h"
-
 void
-searpc_server_init ()
+searpc_server_init (RegisterMarshalFunc register_func)
 {
     marshal_table = g_hash_table_new_full (g_str_hash, g_str_equal,
                                            NULL, (GDestroyNotify)marshal_item_free);
     service_table = g_hash_table_new_full (g_str_hash, g_str_equal,
                                            NULL, (GDestroyNotify)service_free);
 
-    /* register buildin marshal functions */
-    register_marshals();
+    register_func ();
 }
 
 void

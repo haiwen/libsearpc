@@ -4,12 +4,8 @@
 # Used in server:
 #
 # * searpc-signature.h: contains functions like `searpc_signature_int__string()`.
-# * marshal.h: contains functions like `marshal_int__string()`
+# * searpc-marshal.h: contains functions like `marshal_int__string()`
 #
-
-generated_sources = searpc-signature.h marshal.h
-
-# rpc_headers = fcall-impr.h searpc-fcall.h searpc-dfun.h searpc-signature.h searpc-marshal.h
 
 AM_CFLAGS = @GLIB_CFLAGS@ \
 	-I${top_builddir}/lib \
@@ -17,17 +13,11 @@ AM_CFLAGS = @GLIB_CFLAGS@ \
 	-I${top_srcdir}/lib \
 	-DG_LOG_DOMAIN=\"Searpc\"
 
-# we need to generate the  first
-BUILT_SOURCES = gensource
-
 lib_LTLIBRARIES = libsearpc.la
 
-include_HEADERS = searpc-client.h \
-	searpc-server.h searpc-signature.h searpc-utils.h
+include_HEADERS = searpc-client.h searpc-server.h searpc-utils.h searpc.h
 
-noinst_HEADERS = searpc-utils.h marshal.h
-
-libsearpc_la_SOURCES = searpc-client.c searpc-server.c $(generated_sources)
+libsearpc_la_SOURCES = searpc-client.c searpc-server.c
 
 libsearpc_la_LDFLAGS =  -version-info 1:2:0  -no-undefined
 
@@ -35,14 +25,3 @@ libsearpc_la_LIBADD = @GLIB_LIBS@ \
 	${top_builddir}/json-glib/json-glib/libsearpc-json-glib.la
 
 dist_bin_SCRIPTS = searpc-codegen.py
-
-EXTRA_DIST = rpc_table.py
-
-gensource: ${generated_sources}
-
-${generated_sources}: searpc-codegen.py rpc_table.py
-	@echo "[libsearpc]: generating rpc header files"
-	python searpc-codegen.py rpc_table.py
-	@echo "[libsearpc]: done"
-
-DISTCLEANFILES = ${generated_sources}

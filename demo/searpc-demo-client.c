@@ -8,7 +8,8 @@
 
 #include <glib-object.h>
 
-#include "searpc-client.h"
+#include <searpc.h>
+
 #include "searpc-demo-packet.h"
 
 #define BUFLEN 256
