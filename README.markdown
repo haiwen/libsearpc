@@ -6,10 +6,10 @@ handles the serialization/deserialization part of RPC, the transport
 part is left to users.
 
 The serialization/deserialization uses JSON format via json-glib
-library. A JsonObject is returned from server to client after
-executing the RPC function. Each RPC function defined in the server side should
-take an extra GError argument to report error. The returned JsonObject
-contains three fields:
+library. A serialized json object is returned from server to client
+after executing the RPC function. Each RPC function defined in the
+server side should take an extra GError argument to report error. The
+returned json object contains three fields:
 
 * **ret**:          the return value of the RPC function
 * **err_code**:     error code. This field is only set if the RPC function 
@@ -38,22 +38,15 @@ Client
 
 In the client side, you need to:
 
-* Define your RPC function with our marco.
+* Create a rpc_client and supply the transport function.
 * write code to send the request to server and get the resonpse from it.
 
 
-### Define your RPC function ###
+### Create rpc_client ###
 
-The client define RPC functions using macros defined in
-`searpc-client.h`. To call the functions, the client needs to create
-a SearpcClient object and supply a transport function. For example:
+The client needs to create a SearpcClient object and supply a
+transport function. For example:
 
-    /* 
-     * define a RPC function which takes a string argument and returns
-     * an integer. The xxx_INT__STRING naming convention is used to
-     * indicate the types of the param(string) and the return value(int).
-     */
-    SEARPC_CLIENT_DEFUN_INT__STRING(searpc_strlen)
 
     /* create an rpc_client and supply the transport function. */
     SearpcClient *rpc_client;
@@ -61,11 +54,25 @@ a SearpcClient object and supply a transport function. For example:
     rpc_client->transport = transport_callback;
     rpc_client->arg = &sockfd;
 
-The `SEARPC_CLIENT_DEFUN_XXX__YYY` macro defines a client side RPC function.
-**XXX** stands for the return type and **YYY** stands for the param type. If there
-are multiple params, just append every param type there. For example,
-`SEARPC_CLIENT_DEFUN_INT__STRING_STRING` defines a RPC function which takes two
-string params and returns an integer value.
+Suppose we have a `get_substring` function defined in server as follows:
+
+    gchar *get_substring (const gchar *orig_str, int sub_len, GError **error)
+    
+To call this function, we type:
+
+    gchar* result;
+    GError *error = NULL;
+    result = searpc_client_call__string (client, "get_substring", &error,
+                                         2, "string", "hello", "int", 2);
+
+`string` in `searpc_client_call__string` specify the return type. "get_substring"
+is the function name. The remain parameters specify the number of parameters the rpc
+function took and the type of each parameter and its value. So
+
+    2, "string", "hello", "int", 2
+    
+means "get_substring" takes 2 parameters, the first is of type "string", the value is
+"hello", the second is of type "int", the value is 2.
 
 
 ### Transport function ###
@@ -100,7 +107,8 @@ Server
 
 In the server side, you need to:
 
-* Register your function
+* Init searpc server
+* Create services and register your functions
 * write code to receive the request and send the result
 
 And Searpc handles the others for you.
@@ -112,34 +120,98 @@ And Searpc handles the others for you.
     data format is called marshalling. The function used to
     pack the result is called a **marshal**.
  
-* **Signature**: Signatures are used to identify different types of
-    marshals. After the execution of a RPC function on the server side,
-    different types of results need different marshals.
-
-* **Function table**: The hash table used to store the (funcname, func)
-    pairs.
-
-* **Marshal table**: The hash table used to store the (signature,
-    marshal) pairs.
+* **Signature**: Every function has a signature determined by its
+    return type and parameter types. Knowning a function's signature
+    enable us to use a corresponding marshal to call it and convert
+    the result into json string.
 
 
-### Register your function ###
+### Init Searpc Server ###
 
+First write rpc_table.py to contain the rpc function signatures as follows:
+
+    
+    # [ <ret-type>, [<arg_types>] ]
+    func_table = [
+         [ "int", ["string"] ],
+         [ "string", ["int", "string"] ],
+    ]
+
+Add makefile rule:
+
+    searpc-signature.h searpc-marshal.h: rpc_table.py
+        python searpc-codegen.py rpc_table.py
+        
+`searpc-signature.h` and `searpc-marshal.h` will be created containing the
+function signatures and corresponding marshals. `searpc-marshal.h` also contains
+a function called `register_marshals`.
+
+Then we init the server as follows:
+
+
+    #include "searpc-signature.h"
+    #include "searpc-marshal.h"
+
+    static void
+    init_rpc_service(void)
+    {
+        /* register_marshals is defined in searpc-marshal.h */
+        searpc_server_init(register_marshals);
+    }
+    
+
+### Register Functions ###
+
+To register a function we first need to create a service. A service is
+a set of functions. 
+
+Suppose we want to make `searpc_strlen` callable from some network
+clients, we can do this by putting the following code somewhere:
+
+    static int
+    searpc_strlen(const char *str)
+    {
+        if (str == NULL)
+            return -1;
+        else
+            return strlen(str);
+    }
+    
+    static void
+    register_functions()
+    {
+    
+        searpc_create_service("searpc-demo");
+
+        /* The first parameter is the implementation function.
+         * The second parameter is the name of the rpc function the 
+         * client would call.
+         * The third parameter is the signature.
+         */
+        searpc_server_register_function("searpc-demo",
+                                        searpc_strlen,
+                                        "searpc_strlen",
+                                        searpc_signature_int__string());
+     }
+
+    
 The `seaprc_server_register_function` routine registers a function as
-a RPC function. It inserts your function into the function table. The
+a RPC function. The
 prototype of this function is:
 
     /*
+     * service:     the name of the service
      * func:        pointer to the function you want to register
      * fname:       the name of the function. It would be the key of your 
      *              function in the fucntion hash table.
      * signature:   the identifier used to get the corresponding marshal.
      * Returns:     a gboolean value indicating success or failure
      */
-    gboolean searpc_server_register_function (void *func, const gchar *fname, const gchar *signature)
+     gboolean searpc_server_register_function (const char *service,
+                                               void* func,
+                                               const gchar *fname,
+                                               gchar *signature);
 
-    Before calling `searpc_server_register_function`, you need to call
-**`searpc_server_init()`** to do the initialization work.
 
 
 ### Call the RPC fucntion  ###
@@ -150,23 +222,34 @@ incoming request data stream. Once you get a valid request, call the
 following work for you:
 
 * Parse the JSON data stream to resolve the function name and the data.
-* Lookup the function in the function table according to the funcname.
+* Lookup the function in internal function table according to the funcname.
 * If a proper function is found, call the function with the given params.
 * Packing the result into a JSON data string.
     
 The prototype of `searpc_server_call_function` is:
     
     /*
+     * service: Service name.
      * data:    The incoming JSON data stream.
      * len:     The length of **`data`**.
      * ret_len: Place to hold the length of the JSON data stream to be returned
      * Returns: The JSON data containing the result of the RPC
      */
-    gchar* searpc_server_call_function (gchar *data, gsize len, gsize *ret_len)
-    
+    gchar* searpc_server_call_function (const char *service,
+                                        gchar *data, gsize len, gsize *ret_len)
+
 The value returned by `searpc_server_call_function()` is the JSON data
 ready to send back to the client. 
 
+Note, the JSON data stream from client does not contain the service
+name, it's left to the transport layer to solve the problem. There are
+several ways, for example:
+
+1. You may listen on different sockets and determine the service by
+   the incoming socket.
+2. The client transport function prepend the service name into the request 
+   before the json data, and the server transport function first read the service
+   name and read the json data.
 
 Pysearpc
 ========
@@ -205,21 +288,6 @@ There are well-commented demos in both C and Python.
 To run the demo, run the server demo in a shell, and run the client
 demo in another. To run the python demo, you should first install the
 package and setup the **PYTHONPATH** appropriately.
-
-
-Thread Safety
-=============
-
-
-Extend Searpc
-=============
-
-To support new rpc function types, 
-
-1. edit **`rpc_table.py`**, 
-2. call **make genrpc**.
-3. If the return type is not supported yet, you need also define the 
-   corresponding **`searpc_fret_*`** function.
 
 
 Dependency
