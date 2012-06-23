@@ -4,6 +4,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <searpc.h>
+
 #define DFT_DOMAIN g_quark_from_string("TEST")
 
 #include "searpc-server.h"
@@ -331,13 +333,16 @@ void test_simple_call_async (void *fixture, const void *data)
                                       2, "string", "hello", "int", 10);
 }
 
+#include "searpc-signature.h"
+#include "searpc-marshal.h"
+
 int
 main (int argc, char *argv[])
 {
     g_type_init ();
     g_test_init (&argc, &argv, NULL);
 
-    searpc_server_init ();
+    searpc_server_init (register_marshals);
     searpc_create_service ("test");
     searpc_server_register_function ("test", get_substring, "get_substring", 
                                      searpc_signature_string__string_int());
