@@ -74,6 +74,8 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
         void *value = va_arg(args, void *);
         if (strcmp(type, "int") == 0)
             json_array_add_int_element (array, (int)value);
+        else if (strcmp(type, "int64") == 0)
+            json_array_add_int_element (array, *((gint64 *)value));
         else if (strcmp(type, "string") == 0)
             json_array_add_string_or_null_element (array, (char *)value);
         else {
