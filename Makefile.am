@@ -12,12 +12,8 @@ EXTRA_DIST = $(GNU_STANDARD_FILES)
 
 EXTRA_DIST += libsearpc.pc.in
 
-if COMPILE_PYTHON
-  PYTHONDIR = pysearpc
-endif
-
 if COMPILE_DEMO
   MAKE_DEMO = demo
 endif
 
-SUBDIRS = json-glib lib ${PYTHONDIR} ${MAKE_DEMO} tests
+SUBDIRS = json-glib lib pysearpc ${MAKE_DEMO} tests

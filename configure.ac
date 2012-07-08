@@ -47,9 +47,7 @@ AC_MSG_CHECKING(for WIN32)
 if test "$MINGW32" = yes; then
   bwin32=true
   LIB_WS32=-lws2_32
-  LIB_PYTHON=-lpython26
   AC_SUBST(LIB_WS32)
-  AC_SUBST(LIB_PYTHON)
   AC_MSG_RESULT(compile in mingw32)
 fi
 
@@ -64,22 +62,11 @@ fi
 
 if test x$bmac = "xyes"; then
   server_pkg=no
-  LIB_PYTHON=-lpython
-  AC_SUBST(LIB_PYTHON)
   AC_MSG_RESULT(compile in mac)
 fi
 
 AM_CONDITIONAL([MACOS], [test "$bmac" = "yes"])
 AC_SUBST(MACOS)
-
-# option: compile-python
-# default: no
-AC_ARG_ENABLE([compile-python],
-[AS_HELP_STRING([--enable-compile-python],
-[compile pysearpc @<:@default: no@:>@])],
-[compile_python=${enableval}], [compile_python=yes])
-
-AM_CONDITIONAL([COMPILE_PYTHON], [test x${compile_python} = xyes])
 
 # If we're building server release package, set the run-time path
 # for the executables. So that the loader will lookup shared libs
@@ -101,27 +88,25 @@ PKG_CHECK_MODULES(GLIB, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
-# conditinally check python and subst
-if test x${compile_python} = xyes; then
-   AM_PATH_PYTHON([2.4])
-   if test "$bwin32" = true; then
-      if test x$PYTHON_DIR != x; then
-      # set pyexecdir to somewhere like /c/Python26/Lib/site-packages
-         pyexecdir=${PYTHON_DIR}/Lib/site-packages
-         pythondir=${pyexecdir}
-         pkgpyexecdir=${pyexecdir}/${PACKAGE}
-         pkgpythondir=${pythondir}/${PACKAGE}
-      fi
-   fi    
-   AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
 
-   if test "$bwin32" = true; then
-       pyexecdir=${PYTHON_DIR}/Lib/site-packages
-       pythondir=${pyexecdir}
-       pkgpyexecdir=${pyexecdir}/${PACKAGE}
-       pkgpythondir=${pythondir}/${PACKAGE}
+AM_PATH_PYTHON([2.4])
+if test "$bwin32" = true; then
+   if test x$PYTHON_DIR != x; then
+   # set pyexecdir to somewhere like /c/Python26/Lib/site-packages
+      pyexecdir=${PYTHON_DIR}/Lib/site-packages
+      pythondir=${pyexecdir}
+      pkgpyexecdir=${pyexecdir}/${PACKAGE}
+      pkgpythondir=${pythondir}/${PACKAGE}
    fi
 fi
+
+if test "$bwin32" = true; then
+   pyexecdir=${PYTHON_DIR}/Lib/site-packages
+   pythondir=${pyexecdir}
+   pkgpyexecdir=${pyexecdir}/${PACKAGE}
+   pkgpythondir=${pythondir}/${PACKAGE}
+fi
+
 
 AC_CONFIG_SUBDIRS([json-glib])
 
