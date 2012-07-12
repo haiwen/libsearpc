@@ -7,7 +7,7 @@ SUBDIRS = json-glib build
 
 CLEANFILES = $(pcfiles) test-report.xml
 
-DISTCHECK_CONFIGURE_FLAGS = --enable-maintainer-flags --enable-introspection
+DISTCHECK_CONFIGURE_FLAGS = --enable-maintainer-flags
 
 dist-hook:
 	@if test -d "$(srcdir)/.git"; then \
