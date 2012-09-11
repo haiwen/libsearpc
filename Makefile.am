@@ -17,13 +17,3 @@ if COMPILE_DEMO
 endif
 
 SUBDIRS = json-glib lib pysearpc ${MAKE_DEMO} tests
-
-distcheck-hook:
-	chmod 755 $(distdir)
-	mkdir -p $(distdir)/_build/demo $(distdir)/_build/tests
-	cp $(distdir)/demo/rpc_table.py $(distdir)/_build/demo/
-	cp $(distdir)/tests/rpc_table.py $(distdir)/_build/tests/
-
-distcleancheck:
-	-rm $(distdir)/_build/demo/rpc_table.py*
-	-rm $(distdir)/_build/tests/rpc_table.py*
