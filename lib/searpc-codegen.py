@@ -166,7 +166,6 @@ def generate_signature(ret_type, arg_types):
     return template.substitute(signature_name=signature_name, args=args)
 
 def gen_signature_list():
-    from rpc_table import func_table
     f = open('searpc-signature.h', 'w')
     for item in func_table:
         print >>f,generate_signature(item[0], item[1])
@@ -175,6 +174,22 @@ def gen_signature_list():
 
 if __name__ == "__main__":
     sys.path.append(os.getcwd())
+
+    # load function table
+    if len(sys.argv) == 2:
+        abspath = os.path.abspath(sys.argv[1])
+        d = os.path.dirname(abspath)
+        f = os.path.basename(abspath)
+        mod = f[:f.rfind('.')]
+        sys.path.append(d)
+        print "load func_table from %s" % (abspath)
+        rpc_mod = __import__(mod, globals(), locals(), [], -1)
+        func_table = rpc_mod.func_table
+    else:
+        # load from default rpc_table.py
+        from rpc_table import func_table
+
+    # gen code
     gen_marshal_functions()
     gen_marshal_register_function()
     gen_signature_list()
