@@ -31,9 +31,11 @@ def _fret_string(ret_str):
         
     if dicts.has_key('err_code'):
         raise SearpcError(dicts['err_msg'])
-        
-    if dicts['ret']:
+
+    if dicts.has_key('ret'):
         return dicts['ret']
+    else:
+        raise SearpcError('Invalid response format')
 
 class _SearpcObj(object):
     '''A compact class to emulate gobject.GObject
