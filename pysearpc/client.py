@@ -1,19 +1,12 @@
 import simplejson as json
-
-class SearpcError(Exception):
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+from common import SearpcError
 
 def _fret_int(ret_str):
     try:
         dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
-        
+
     if dicts.has_key('err_code'):
         raise SearpcError(dicts['err_msg'])
 
@@ -27,7 +20,7 @@ def _fret_string(ret_str):
         dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
-        
+
     if dicts.has_key('err_code'):
         raise SearpcError(dicts['err_msg'])
 
@@ -67,29 +60,29 @@ def _fret_obj(ret_str):
         dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
-        
+
     if dicts.has_key('err_code'):
         raise SearpcError(dicts['err_msg'])
-        
+
     if dicts['ret']:
         return _SearpcObj(dicts['ret'])
     else:
         return None
-    
+
 def _fret_objlist(ret_str):
     try:
         dicts = json.loads(ret_str)
     except:
         raise SearpcError('Invalid response format')
-        
+
     if dicts.has_key('err_code'):
         raise SearpcError(dicts['err_msg'])
-        
+
     l = []
     if dicts['ret']:
         for elt in dicts['ret']:
             l.append(_SearpcObj(elt))
-        
+
     return l
 
 

@@ -1,5 +1,5 @@
 
 pysearpcdir=${pyexecdir}/pysearpc
 
-pysearpc_PYTHON = __init__.py client.py
+pysearpc_PYTHON = __init__.py common.py client.py server.py
 
