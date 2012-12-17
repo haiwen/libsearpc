@@ -31,7 +31,7 @@ gensource: ${generated_sources}
 
 ${generated_sources}: ${top_srcdir}/demo/rpc_table.py
 	@echo "[libsearpc]: generating rpc header files"
-	python ${top_srcdir}/lib/searpc-codegen.py ${top_srcdir}/demo/rpc_table.py
+	@PYTHON@ ${top_srcdir}/lib/searpc-codegen.py ${top_srcdir}/demo/rpc_table.py
 	@echo "[libsearpc]: done"
 
 clean-local:
