@@ -15,16 +15,16 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
+#AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_INLINE
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_TYPE_UINT16_T
+#AC_C_INLINE
+#AC_TYPE_SIZE_T
+#AC_TYPE_SSIZE_T
+#AC_TYPE_UINT16_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([memset socket strerror strndup])
+#AC_CHECK_FUNCS([memset socket strerror strndup])
 
 # Options about demos and pysearpc
 
@@ -99,14 +99,6 @@ if test "$bwin32" = true; then
       pkgpythondir=${pythondir}/${PACKAGE}
    fi
 fi
-
-if test "$bwin32" = true; then
-   pyexecdir=${PYTHON_DIR}/Lib/site-packages
-   pythondir=${pyexecdir}
-   pkgpyexecdir=${pyexecdir}/${PACKAGE}
-   pkgpythondir=${pythondir}/${PACKAGE}
-fi
-
 
 AC_CONFIG_SUBDIRS([json-glib])
 

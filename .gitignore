@@ -42,3 +42,10 @@ tests/test-searpc
 cscope*
 pysearpc/rpc_table.py
 *.pc
+demo/searpc-marshal.h
+demo/searpc-signature.h
+tests/searpc-marshal.h
+tests/searpc-signature.h
+
+
+
