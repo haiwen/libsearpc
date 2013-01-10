@@ -17,3 +17,6 @@ if COMPILE_DEMO
 endif
 
 SUBDIRS = json-glib lib pysearpc ${MAKE_DEMO} tests
+
+install-data-local:
+	sed -i "s|(DESTDIR)|${DESTDIR}|g" $(pcfiles)
