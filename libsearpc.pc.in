@@ -7,5 +7,5 @@ Name: libsearpc
 Description: Simple C rpc library
 Version: @VERSION@
 Libs: -L${libdir} -lsearpc -lsearpc-json-glib
-Cflags: -I${includedir}/searpc
+Cflags: -I${includedir} -I${includedir}/searpc
 Requires: gobject-2.0 gio-2.0
