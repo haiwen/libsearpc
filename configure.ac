@@ -68,17 +68,6 @@ fi
 AM_CONDITIONAL([MACOS], [test "$bmac" = "yes"])
 AC_SUBST(MACOS)
 
-# If we're building server release package, set the run-time path
-# for the executables. So that the loader will lookup shared libs
-# in 'lib' dir of the release package.
-# Read "man ld.so" for description of $ORIGIN.
-# Refer to http://blog.linuxgamepublishing.com/2009/02/08/our-new-way-to-meet-the-lgpl/
-if test x${server_pkg} = xyes; then
-   SERVER_PKG_RPATH=-Wl,-R,\'\$\$ORIGIN/../../..\'
-fi
-
-AC_SUBST(SERVER_PKG_RPATH)
-
 # Checks for libraries.
 
 GLIB_REQUIRED=2.26.0
