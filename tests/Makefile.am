@@ -27,5 +27,6 @@ ${generated_sources}: $(top_srcdir)/tests/rpc_table.py
 	@echo "[libsearpc]: done"
 
 clean-local:
-	-rm ${generated_sources}
+	rm -f ${generated_sources}
+	rm -f rpc_table.pyc
 

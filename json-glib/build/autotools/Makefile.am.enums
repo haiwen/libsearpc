@@ -19,7 +19,7 @@ enum_tmpl_h=$(glib_enum_h:.h=.h.in)
 enum_tmpl_c=$(glib_enum_c:.c=.c.in)
 
 CLEANFILES += stamp-enum-types
-DISTCLEANFILES += $(glib_enum_h) $(glib_enum_c)
+#DISTCLEANFILES += $(glib_enum_h) $(glib_enum_c)
 BUILT_SOURCES += $(glib_enum_h) $(glib_enum_c)
 EXTRA_DIST += $(srcdir)/$(enum_tmpl_h) $(srcdir)/$(enum_tmpl_c)
 

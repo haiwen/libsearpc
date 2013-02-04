@@ -26,7 +26,7 @@ AM_CFLAGS = $(JSON_CFLAGS) $(MAINTAINER_CFLAGS) -fPIC
 BUILT_SOURCES =
 
 CLEANFILES =
-DISTCLEANFILES = json-version.h
+#DISTCLEANFILES = json-version.h
 
 source_h = \
 	$(top_srcdir)/json-glib/json-builder.h		\
@@ -88,7 +88,7 @@ jsoninclude_DATA = \
 	$(top_srcdir)/json-glib/json-glib.h		\
 	$(NULL)
 
-EXTRA_DIST += json-version.h.in json-glib.h json-version.h
+EXTRA_DIST += json-version.h.in json-glib.h
 
 TESTS_ENVIRONMENT = srcdir="$(srcdir)" json_all_c_sources="$(source_c)"
 

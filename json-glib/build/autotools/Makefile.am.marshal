@@ -18,7 +18,7 @@ marshal_h = $(glib_marshal_list:.list=.h)
 marshal_c = $(glib_marshal_list:.list=.c)
 
 CLEANFILES += stamp-marshal
-DISTCLEANFILES += $(marshal_h) $(marshal_c)
+#DISTCLEANFILES += $(marshal_h) $(marshal_c)
 BUILT_SOURCES += $(marshal_h) $(marshal_c)
 EXTRA_DIST += $(srcdir)/$(glib_marshal_list)
 
