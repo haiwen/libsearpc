@@ -24,3 +24,6 @@ if MACOS
 else
 	sed -i "s|(DESTDIR)|${DESTDIR}|g" $(pcfiles)
 endif
+
+dist-hook:
+	git log -1 > $(distdir)/latest_commit
