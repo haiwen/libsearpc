@@ -2,7 +2,7 @@ generated_sources = searpc-signature.h searpc-marshal.h
 
 AM_CFLAGS = @GLIB_CFLAGS@ \
 	@JSON_GLIB_CFLAGS@ \
-	-I${top_srcdir}/lib \
+	-I${top_srcdir}/lib
 
 # we need to generate the first
 BUILT_SOURCES = gensource
