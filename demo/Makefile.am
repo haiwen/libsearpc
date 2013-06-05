@@ -1,8 +1,8 @@
 generated_sources = searpc-signature.h searpc-marshal.h
 
 AM_CFLAGS = @GLIB_CFLAGS@ \
-	-I${top_srcdir}/lib \
-	-I${top_srcdir}/json-glib
+	@JSON_GLIB_CFLAGS@ \
+	-I${top_srcdir}/lib
 
 # we need to generate the first
 BUILT_SOURCES = gensource
@@ -13,7 +13,7 @@ searpc_demo_server_SOURCES = searpc-demo-server.c searpc-demo-packet.h
 
 searpc_demo_server_LDADD = ${top_builddir}/lib/libsearpc.la @LIB_WS32@ \
 	@GLIB_LIBS@ \
-	${top_builddir}/json-glib/json-glib/libsearpc-json-glib.la
+	@JSON_GLIB_LIBS@
 
 searpc_demo_client_SOURCES = searpc-demo-client.c searpc-demo-packet.h
 

@@ -1,8 +1,8 @@
 generated_sources = searpc-signature.h searpc-marshal.h
 
 AM_CFLAGS = @GLIB_CFLAGS@ \
-	-I${top_srcdir}/lib \
-	-I${top_srcdir}/json-glib
+	@JSON_GLIB_CFLAGS@ \
+	-I${top_srcdir}/lib
 
 # we need to generate the first
 BUILT_SOURCES = gensource
@@ -10,9 +10,8 @@ BUILT_SOURCES = gensource
 check_PROGRAMS = test-searpc
 
 test_searpc_SOURCES = test-searpc.c
-test_searpc_LDADD = @GLIB_LIBS@  \
-    $(top_builddir)/lib/libsearpc.la \
-    ${top_builddir}/json-glib/json-glib/libsearpc-json-glib.la
+test_searpc_LDADD = @GLIB_LIBS@ @JSON_GLIB_LIBS@ \
+    $(top_builddir)/lib/libsearpc.la
 test_searpc_LDFLAGS = -static
 
 TESTS = test-searpc

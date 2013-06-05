@@ -71,12 +71,16 @@ AC_SUBST(MACOS)
 # Checks for libraries.
 
 GLIB_REQUIRED=2.26.0
+JSON_GLIB_REQUIRED=0.14.2
 
 # check and subst gobject
 PKG_CHECK_MODULES(GLIB, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+PKG_CHECK_MODULES(JSON_GLIB, [json-glib-1.0 >= $JSON_GLIB_REQUIRED])
+AC_SUBST(JSON_GLIB_CFLAGS)
+AC_SUBST(JSON_GLIB_LIBS)
 
 AM_PATH_PYTHON([2.4])
 if test "$bwin32" = true; then
@@ -89,8 +93,6 @@ if test "$bwin32" = true; then
    fi
 fi
 
-AC_CONFIG_SUBDIRS([json-glib])
-
 AC_CONFIG_FILES([Makefile
                  lib/Makefile
                  demo/Makefile
@@ -98,5 +100,3 @@ AC_CONFIG_FILES([Makefile
                  libsearpc.pc
                  tests/Makefile])
 AC_OUTPUT
-
-
