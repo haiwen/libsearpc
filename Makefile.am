@@ -16,7 +16,7 @@ if COMPILE_DEMO
   MAKE_DEMO = demo
 endif
 
-SUBDIRS = json-glib lib pysearpc ${MAKE_DEMO} tests
+SUBDIRS = lib pysearpc ${MAKE_DEMO} tests
 
 install-data-local:
 if MACOS
