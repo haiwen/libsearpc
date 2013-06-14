@@ -1,4 +1,7 @@
-import simplejson as json
+try:
+    import json
+except:
+    import simplejson as json
 
 from common import SearpcError
 
