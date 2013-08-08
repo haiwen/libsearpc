@@ -11,6 +11,7 @@
 #include <searpc.h>
 
 #include "searpc-demo-packet.h"
+#include "test-object.h"
 
 #define BUFLEN 256
 #define MAGIC_STRING "ABCD"
@@ -59,6 +60,25 @@ static char *transport_callback(void *arg, const char *fcall_str,
     return g_strndup(pac_ret->data, *ret_len);
 }
 
+void
+searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
+{
+    GList *ptr;
+    
+    if (ret == NULL)
+        json_object_set_new (object, "ret", json_null ());
+    else {
+        json_t *array = json_array ();
+        for (ptr = ret; ptr; ptr = ptr->next)
+            json_array_append_new (array, json_gobject_serialize (ptr->data));
+        json_object_set_new (object, "ret", array);
+
+        for (ptr = ret; ptr; ptr = ptr->next)
+            g_object_unref (ptr->data);
+        g_list_free (ret);
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -103,13 +123,24 @@ main(int argc, char *argv[])
     rpc_client->arg = (void *)(long)sockfd;
 
     /* call the client-side funcion */
-    ret = searpc_client_call__int(rpc_client, "searpc_strlen", &error,
+    /*ret = searpc_client_call__int(rpc_client, "searpc_strlen", &error,
                                   1, "string", "hello searpc");
     if (error != NULL) {
         fprintf(stderr, "error: %s\n", error->message);
         exit(-1);
     } else
-        printf("the length of string 'hello searpc' is %d.\n", ret);
+        printf("the length of string 'hello searpc' is %d.\n", ret);*/
+
+    GList *ans=searpc_client_call__objlist(rpc_client, "searpc_glisttest", TEST_OBJECT_TYPE, &error,
+                                           3, "int", 12, "int", 4, "string", "Hehehe!");
+    json_t *object=json_object();
+    searpc_set_objlist_to_ret_object(object,ans);
+    if (error != NULL) {
+        fprintf(stderr, "error: %s\n", error->message);
+        exit(-1);
+    } else
+    printf("%s\n",json_dumps(object,JSON_INDENT(2)));
+    json_decref(object);
 
     close(sockfd);
 

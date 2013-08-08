@@ -9,6 +9,7 @@
 
 #include <searpc.h>
 
+#include "test-object.h"
 #include "searpc-demo-packet.h"
 #define BUFLEN 256
 
@@ -32,6 +33,24 @@ searpc_strlen(const char *str)
         return strlen(str);
 }
 
+static GList *
+searpc_glisttest(int a, int c, const char *str)
+{
+    GList *ret=NULL;
+    int i;
+    for (i=0; i!=c; ++i)
+    {
+        TestObject *obj=g_object_new (TEST_OBJECT_TYPE, NULL);
+        obj->a=a;
+        obj->c=strlen(str);
+        g_free(obj->str);
+        obj->str=g_strdup(str);
+        obj->boo=TRUE;
+        ret = g_list_prepend (ret, obj);
+    }
+    return ret;
+}
+
 #include "searpc-signature.h"
 #include "searpc-marshal.h"
 
@@ -50,6 +69,10 @@ start_rpc_service(void)
                                     searpc_strlen,
                                     "searpc_strlen",
                                     searpc_signature_int__string());
+    searpc_server_register_function("searpc-demo",
+                                    searpc_glisttest,
+                                    "searpc_glisttest",
+                                    searpc_signature_objlist__int_int_string());
 }
 
 
