@@ -17,7 +17,7 @@ void searpc_set_string_to_ret_object (json_t *object, char *ret);
 void searpc_set_int_to_ret_object (json_t *object, json_int_t ret);
 void searpc_set_object_to_ret_object (json_t *object, GObject *ret);
 void searpc_set_objlist_to_ret_object (json_t *object, GList *ret);
-char *searpc_marshal_set_ret_common (json_t *object, int *len, GError *error);
+char *searpc_marshal_set_ret_common (json_t *object, gsize *len, GError *error);
 
 /**
  * searpc_server_init:

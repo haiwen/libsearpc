@@ -71,7 +71,7 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
         const char *type = va_arg(args, const char *);
         void *value = va_arg(args, void *);
         if (strcmp(type, "int") == 0)
-	    json_array_append_new (array, json_integer ((int)value));
+	    json_array_append_new (array, json_integer ((int)(long)value));
         else if (strcmp(type, "int64") == 0)
 	    json_array_append_new (array, json_integer (*((gint64 *)value)));
         else if (strcmp(type, "string") == 0)
@@ -541,7 +541,7 @@ searpc_client_fret__int (char *data, size_t len, GError **error)
     int ret;
 
     if (handle_ret_common(data, len, &object, error) == 0) {
-        ret = json_integer_value(json_object_get(object, "ret"));
+        ret = json_integer_value (json_object_get(object, "ret"));
         json_decref(object);
         return ret;
     }
@@ -556,7 +556,7 @@ searpc_client_fret__int64 (char *data, size_t len, GError **error)
     gint64 ret;
 
     if (handle_ret_common(data, len, &object, error) == 0) {
-        ret = json_integer(json_object_get(object, "ret"));
+        ret = json_integer_value (json_object_get(object, "ret"));
         json_decref(object);
         return ret;
     }
