@@ -153,7 +153,7 @@ searpc_marshal_set_ret_common (json_t *object, gsize *len,  GError *error)
 }
 
 char *
-error_to_json (int code, const char *msg, int *len)
+error_to_json (int code, const char *msg, gsize *len)
 {
     json_t *object = json_object ();
     char *data;
