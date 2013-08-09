@@ -41,10 +41,10 @@ searpc_objlisttest(int count, int len, const char *str)
     for (i=0; i!=count; ++i)
     {
         TestObject *obj=g_object_new (TEST_OBJECT_TYPE, NULL);
-        obj->len = strlen(str);
+        obj->len = len;
         g_free (obj->str);
         obj->str = g_strdup(str);
-        if (len == obj->len)
+        if (len == strlen(str))
             obj->equal = TRUE;
         ret = g_list_prepend (ret, obj);
     }
