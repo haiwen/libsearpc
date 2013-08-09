@@ -167,7 +167,7 @@ rpc_glist_test(int sockfd, struct sockaddr_in *servaddr, SearpcClient *rpc_clien
     }
 
     json_decref(object);
-    printf("Glisttest succedd.\n");
+    printf("Glisttest succeed.\n");
     close(sockfd);
 }
 
@@ -192,7 +192,7 @@ main(int argc, char *argv[])
     servaddr.sin_port = htons(12345);
     inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
 
-    if (connection_init(&sockfd, &servaddr)) exit(-1);
+    if (connection_init(&sockfd, &servaddr)<0) exit(-1);
 
     /* create an rpc_client and supply the transport function. */
     rpc_client = searpc_client_new();
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 
     rpc_string_test(sockfd, &servaddr, rpc_client, error);
 
-    if (connection_init(&sockfd, &servaddr)) exit(-1);
+    if (connection_init(&sockfd, &servaddr)<0) exit(-1);
     rpc_client->arg = (void *)(long)sockfd;
 
     rpc_glist_test(sockfd, &servaddr, rpc_client, error);
