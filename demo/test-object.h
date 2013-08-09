@@ -15,16 +15,14 @@ typedef struct _TestObject      TestObject;
 typedef struct _TestObjectClass TestObjectClass;
 
 struct _TestObject {
-  GObject parent;
-  gint a;
-  gint64 b;
-  guint c;
-  gchar * str;
-  gboolean boo;
+    GObject parent;
+    int len;
+    gchar *str;
+    gboolean equal;
 };
 
 struct _TestObjectClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 #endif

@@ -149,7 +149,6 @@ searpc_marshal_set_ret_common (json_t *object, int *len,  GError *error)
     *len=strlen(data);
     json_decref(object);
 
-    printf("%s\n",data);
     return data;
 }
 

@@ -34,18 +34,18 @@ searpc_strlen(const char *str)
 }
 
 static GList *
-searpc_glisttest(int a, int c, const char *str)
+searpc_objlisttest(int count, int len, const char *str)
 {
     GList *ret=NULL;
     int i;
-    for (i=0; i!=c; ++i)
+    for (i=0; i!=count; ++i)
     {
         TestObject *obj=g_object_new (TEST_OBJECT_TYPE, NULL);
-        obj->a=a;
-        obj->c=strlen(str);
-        g_free(obj->str);
-        obj->str=g_strdup(str);
-        obj->boo=TRUE;
+        obj->len = strlen(str);
+        g_free (obj->str);
+        obj->str = g_strdup(str);
+        if (len == obj->len)
+            obj->equal = TRUE;
         ret = g_list_prepend (ret, obj);
     }
     return ret;
@@ -70,8 +70,8 @@ start_rpc_service(void)
                                     "searpc_strlen",
                                     searpc_signature_int__string());
     searpc_server_register_function("searpc-demo",
-                                    searpc_glisttest,
-                                    "searpc_glisttest",
+                                    searpc_objlisttest,
+                                    "searpc_objlisttest",
                                     searpc_signature_objlist__int_int_string());
 }
 
@@ -148,7 +148,6 @@ main(int argc, char *argv[])
         /* Execute the RPC function */
         char *res = searpc_server_call_function ("searpc-demo", pac->data, fcall_len,
                                                  &ret_len);
-
         pac_ret = (packet *)buf;
         pac_ret->length = htons((uint16_t)ret_len);
         memcpy(pac_ret->data, res, ret_len);

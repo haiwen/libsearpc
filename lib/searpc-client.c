@@ -70,11 +70,10 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
     for (; i < n_params; i++) {
         const char *type = va_arg(args, const char *);
         void *value = va_arg(args, void *);
-        printf("%s\n",type);
         if (strcmp(type, "int") == 0)
-	    json_array_append_new(array, json_integer((int)value));
+	    json_array_append_new (array, json_integer ((int)value));
         else if (strcmp(type, "int64") == 0)
-	    json_array_append_new (array, json_integer(*((gint64 *)value)));
+	    json_array_append_new (array, json_integer (*((gint64 *)value)));
         else if (strcmp(type, "string") == 0)
             json_array_add_string_or_null_element (array, (char *)value);
         else {
@@ -278,6 +277,7 @@ searpc_client_call__objlist (SearpcClient *client, const char *fname,
     va_start (args, n_params);
     fstr = fcall_to_str (fname, n_params, args, &len);
     va_end (args);
+
     if (!fstr) {
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return NULL;
@@ -617,6 +617,5 @@ searpc_client_fret__objlist (GType gtype, char *data, size_t len, GError **error
         json_decref(object);
         return g_list_reverse(ret);
     }
-
     return NULL;
 }

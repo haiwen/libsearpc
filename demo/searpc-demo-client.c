@@ -60,6 +60,7 @@ static char *transport_callback(void *arg, const char *fcall_str,
     return g_strndup(pac_ret->data, *ret_len);
 }
 
+/*The function is copied from searpc-server.c for convience*/
 void
 searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
 {
@@ -131,15 +132,18 @@ main(int argc, char *argv[])
     } else
         printf("the length of string 'hello searpc' is %d.\n", ret);*/
 
-    GList *ans=searpc_client_call__objlist(rpc_client, "searpc_glisttest", TEST_OBJECT_TYPE, &error,
-                                           3, "int", 12, "int", 4, "string", "Hehehe!");
+    GList *ans=searpc_client_call__objlist(rpc_client, "searpc_objlisttest",
+                                           TEST_OBJECT_TYPE, &error,
+                                           3, "int", 4, "int", 10, "string", "A rpc test.");
+
     json_t *object=json_object();
-    searpc_set_objlist_to_ret_object(object,ans);
+    searpc_set_objlist_to_ret_object (object,ans);
+
     if (error != NULL) {
         fprintf(stderr, "error: %s\n", error->message);
         exit(-1);
-    } else
-    printf("%s\n",json_dumps(object,JSON_INDENT(2)));
+    } 
+    else printf("%s\n", json_dumps (object, JSON_INDENT(2)));
     json_decref(object);
 
     close(sockfd);
