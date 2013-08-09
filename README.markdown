@@ -295,7 +295,6 @@ Dependency
 
 The following packages are required to build libsearpc:
 
-*  glib-2.0      >=        2.31.0      
-*  gobject-2.0   >=        2.31.0
-*  jansson       >=        2.4
+*  glib-2.0      >=        2.16.0      
+*  gobject-2.0   >=        2.16.0
 *  python simplejson (for pysearpc)
