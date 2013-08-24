@@ -312,7 +312,7 @@ typedef struct {
     SearpcClient *client;
     AsyncCallback callback;
     const gchar *ret_type;
-    int gtype;                /* to specify the specific gobject type 
+    GType gtype;                /* to specify the specific gobject type
                                  if ret_type is object or objlist */
     void *cbdata;
 } AsyncCallData;
