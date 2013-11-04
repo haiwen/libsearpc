@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([libsearpc], [1.1.0], [freeplant@gmail.com])
+AC_INIT([libsearpc], [1.2.0], [freeplant@gmail.com])
 AC_CONFIG_SRCDIR([lib/searpc-server.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -77,6 +77,11 @@ PKG_CHECK_MODULES(GLIB, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+JANSSON_REQUIRED=2.2.1
+
+PKG_CHECK_MODULES(JANSSON, [jansson >= $JANSSON_REQUIRED])
+AC_SUBST(JANSSON_CFLAGS)
+AC_SUBST(JANSSON_LIBS)
 
 AM_PATH_PYTHON([2.4])
 if test "$bwin32" = true; then
@@ -88,8 +93,6 @@ if test "$bwin32" = true; then
       pkgpythondir=${pythondir}/${PACKAGE}
    fi
 fi
-
-AC_CONFIG_SUBDIRS([json-glib])
 
 AC_CONFIG_FILES([Makefile
                  lib/Makefile

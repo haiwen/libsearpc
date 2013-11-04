@@ -15,8 +15,8 @@ import os
 #          <function to set value to array>,
 #          <default_ret_value>)
 type_table = {
-    "string": ("const gchar*",
-               "gchar*", 
+    "string": ("const char*",
+               "char*", 
                "json_array_get_string_or_null_element",
                "searpc_set_string_to_ret_object",
                "json_array_add_string_or_null_element",
@@ -48,14 +48,14 @@ type_table = {
 }
 
 marshal_template = r"""
-static gchar *
-${marshal_name} (void *func, JsonArray *param_array, gsize *ret_len)
+static char *
+${marshal_name} (void *func, json_t *param_array, gsize *ret_len)
 {
     GError *error = NULL;
 ${get_parameters}
     ${func_call}
 
-    JsonObject *object = json_object_new ();
+    json_t *object = json_object ();
     ${convert_ret}
     return searpc_marshal_set_ret_common (object, ret_len, error);
 }

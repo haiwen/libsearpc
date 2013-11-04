@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <jansson.h>
 
 #include "searpc-server.h"
 #include "searpc-utils.h"
@@ -86,45 +87,45 @@ searpc_remove_service (const char *svc_name)
 
 /* Marshal functions */
 void
-searpc_set_string_to_ret_object (JsonObject *object, gchar *ret)
+searpc_set_string_to_ret_object (json_t *object, char *ret)
 {
     if (ret == NULL)
-        json_object_set_null_member (object, "ret");
+        json_object_set_new (object, "ret", json_null ());
     else {
-        json_object_set_string_member (object, "ret", ret);
+        json_object_set_new (object, "ret", json_string (ret));
         g_free (ret);
     }
 }
 
 void
-searpc_set_int_to_ret_object (JsonObject *object, gint64 ret)
+searpc_set_int_to_ret_object (json_t *object, json_int_t ret)
 {
-    json_object_set_int_member (object, "ret", ret);
+    json_object_set_new (object, "ret", json_integer (ret));
 }
 
 void
-searpc_set_object_to_ret_object (JsonObject *object, GObject *ret)
+searpc_set_object_to_ret_object (json_t *object, GObject *ret)
 {
     if (ret == NULL)
-        json_object_set_null_member (object, "ret");
+        json_object_set_new (object, "ret", json_null ());
     else {
-        json_object_set_member (object, "ret", json_gobject_serialize(ret));
+        json_object_set_new (object, "ret", json_gobject_serialize (ret));
         g_object_unref (ret);
     }
 }
 
 void
-searpc_set_objlist_to_ret_object (JsonObject *object, GList *ret)
+searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
 {
     GList *ptr;
     
     if (ret == NULL)
-        json_object_set_null_member (object, "ret");
+        json_object_set_new (object, "ret", json_null ());
     else {
-        JsonArray *array = json_array_new ();
+        json_t *array = json_array ();
         for (ptr = ret; ptr; ptr = ptr->next)
-            json_array_add_element (array, json_gobject_serialize (ptr->data));
-        json_object_set_array_member (object, "ret", array);
+            json_array_append_new (array, json_gobject_serialize (ptr->data));
+        json_object_set_new (object, "ret", array);
 
         for (ptr = ret; ptr; ptr = ptr->next)
             g_object_unref (ptr->data);
@@ -132,49 +133,37 @@ searpc_set_objlist_to_ret_object (JsonObject *object, GList *ret)
     }
 }
 
-gchar *
-searpc_marshal_set_ret_common (JsonObject *object, gsize *len, GError *error)
+char *
+searpc_marshal_set_ret_common (json_t *object, gsize *len,  GError *error)
 {
-    JsonNode *root = json_node_new (JSON_NODE_OBJECT);
-    JsonGenerator *generator = json_generator_new ();
-    gchar *data;
+
+    char *data;
 
     if (error) {
-        json_object_set_int_member (object, "err_code", error->code);
-        json_object_set_string_or_null_member (object, "err_msg", error->message);
+        json_object_set_new (object, "err_code", json_integer((json_int_t)error->code));
+        json_object_set_new (object, "err_msg", json_string(error->message));
         g_error_free (error);
     }
 
-    json_node_take_object (root, object);
-    json_generator_set_root (generator, root);
+    data=json_dumps(object,JSON_COMPACT);
+    *len=strlen(data);
+    json_decref(object);
 
-    g_object_set (generator, "pretty", FALSE, NULL);
-    data = json_generator_to_data (generator, len);
-
-    json_node_free (root);
-    g_object_unref (generator);
     return data;
 }
 
-gchar *
+char *
 error_to_json (int code, const char *msg, gsize *len)
 {
-    JsonObject *object = json_object_new ();
-    JsonNode *root = json_node_new (JSON_NODE_OBJECT);
-    JsonGenerator *generator = json_generator_new ();
-    gchar *data;
+    json_t *object = json_object ();
+    char *data;
 
-    json_object_set_int_member (object, "err_code", code);
-    json_object_set_string_or_null_member (object, "err_msg", msg);
-    
-    json_node_take_object (root, object);
-    json_generator_set_root (generator, root);
+    json_object_set_new (object, "err_code", json_integer((json_int_t)code));
+    json_object_set_string_or_null_member(object, "err_msg", msg);
 
-    g_object_set (generator, "pretty", FALSE, NULL);
-    data = json_generator_to_data (generator, len);
-
-    json_node_free (root);
-    g_object_unref (generator);
+    data=json_dumps(object,JSON_COMPACT);
+    *len=strlen(data);
+    json_decref(object);
 
     return data;
 }
@@ -250,16 +239,16 @@ searpc_server_register_function (const char *svc_name,
 }
 
 /* Called by RPC transport. */
-gchar* 
+char* 
 searpc_server_call_function (const char *svc_name,
                              gchar *func, gsize len, gsize *ret_len)
 {
     SearpcService *service;
-    JsonParser *parser;
-    JsonNode *root;
-    JsonArray *array;
-    gchar* ret;
+    json_t *array;
+    char* ret;
+    json_error_t jerror;
     GError *error = NULL;
+
 #ifdef PROFILE
     struct timeval start, end, intv;
 
@@ -272,25 +261,23 @@ searpc_server_call_function (const char *svc_name,
         snprintf (buf, 255, "cannot find service %s.", svc_name);
         return error_to_json (501, buf, ret_len);
     }
-          
-    parser = json_parser_new ();
     
-    if (!json_parser_load_from_data (parser, func, len, &error)) {
+    array = json_loadb (func, len, 0 ,&jerror);
+    setjetoge(&jerror,error);
+    
+    if (!array) {
         char buf[512];
-        snprintf (buf, 511, "failed to parse RPC call: %s\n", error->message);
-        g_object_unref (parser);        
+        snprintf (buf, 511, "failed to load RPC call: %s\n", error->message);
+        json_decref (array);        
         return error_to_json (511, buf, ret_len);
     }
 
-    root = json_parser_get_root (parser);
-    array = json_node_get_array (root);
-
-    const char *fname = json_array_get_string_element(array, 0);
+    const char *fname = json_string_value (json_array_get(array, 0));
     FuncItem *fitem = g_hash_table_lookup(service->func_table, fname);
     if (!fitem) {
         char buf[256];
         snprintf (buf, 255, "cannot find function %s.", fname);
-        g_object_unref (parser);
+        json_decref (array);
         return error_to_json (500, buf, ret_len);
     }
 
@@ -303,7 +290,7 @@ searpc_server_call_function (const char *svc_name,
              fname, intv.tv_sec, intv.tv_usec);
 #endif
 
-    g_object_unref (parser);
+    json_decref(array);
 
     return ret;
 }
