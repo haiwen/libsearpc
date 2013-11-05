@@ -263,7 +263,7 @@ searpc_server_call_function (const char *svc_name,
     }
     
     array = json_loadb (func, len, 0 ,&jerror);
-    setjetoge(&jerror,error);
+    setjetoge(&jerror,&error);
     
     if (!array) {
         char buf[512];

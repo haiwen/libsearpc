@@ -500,7 +500,7 @@ handle_ret_common (char *data, size_t len, json_t **object, GError **error)
 
     *object=json_loadb(data,len,0,&jerror);
     if (*object == NULL) {
-        setjetoge(&jerror,*error);
+        setjetoge(&jerror,error);
         json_decref (*object);
         return -1;
     }

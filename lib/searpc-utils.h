@@ -13,10 +13,10 @@ typedef enum {
 json_t *json_gobject_serialize (GObject *);
 GObject *json_gobject_deserialize (GType , json_t *);
 
-inline static void setjetoge(const json_error_t *jerror, GError *error)
+inline static void setjetoge(const json_error_t *jerror, GError **error)
 {
     /* Load is the only function I use which reports errors */
-    g_set_error(&error, SEARPC_JSON_DOMAIN, SEARPC_JSON_ERROR_LOAD, "%s", jerror->text);
+    g_set_error(error, SEARPC_JSON_DOMAIN, SEARPC_JSON_ERROR_LOAD, "%s", jerror->text);
 }
 
 inline static const char *json_object_get_string_or_null_member (json_t *object,const char *member_name)
