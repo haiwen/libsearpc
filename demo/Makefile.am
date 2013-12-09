@@ -10,6 +10,8 @@ noinst_PROGRAMS = searpc-demo-server searpc-demo-client searpc-async-client
 
 searpc_demo_server_SOURCES = test-object.c searpc-demo-server.c searpc-demo-packet.h
 
+noinst_HEADERS = test-object.h
+
 searpc_demo_server_LDADD = ${top_builddir}/lib/libsearpc.la @LIB_WS32@ \
 	@GLIB_LIBS@ @JANSSON_LIBS@
 
