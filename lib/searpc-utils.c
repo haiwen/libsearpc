@@ -4,6 +4,11 @@
 
 #include "searpc-utils.h"
 
+#if !GLIB_CHECK_VERSION(2, 32, 0)
+#define g_value_set_schar g_value_set_char
+#define g_value_get_schar g_value_get_char
+#endif
+
 static json_t *json_serialize_pspec (const GValue *value)
 {
     /* Only types in json-glib but G_TYPE_BOXED */
@@ -32,8 +37,7 @@ static json_t *json_serialize_pspec (const GValue *value)
         case G_TYPE_DOUBLE:
             return json_real (g_value_get_double (value));
         case G_TYPE_CHAR:
-            /* FIXME: here we should use g_value_get_schar */
-            return json_integer (g_value_get_char (value));
+            return json_integer (g_value_get_schar (value));
         case G_TYPE_UCHAR:
             return json_integer (g_value_get_uchar (value));
         case G_TYPE_ENUM:
@@ -110,8 +114,7 @@ static gboolean json_deserialize_pspec (GValue *value, GParamSpec *pspec, json_t
               json_int_t int_value = json_integer_value (node);
               switch (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value))) {
                   case G_TYPE_CHAR:
-                      /* FIXME: here we should use g_value_set_schar */
-                      g_value_set_char(value, (gchar)int_value);
+                      g_value_set_schar(value, (gchar)int_value);
                       return TRUE;
                   case G_TYPE_UCHAR:
                       g_value_set_uchar (value, (guchar)int_value);
