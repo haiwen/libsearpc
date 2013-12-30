@@ -182,8 +182,8 @@ if __name__ == "__main__":
         f = os.path.basename(abspath)
         mod = f[:f.rfind('.')]
         sys.path.append(d)
-        print "load func_table from %s" % (abspath)
         rpc_mod = __import__(mod, globals(), locals(), [], -1)
+        print "loaded func_table from %s" % (rpc_mod.__file__)
         func_table = rpc_mod.func_table
     else:
         # load from default rpc_table.py
