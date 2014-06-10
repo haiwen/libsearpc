@@ -95,7 +95,9 @@ main(int argc, char *argv[])
     GError *error = NULL;
     TcpTransport *transport;
 
+#if !GLIB_CHECK_VERSION(2, 36, 0)
     g_type_init();
+#endif
 
 #ifdef WIN32
     WSADATA     wsadata;
