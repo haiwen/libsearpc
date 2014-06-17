@@ -47,6 +47,7 @@ demo/searpc-signature.h
 tests/searpc-marshal.h
 tests/searpc-signature.h
 tests/clar.suite
+build
 
 
 
