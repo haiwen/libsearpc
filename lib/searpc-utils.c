@@ -172,6 +172,12 @@ static gboolean json_deserialize_pspec (GValue *value, GParamSpec *pspec, json_t
               g_value_set_object (value, NULL);
               return TRUE;
           }
+          break;
+      case JSON_ARRAY:
+          return FALSE;
+          break;
+      default:
+          return FALSE;
   }
 
   return FALSE;
