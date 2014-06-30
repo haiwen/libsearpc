@@ -350,6 +350,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
         }
     }
     g_free (data);
+
+    return 0;
 }
 
 
