@@ -180,7 +180,9 @@ main(int argc, char *argv[])
     SearpcClient *rpc_client;
     GError *error = NULL;
 
+#if !GLIB_CHECK_VERSION(2, 36, 0)
     g_type_init();
+#endif
 
 #ifdef WIN32
     WSADATA     wsadata;

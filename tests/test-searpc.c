@@ -339,7 +339,9 @@ void test_simple_call_async (void *fixture, const void *data)
 int
 main (int argc, char *argv[])
 {
+#if !GLIB_CHECK_VERSION(2, 36, 0)
     g_type_init ();
+#endif
     g_test_init (&argc, &argv, NULL);
 
     searpc_server_init (register_marshals);
