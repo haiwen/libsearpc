@@ -4,13 +4,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <searpc.h>
-
 #define DFT_DOMAIN g_quark_from_string("TEST")
+#include <searpc.h>
 
 #include "searpc-server.h"
 #include "searpc-client.h"
-
+#include "clar.h"
 
 /* sample class */
 
@@ -37,14 +36,11 @@ struct _MamanBarClass
     GObjectClass parent_class;
 };
 
-
-
 G_DEFINE_TYPE (MamanBar, maman_bar, G_TYPE_OBJECT);
 
 enum
 {
   PROP_0,
-
   PROP_MAMAN_NAME,
   PROP_PAPA_NUMBER
 };
@@ -147,13 +143,13 @@ maman_bar_init (MamanBar *self)
 }
 
 /* sample client */
-SearpcClient *client;
+static SearpcClient *client;
 
 char *
 sample_send(void *arg, const gchar *fcall_str,
             size_t fcall_len, size_t *ret_len)
 {
-    g_assert (strcmp(arg, "test") == 0);
+    cl_assert (strcmp(arg, "test") == 0);
 
     char *ret;
     /* directly call in memory, instead of send via network */
@@ -167,7 +163,7 @@ int
 sample_async_send (void *arg, gchar *fcall_str,
                    size_t fcall_len, void *rpc_priv)
 {
-    g_assert (strcmp(arg, "test_async") == 0);
+    cl_assert (strcmp(arg, "test_async") == 0);
     
     char *ret;
     size_t ret_len;
@@ -179,17 +175,6 @@ sample_async_send (void *arg, gchar *fcall_str,
     searpc_client_generic_callback (ret, ret_len, rpc_priv, NULL);
 
     return 0;
-}
-
-void
-init_sample_client ()
-{
-    client = searpc_client_new();
-    client->send = sample_send;
-    client->arg = "test";
-
-    client->async_send = sample_async_send;
-    client->async_arg = "test_async";
 }
 
 gchar *
@@ -206,27 +191,28 @@ get_substring (const gchar *orig_str, int sub_len, GError **error)
     return ret;
 }
 
-void test_simple_call (void *fixture, const void *data)
+void
+test_searpc__simple_call (void)
 {
     gchar* result;
     GError *error = NULL;
 
     result = searpc_client_call__string (client, "get_substring", &error,
                                          2, "string", "hello", "int", 2);
-    g_assert (error == NULL);
-    g_assert (strcmp(result, "he") == 0);
+    cl_assert (error == NULL);
+    cl_assert (strcmp(result, "he") == 0);
     g_free (result);
 
     /* error should return */
     result = NULL;
     result = searpc_client_call__string (client, "get_substring", &error,
                                          2, "string", "hello", "int", 10);
-    g_assert (error->message);
+    cl_assert (error->message);
     g_free (result);
 }
 
 void
-test_invalid_call (void *fixture, const void *data)
+test_searpc__invalid_call (void)
 {
     char *fcall, *fret;
     gsize fcall_len, ret_len;
@@ -235,7 +221,7 @@ test_invalid_call (void *fixture, const void *data)
 
     result = searpc_client_call__string (client, "nonexist_func", &error,
                                          2, "string", "hello", "int", 2);
-    g_assert (error != NULL);
+    cl_assert (error != NULL);
     g_free (result);
 }
 
@@ -245,7 +231,8 @@ get_maman_bar(const char *name, GError **error)
     return g_object_new(MAMAN_TYPE_BAR, "name", name, NULL);
 }
 
-void test_object_call (void *fixture, const void *data)
+void
+test_searpc__object_call (void)
 {
     GObject *result;
     GError *error = NULL;
@@ -253,7 +240,7 @@ void test_object_call (void *fixture, const void *data)
     result = searpc_client_call__object (client, "get_maman_bar",
                                          MAMAN_TYPE_BAR, &error,
                                          1, "string", "kitty");
-    g_assert (error == NULL);
+    cl_assert (error == NULL);
     g_object_unref (result);
 }
 
@@ -284,7 +271,8 @@ get_maman_bar_list (const char *name, int num, GError **error)
 }
 
 
-void test_objlist_call (void *fixture, const void *data)
+void
+test_searpc__objlist_call (void)
 {
     GList *result, *ptr;
     GError *error = NULL;
@@ -292,16 +280,15 @@ void test_objlist_call (void *fixture, const void *data)
     result = searpc_client_call__objlist (client, "get_maman_bar_list",
                                           MAMAN_TYPE_BAR, &error,
                                           2, "string", "kitty", "int", 10);
-    g_assert (error == NULL);
+    cl_assert (error == NULL);
     for (ptr = result; ptr; ptr = ptr->next)
         g_object_unref (ptr->data);
     g_list_free (result);
 
-
     result =  searpc_client_call__objlist (client, "get_maman_bar_list",
                                            MAMAN_TYPE_BAR, &error,
                                            2, "string", "kitty", "int", 0);
-    g_assert (error == NULL);
+    cl_assert (error == NULL);
     for (ptr = result; ptr; ptr = ptr->next)
         g_object_unref (ptr->data);
     g_list_free (result);
@@ -311,18 +298,19 @@ void simple_callback (void *result, void *user_data, GError *error)
 {
     char *res = (char *)result;
     
-    g_assert (strcmp(res, "he") == 0);
+    cl_assert (strcmp(res, "he") == 0);
 }
 
 void simple_callback_error (void *result, void *user_data, GError *error)
 {
     char *res = (char *)result;
 
-    g_assert (result == NULL);
-    g_assert (error != NULL);
+    cl_assert (result == NULL);
+    cl_assert (error != NULL);
 }
 
-void test_simple_call_async (void *fixture, const void *data)
+void
+test_searpc__simple_call_async (void)
 {
     searpc_client_async_call__string (client, "get_substring",
                                       simple_callback, NULL,
@@ -336,14 +324,12 @@ void test_simple_call_async (void *fixture, const void *data)
 #include "searpc-signature.h"
 #include "searpc-marshal.h"
 
-int
-main (int argc, char *argv[])
+void
+test_searpc__initialize (void)
 {
 #if !GLIB_CHECK_VERSION(2, 36, 0)
     g_type_init ();
 #endif
-    g_test_init (&argc, &argv, NULL);
-
     searpc_server_init (register_marshals);
     searpc_create_service ("test");
     searpc_server_register_function ("test", get_substring, "get_substring", 
@@ -354,30 +340,17 @@ main (int argc, char *argv[])
                                      searpc_signature_objlist__string_int());
 
     /* sample client */
-    init_sample_client();
+    client = searpc_client_new();
+    client->send = sample_send;
+    client->arg = "test";
 
-    g_test_add ("/searpc/simple", void, NULL,
-                NULL, test_simple_call, NULL);
+    client->async_send = sample_async_send;
+    client->async_arg = "test_async";
+}
 
-    /* test twice to detect memory error, for example, freed twice */
-    g_test_add ("/searpc/simple2", void, NULL,
-                NULL, test_simple_call, NULL);
-
-    g_test_add ("/searpc/invalid_call", void, NULL,
-                NULL, test_invalid_call, NULL);
-
-    g_test_add ("/searpc/object", void, NULL,
-                NULL, test_object_call, NULL);
-
-    g_test_add ("/searpc/objlist", void, NULL,
-                NULL, test_objlist_call, NULL);
-
-    g_test_add ("/searpc/async/simple", void, NULL,
-                NULL, test_simple_call_async, NULL);
-
-    int ret = g_test_run();
-
+void
+test_searpc__cleanup (void)
+{
     /* free memory for memory debug with valgrind */
     searpc_server_final();
-    return ret;
 }
