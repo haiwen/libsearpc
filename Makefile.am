@@ -20,7 +20,7 @@ SUBDIRS = lib pysearpc ${MAKE_DEMO} tests
 
 install-data-local:
 if MACOS
-	${SED} -i '' -e "s|(DESTDIR)|${DESTDIR}|g" $(pcfiles)
+	sed -i '' -e "s|(DESTDIR)|${DESTDIR}|g" $(pcfiles)
 else
 	${SED} -i "s|(DESTDIR)|${DESTDIR}|g" $(pcfiles)
 endif
