@@ -56,7 +56,7 @@ AC_SUBST(WIN32)
 
 AC_MSG_CHECKING(for Mac)
 
-if test ${TERM_PROGRAM} = "Apple_Terminal" ; then
+if test "$(uname -s)" = "Darwin"; then
    bmac=yes
 fi
 
