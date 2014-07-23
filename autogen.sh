@@ -5,8 +5,13 @@
 : ${AUTOHEADER=autoheader}
 : ${AUTOMAKE=automake}
 : ${ACLOCAL=aclocal}
-: ${LIBTOOLIZE=libtoolize}
-: ${LIBTOOL=libtool}
+if test "$(uname -s)" != "Darwin"; then
+  : ${LIBTOOLIZE=libtoolize}
+  : ${LIBTOOL=libtool}
+else
+  : ${LIBTOOLIZE=glibtoolize}
+  : ${LIBTOOL=glibtool}
+fi
 
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
@@ -36,7 +41,7 @@ DIE=0
 	DIE=1
 }
 
-if test "${TERM_PROGRAM}" != "Apple_Terminal" ; then
+if test "$(uname -s)" != "Darwin"; then
 (grep "^AC_PROG_LIBTOOL" $CONFIGURE >/dev/null) && {
   ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
     echo
@@ -54,7 +59,7 @@ fi
 
 if test x"$MSYSTEM" = x"MINGW32"; then
     autoreconf --install -I/local/share/aclocal
-elif test "${TERM_PROGRAM}" = "Apple_Terminal" ; then
+elif test "$(uname -s)" = "Darwin"; then
     autoreconf --install -I/opt/local/share/aclocal
 else
     autoreconf --install
