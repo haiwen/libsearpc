@@ -1,4 +1,4 @@
-import simplejson as json
+import json
 from common import SearpcError
 
 def _fret_int(ret_str):
@@ -52,7 +52,7 @@ class _SearpcObj(object):
 class SearpcObjEncoder(json.JSONEncoder):
     def default(self, obj):
         if not isinstance(obj, _SearpcObj):
-            return super(_SearpcObjEncoder, self).default(obj)
+            return super(SearpcObjEncoder, self).default(obj)
         return obj._dict
 
 def _fret_obj(ret_str):
