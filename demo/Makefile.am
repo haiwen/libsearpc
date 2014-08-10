@@ -29,12 +29,19 @@ EXTRA_DIST = rpc_table.py
 
 gensource: ${generated_sources}
 
-${generated_sources}: ${top_srcdir}/demo/rpc_table.py
+rpc_table.stamp: ${top_srcdir}/demo/rpc_table.py ${top_srcdir}/lib/searpc-codegen.py
+	@rm -f rpc_table.tmp
+	@touch rpc_table.tmp
 	@echo "[libsearpc]: generating rpc header files"
 	@PYTHON@ ${top_srcdir}/lib/searpc-codegen.py ${top_srcdir}/demo/rpc_table.py
 	@echo "[libsearpc]: done"
+	@mv -f rpc_table.tmp $@
+
+${generated_sources}: rpc_table.stamp
 
 clean-local:
 	rm -f ${generated_sources}
 	rm -f rpc_table.pyc
+	rm -f rpc_table.stamp
+	rm -f rpc_table.tmp
 

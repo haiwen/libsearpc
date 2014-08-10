@@ -44,8 +44,12 @@ pysearpc/rpc_table.py
 *.pc
 demo/searpc-marshal.h
 demo/searpc-signature.h
+demo/rpc_table.stamp
+demo/rpc_table.tmp
 tests/searpc-marshal.h
 tests/searpc-signature.h
+tests/rpc_table.stamp
+tests/rpc_table.tmp
 tests/clar.suite
 
 

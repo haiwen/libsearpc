@@ -6,8 +6,6 @@ before_install:
  - sudo apt-get install libjansson-dev
  - git clean -x -f
  - ./autogen.sh
- - cd demo && python ../lib/searpc-codegen.py rpc_table.py && cd -
- - cd tests && python ../lib/searpc-codegen.py rpc_table.py && cd -
 script:
  - ./configure
  - make -j8

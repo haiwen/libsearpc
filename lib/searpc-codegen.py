@@ -100,12 +100,10 @@ def generate_marshal(ret_type, arg_types):
                                func_call=func_call,
                                convert_ret=convert_ret)
 
-def gen_marshal_functions():
+def gen_marshal_functions(f):
     from rpc_table import func_table
-    f = open('searpc-marshal.h', 'w')
     for item in func_table:
         print >>f, generate_marshal(item[0], item[1])
-    f.close()
 
 
 marshal_register_item = r"""
@@ -130,15 +128,13 @@ def generate_marshal_register_item(ret_type, arg_types):
         marshal_name=marshal_name,
         signature_name=signature_name)
 
-def gen_marshal_register_function():
+def gen_marshal_register_function(f):
     from rpc_table import func_table
-    f = open('searpc-marshal.h', 'a')
     print >>f, "static void register_marshals()"""
     print >>f, "{"
     for item in func_table:
         print >>f, generate_marshal_register_item(item[0], item[1]),
     print >>f, "}"
-    f.close()
 
 signature_template = r"""
 inline static gchar *
@@ -190,6 +186,8 @@ if __name__ == "__main__":
         from rpc_table import func_table
 
     # gen code
-    gen_marshal_functions()
-    gen_marshal_register_function()
+    marshal = open('searpc-marshal.h', 'w')
+    gen_marshal_functions(marshal)
+    gen_marshal_register_function(marshal)
+    marshal.close()
     gen_signature_list()
