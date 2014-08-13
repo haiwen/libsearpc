@@ -12,7 +12,7 @@ AM_INIT_AUTOMAKE([1.9 foreign])
 AC_MINGW32
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Checks for header files.
 #AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
