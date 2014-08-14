@@ -263,12 +263,13 @@ searpc_server_call_function (const char *svc_name,
     }
     
     array = json_loadb (func, len, 0 ,&jerror);
-    setjetoge(&jerror,&error);
     
     if (!array) {
         char buf[512];
+        setjetoge(&jerror,&error);
         snprintf (buf, 511, "failed to load RPC call: %s\n", error->message);
         json_decref (array);        
+        g_error_free(error);
         return error_to_json (511, buf, ret_len);
     }
 
