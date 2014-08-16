@@ -321,6 +321,49 @@ test_searpc__simple_call_async (void)
                                       2, "string", "hello", "int", 10);
 }
 
+#define PAPA_NUMBER 5
+#define PAPA_NUMBER_STR "5"
+void
+test_searpc__json_gobject_serialize (void)
+{
+    json_t *json, *j_name, *j_papa;
+    gint papa_number = PAPA_NUMBER;
+    gchar name[] = "test";
+    MamanBar *bar = g_object_new (MAMAN_TYPE_BAR,
+                                  "name", g_strdup(name),
+                                  "papa-number", papa_number,
+                                  NULL);
+    json = json_gobject_serialize ((GObject*)bar);
+    j_name = json_object_get (json, "name");
+    j_papa = json_object_get (json, "papa-number");
+    cl_assert (json_is_string (j_name));
+    cl_assert (json_is_integer (j_papa));
+    cl_assert (strcmp (json_string_value (j_name), "test") == 0);
+    cl_assert (json_integer_value (j_papa) == PAPA_NUMBER);
+    json_decref (json);
+    g_object_unref (bar);
+}
+
+void
+test_searpc__json_gobject_deserialize (void)
+{
+    gchar *name;
+    gint papa_number;
+    json_error_t error;
+    json_t* json = json_loads ("{\"name\":\"test\",\"papa-number\":"PAPA_NUMBER_STR"}", 0, &error);
+    MamanBar *bar = (MamanBar*)json_gobject_deserialize (MAMAN_TYPE_BAR, json);
+    g_object_get (bar,
+                  "name", &name,
+                  "papa-number", &papa_number,
+                  NULL);
+    cl_assert (name != NULL);
+    cl_assert (strcmp(name, "test") == 0);
+    cl_assert (papa_number == PAPA_NUMBER);
+    g_free (name);
+    json_decref (json);
+    g_object_unref (bar);
+}
+
 #include "searpc-signature.h"
 #include "searpc-marshal.h"
 
