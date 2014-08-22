@@ -51,6 +51,7 @@ tests/searpc-signature.h
 tests/rpc_table.stamp
 tests/rpc_table.tmp
 tests/clar.suite
+build
 
 
 
