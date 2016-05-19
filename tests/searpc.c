@@ -139,17 +139,19 @@ maman_bar_class_init (MamanBarClass *klass)
 static void
 maman_bar_init (MamanBar *self)
 {
-    
+
 }
 
 /* sample client */
 static SearpcClient *client;
+/* sample client with named pipe as transport */
+static SearpcClient *client_with_pipe_transport;
 
 char *
 sample_send(void *arg, const gchar *fcall_str,
             size_t fcall_len, size_t *ret_len)
 {
-    cl_assert (strcmp(arg, "test") == 0);
+    cl_assert_ (strcmp(arg, "test") == 0, arg);
 
     char *ret;
     /* directly call in memory, instead of send via network */
@@ -321,6 +323,26 @@ test_searpc__simple_call_async (void)
                                       2, "string", "hello", "int", 10);
 }
 
+void
+test_searpc__pipe_simple_call (void)
+{
+    gchar* result;
+    GError *error = NULL;
+
+    result = searpc_client_call__string (client_with_pipe_transport, "get_substring", &error,
+                                         2, "string", "hello", "int", 2);
+    cl_assert_ (error == NULL, error ? error->message : "");
+    cl_assert (strcmp(result, "he") == 0);
+    g_free (result);
+
+    /* error should return */
+    result = NULL;
+    result = searpc_client_call__string (client_with_pipe_transport, "get_substring", &error,
+                                         2, "string", "hello", "int", 10);
+    cl_assert (error->message);
+    g_free (result);
+}
+
 #include "searpc-signature.h"
 #include "searpc-marshal.h"
 
@@ -346,6 +368,16 @@ test_searpc__initialize (void)
 
     client->async_send = sample_async_send;
     client->async_arg = "test_async";
+
+    const char *pipe_path = "/tmp/.searpc-test";
+
+    SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server(pipe_path);
+    SearpcNamedPipeClient *pipe_client = searpc_create_named_pipe_client(pipe_path);
+
+    cl_must_pass_(searpc_named_pipe_server_start(pipe_server), "named pipe server failed to start");
+    cl_must_pass_(searpc_named_pipe_client_connect(pipe_client), "named pipe client failed to connect");
+
+    client_with_pipe_transport = searpc_client_with_named_pipe_transport(pipe_client, "test");
 }
 
 void
