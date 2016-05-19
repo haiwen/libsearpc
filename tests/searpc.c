@@ -9,6 +9,7 @@
 
 #include "searpc-server.h"
 #include "searpc-client.h"
+#include "searpc-named-pipe-transport.h"
 #include "clar.h"
 
 /* sample class */
@@ -62,7 +63,7 @@ maman_bar_set_property (GObject      *object,
     case PROP_PAPA_NUMBER:
         self->papa_number = g_value_get_uchar (value);
         break;
-        
+
     default:
         /* We don't have any other property... */
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -77,7 +78,7 @@ maman_bar_get_property (GObject    *object,
                         GParamSpec *pspec)
 {
     MamanBar *self = MAMAN_BAR (object);
-    
+
     switch (property_id) {
     case PROP_MAMAN_NAME:
         g_value_set_string (value, self->name);
@@ -86,7 +87,7 @@ maman_bar_get_property (GObject    *object,
     case PROP_PAPA_NUMBER:
         g_value_set_uchar (value, self->papa_number);
         break;
-        
+
     default:
         /* We don't have any other property... */
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -166,7 +167,7 @@ sample_async_send (void *arg, gchar *fcall_str,
                    size_t fcall_len, void *rpc_priv)
 {
     cl_assert (strcmp(arg, "test_async") == 0);
-    
+
     char *ret;
     size_t ret_len;
     gchar *temp = g_strdup(fcall_str);
@@ -299,7 +300,7 @@ test_searpc__objlist_call (void)
 void simple_callback (void *result, void *user_data, GError *error)
 {
     char *res = (char *)result;
-    
+
     cl_assert (strcmp(res, "he") == 0);
 }
 
@@ -354,11 +355,11 @@ test_searpc__initialize (void)
 #endif
     searpc_server_init (register_marshals);
     searpc_create_service ("test");
-    searpc_server_register_function ("test", get_substring, "get_substring", 
+    searpc_server_register_function ("test", get_substring, "get_substring",
                                      searpc_signature_string__string_int());
-    searpc_server_register_function ("test", get_maman_bar, "get_maman_bar", 
+    searpc_server_register_function ("test", get_maman_bar, "get_maman_bar",
                                      searpc_signature_object__string());
-    searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list", 
+    searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list",
                                      searpc_signature_objlist__string_int());
 
     /* sample client */

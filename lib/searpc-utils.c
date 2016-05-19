@@ -1,3 +1,5 @@
+#include <errno.h>
+#include <unistd.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <jansson.h>
@@ -16,7 +18,7 @@ static json_t *json_serialize_pspec (const GValue *value)
         case G_TYPE_STRING:
             if (!g_value_get_string (value))
         break;
-            else 
+            else
             return json_string (g_value_get_string (value));
         case G_TYPE_BOOLEAN:
             if (g_value_get_boolean (value))
@@ -53,10 +55,10 @@ static json_t *json_serialize_pspec (const GValue *value)
                 return json_gobject_serialize (object);
             }
             break;
-        defalut:
+        default:
             g_warning("Unsuppoted type `%s'",g_type_name (G_VALUE_TYPE (value)));
     }
-    return json_null(); 
+    return json_null();
 }
 
 json_t *json_gobject_serialize (GObject *gobject)
@@ -89,7 +91,7 @@ json_t *json_gobject_serialize (GObject *gobject)
 }
 
 static gboolean json_deserialize_pspec (GValue *value, GParamSpec *pspec, json_t *node)
-{ 
+{
     switch (json_typeof(node)) {
         case JSON_OBJECT:
             if (g_type_is_a (G_VALUE_TYPE (value), G_TYPE_OBJECT)) {
@@ -222,7 +224,7 @@ GObject *json_gobject_deserialize (GType gtype, json_t *object)
             g_array_append_val (construct_params, param);
         }
         else
-            g_warning ("Failed to deserialize \"%s\" property of type \"%s\" for an object of type \"%s\"", 
+            g_warning ("Failed to deserialize \"%s\" property of type \"%s\" for an object of type \"%s\"",
                        pspec->name, g_type_name (G_VALUE_TYPE (&param.value)), g_type_name (gtype));
     }
 
@@ -239,4 +241,58 @@ GObject *json_gobject_deserialize (GType gtype, json_t *object)
 
     return ret;
 
+}
+
+// Write "n" bytes to a descriptor.
+ssize_t
+pipe_write_n(int fd, const void *vptr, size_t n)
+{
+	size_t		nleft;
+	ssize_t		nwritten;
+	const char	*ptr;
+
+	ptr = vptr;
+	nleft = n;
+	while (nleft > 0) {
+#ifndef WIN32
+        if ( (nwritten = write(fd, ptr, nleft)) <= 0)
+#else
+        if ( (nwritten = send(fd, ptr, nleft, 0)) <= 0)
+#endif
+        {
+			if (nwritten < 0 && errno == EINTR)
+				nwritten = 0;		/* and call write() again */
+			else
+				return(-1);			/* error */
+		}
+
+		nleft -= nwritten;
+		ptr   += nwritten;
+	}
+	return(n);
+}
+
+// Read "n" bytes from a descriptor.
+ssize_t
+pipe_read_n(int fd, void *vptr, size_t n)
+{
+	size_t	nleft;
+	ssize_t	nread;
+	char	*ptr;
+
+	ptr = vptr;
+	nleft = n;
+	while (nleft > 0) {
+		if ( (nread = read(fd, ptr, nleft)) < 0) {
+			if (errno == EINTR)
+				nread = 0;		/* and call read() again */
+			else
+				return(-1);
+		} else if (nread == 0)
+			break;				/* EOF */
+
+		nleft -= nread;
+		ptr   += nread;
+	}
+	return(n - nleft);		/* return >= 0 */
 }
