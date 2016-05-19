@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include <glib/gstdio.h>
+#include <jansson.h>
 
 #include "searpc-utils.h"
 #include "searpc-client.h"
@@ -17,6 +18,9 @@ static void* named_pipe_client_handler(void *arg);
 static char* searpc_named_pipe_send(void *arg, const gchar *fcall_str, size_t fcall_len, size_t *ret_len);
 
 static char * request_to_json(const char *service, const char *fcall_str, size_t fcall_len);
+static int request_from_json (const char *content, size_t len, char **service, char **fcall_str);
+static void json_object_set_string_member (json_t *object, const char *key, const char *value);
+static const char * json_object_get_string_member (json_t *object, const char *key);
 
 typedef struct {
     SearpcNamedPipeClient* client;
@@ -162,8 +166,15 @@ static void* named_pipe_client_handler(void *arg)
             break;
         }
 
+        char *service, *body;
+        if (request_from_json (buf, len, &service, &body) < 0) {
+            break;
+        }
+
         size_t ret_len;
-        char *ret_str = searpc_server_call_function ("test", buf, len, &ret_len);
+        char *ret_str = searpc_server_call_function (service, body, strlen(body), &ret_len);
+        g_free (service);
+        g_free (body);
 
         if (pipe_write_n(connfd, &ret_len, sizeof(uint32_t)) < 0) {
             g_warning("failed to send rpc resopnse: %s", strerror(errno));
@@ -207,7 +218,7 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     char *json_str = request_to_json(data->service, fcall_str, fcall_len);
     size_t json_len = strlen(json_str);
 
-    uint32_t len = fcall_len;
+    uint32_t len = json_len;
     if (pipe_write_n(client->pipe_fd, &len, sizeof(uint32_t)) < 0) {
         g_warning("failed to send rpc call: %s", strerror(errno));
         return NULL;
@@ -238,58 +249,53 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
 static char *
 request_to_json (const char *service, const char *fcall_str, size_t fcall_len)
 {
-    // TODO
-    char *ret = g_malloc0(fcall_len + 1);
-    memcpy(ret, fcall_str, fcall_len);
-    return ret;
+    json_t *object = json_object ();
 
-    /* json_t *object; */
+    char *temp_request = g_malloc0(fcall_len + 1);
+    memcpy(temp_request, fcall_str, fcall_len);
 
-    /* object = json_object (); */
+    json_object_set_string_member (object, "service", service);
+    json_object_set_string_member (object, "request", temp_request);
 
-    /* json_object_set_string_member (object, "commit_id", commit->commit_id); */
-    /* json_object_set_string_member (object, "root_id", commit->root_id); */
-    /* json_object_set_string_member (object, "repo_id", commit->repo_id); */
-    /* if (commit->creator_name) */
-    /*     json_object_set_string_member (object, "creator_name", commit->creator_name); */
-    /* json_object_set_string_member (object, "creator", commit->creator_id); */
-    /* json_object_set_string_member (object, "description", commit->desc); */
-    /* json_object_set_int_member (object, "ctime", (gint64)commit->ctime); */
-    /* json_object_set_string_or_null_member (object, "parent_id", commit->parent_id); */
-    /* json_object_set_string_or_null_member (object, "second_parent_id", */
-    /*                                        commit->second_parent_id); */
-    /* /\* */
-    /*  * also save repo's properties to commit file, for easy sharing of */
-    /*  * repo info  */
-    /*  *\/ */
-    /* json_object_set_string_member (object, "repo_name", commit->repo_name); */
-    /* json_object_set_string_member (object, "repo_desc", */
-    /*                                commit->repo_desc); */
-    /* json_object_set_string_or_null_member (object, "repo_category", */
-    /*                                        commit->repo_category); */
-    /* if (commit->device_name) */
-    /*     json_object_set_string_member (object, "device_name", commit->device_name); */
+    g_free (temp_request);
 
-    /* if (commit->encrypted) */
-    /*     json_object_set_string_member (object, "encrypted", "true"); */
+    return json_dumps (object, 0);
+}
 
-    /* if (commit->encrypted) { */
-    /*     json_object_set_int_member (object, "enc_version", commit->enc_version); */
-    /*     if (commit->enc_version >= 1) */
-    /*         json_object_set_string_member (object, "magic", commit->magic); */
-    /*     if (commit->enc_version == 2) */
-    /*         json_object_set_string_member (object, "key", commit->random_key); */
-    /* } */
-    /* if (commit->no_local_history) */
-    /*     json_object_set_int_member (object, "no_local_history", 1); */
-    /* if (commit->version != 0) */
-    /*     json_object_set_int_member (object, "version", commit->version); */
-    /* if (commit->conflict) */
-    /*     json_object_set_int_member (object, "conflict", 1); */
-    /* if (commit->new_merge) */
-    /*     json_object_set_int_member (object, "new_merge", 1); */
-    /* if (commit->repaired) */
-    /*     json_object_set_int_member (object, "repaired", 1); */
+static int
+request_from_json (const char *content, size_t len, char **service, char **fcall_str)
+{
+    json_error_t jerror;
+    json_t *object = json_loadb(content, len, 0, &jerror);
+    if (!object) {
+        g_warning ("Failed to parse request body: %s.\n", strlen(jerror.text) > 0 ? jerror.text : "");
+        return -1;
+    }
 
-    /* return object; */
+    *service = g_strdup(json_object_get_string_member (object, "service"));
+    *fcall_str = g_strdup(json_object_get_string_member(object, "request"));
+
+    json_decref (object);
+
+    if (!*service || !*fcall_str) {
+        g_free (*service);
+        g_free (*fcall_str);
+        return -1;
+    }
+
+    return 0;
+}
+
+static void json_object_set_string_member (json_t *object, const char *key, const char *value)
+{
+    json_object_set_new (object, key, json_string (value));
+}
+
+static const char *
+json_object_get_string_member (json_t *object, const char *key)
+{
+    json_t *string = json_object_get (object, key);
+    if (!string)
+        return NULL;
+    return json_string_value (string);
 }
