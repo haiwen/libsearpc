@@ -1,9 +1,10 @@
+#include <errno.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <errno.h>
 
 #include <glib/gstdio.h>
 #include <jansson.h>
@@ -188,6 +189,8 @@ static void* named_pipe_client_handler(void *arg)
             break;
         }
     }
+
+    close(connfd);
 
     return NULL;
 }
