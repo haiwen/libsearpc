@@ -13,6 +13,6 @@ libsearpc_la_SOURCES = searpc-client.c searpc-server.c searpc-utils.c searpc-nam
 
 libsearpc_la_LDFLAGS = -version-info 1:2:0  -no-undefined
 
-libsearpc_la_LIBADD = @GLIB_LIBS@ @JANSSON_LIBS@
+libsearpc_la_LIBADD = @GLIB_LIBS@ @JANSSON_LIBS@ -lpthread
 
 dist_bin_SCRIPTS = searpc-codegen.py
