@@ -57,9 +57,3 @@ inline static json_int_t json_array_get_int_element (json_t *array, size_t index
 {
     return json_integer_value (json_array_get (array, index));
 }
-
-// Write "n" bytes to a descriptor.
-ssize_t pipe_write_n(int fd, const void *vptr, size_t n);
-
-// Read "n" bytes from a descriptor.
-ssize_t pipe_read_n(int fd, void *vptr, size_t n);

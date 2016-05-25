@@ -1,9 +1,14 @@
 #ifndef SEARPC_NAMED_PIPE_TRANSPORT_H
 #define SEARPC_NAMED_PIPE_TRANSPORT_H
 
+#include <pthread.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <jansson.h>
+
+#if defined(WIN32)
+#include <windows.h>
+#endif
 
 // Implementatin of a searpc transport based on named pipe. It uses unix domain
 // sockets on linux/osx, and named pipes on windows.
@@ -14,13 +19,19 @@
 // the RPC functions implementation's responsibility to guarantee thread safety
 // of the RPC calls. (e.g. using mutexes).
 
+#if defined(WIN32)
+typedef HANDLE SearpcNamedPipe;
+#else
+typedef int SearpcNamedPipe;
+#endif
+
 // Server side interface.
 
 typedef struct {
     char path[4096];
     pthread_t listener_thread;
     GList *handlers;
-    int pipe_fd;
+    SearpcNamedPipe pipe_fd;
 } SearpcNamedPipeServer;
 
 SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path);
@@ -31,7 +42,7 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server);
 
 typedef struct {
     char path[4096];
-    int pipe_fd;
+    SearpcNamedPipe pipe_fd;
 } SearpcNamedPipeClient;
 
 SearpcNamedPipeClient* searpc_create_named_pipe_client(const char *path);

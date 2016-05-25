@@ -1,26 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 # Run this to generate all the initial makefiles, etc.
 
 : ${AUTOCONF=autoconf}
 : ${AUTOHEADER=autoheader}
 : ${AUTOMAKE=automake}
 : ${ACLOCAL=aclocal}
-if test "$(uname -s)" != "Darwin"; then
-  : ${LIBTOOLIZE=libtoolize}
-  : ${LIBTOOL=libtool}
+if test "$(uname)" != "Darwin"; then
+    : ${LIBTOOLIZE=libtoolize}
 else
-  : ${LIBTOOLIZE=glibtoolize}
-  : ${LIBTOOL=glibtool}
+    : ${LIBTOOLIZE=glibtoolize}
 fi
+: ${LIBTOOL=libtool}
 
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-ORIGDIR=`pwd`
 cd $srcdir
 PROJECT=libsearpc
-TEST_TYPE=-f
-FILE=searpc-server.h
 CONFIGURE=configure.ac
 
 DIE=0
@@ -41,7 +37,7 @@ DIE=0
 	DIE=1
 }
 
-if test "$(uname -s)" != "Darwin"; then
+if test "$(uname)" != "Darwin"; then
 (grep "^AC_PROG_LIBTOOL" $CONFIGURE >/dev/null) && {
   ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
     echo
@@ -53,14 +49,41 @@ if test "$(uname -s)" != "Darwin"; then
 }
 fi
 
+
 if test "$DIE" -eq 1; then
 	exit 1
 fi
 
+dr=`dirname .`
+echo processing $dr
+aclocalinclude="$aclocalinclude -I m4"
+
 if test x"$MSYSTEM" = x"MINGW32"; then
-    autoreconf --install -I/local/share/aclocal
-elif test "$(uname -s)" = "Darwin"; then
-    autoreconf --install -I/opt/local/share/aclocal
-else
-    autoreconf --install
+    aclocalinclude="$aclocalinclude -I /mingw32/share/aclocal"
+elif test "$(uname)" = "Darwin"; then
+    aclocalinclude="$aclocalinclude -I /opt/local/share/aclocal"
 fi
+
+
+echo "Creating $dr/aclocal.m4 ..."
+test -r $dr/aclocal.m4 || touch $dr/aclocal.m4
+echo "Running glib-gettextize...  Ignore non-fatal messages."
+echo "no" | glib-gettextize --force --copy
+
+echo "Making $dr/aclocal.m4 writable ..."
+test -r $dr/aclocal.m4 && chmod u+w $dr/aclocal.m4
+
+echo "Running $LIBTOOLIZE..."
+$LIBTOOLIZE --force --copy
+
+echo "Running $ACLOCAL $aclocalinclude ..."
+$ACLOCAL $aclocalinclude
+
+echo "Running $AUTOHEADER..."
+$AUTOHEADER
+
+echo "Running $AUTOMAKE --gnu $am_opt ..."
+$AUTOMAKE --add-missing --gnu $am_opt
+
+echo "Running $AUTOCONF ..."
+$AUTOCONF
