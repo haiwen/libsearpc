@@ -217,8 +217,6 @@ test_searpc__simple_call (void)
 void
 test_searpc__invalid_call (void)
 {
-    char *fcall, *fret;
-    gsize fcall_len, ret_len;
     gchar* result;
     GError *error = NULL;
 
@@ -306,8 +304,6 @@ void simple_callback (void *result, void *user_data, GError *error)
 
 void simple_callback_error (void *result, void *user_data, GError *error)
 {
-    char *res = (char *)result;
-
     cl_assert (result == NULL);
     cl_assert (error != NULL);
 }
@@ -344,6 +340,44 @@ test_searpc__pipe_simple_call (void)
     g_free (result);
 }
 
+void
+test_searpc__pipe_large_request (void)
+{
+    gchar* result;
+    GError *error = NULL;
+
+    // 10MB
+    int size = 10 * 1024 * 1024;
+    GString *large_string = g_string_sized_new(size);
+    while (large_string->len < size) {
+        g_string_append(large_string, "aaaa");
+    }
+
+    // Large request
+    result = searpc_client_call__string (client_with_pipe_transport, "get_substring", &error,
+                                         2, "string", large_string->str, "int", 2);
+    cl_assert_ (error == NULL, error ? error->message : "");
+    cl_assert_ (strcmp(result, "aa") == 0, result);
+    g_free (result);
+
+    // Large request & Large response
+    result = searpc_client_call__string (client_with_pipe_transport, "get_substring", &error,
+                                         2, "string", large_string->str, "int", size - 2);
+    cl_assert_ (error == NULL, error ? error->message : "");
+    // cl_assert (strcmp(result, "aa") == 0);
+    g_free (result);
+
+    g_string_free (large_string, TRUE);
+}
+
+void
+test_searpc__pipe_multiple_clients (void)
+{
+    //TODO: Implement a test where multiple clients access the server
+    //simultaneously.
+}
+
+
 #include "searpc-signature.h"
 #include "searpc-marshal.h"
 
@@ -370,14 +404,21 @@ test_searpc__initialize (void)
     client->async_send = sample_async_send;
     client->async_arg = "test_async";
 
+#if !defined(WIN32)
     const char *pipe_path = "/tmp/.searpc-test";
+#else
+    const char *pipe_path = "\\\\.\\pipe\\libsearpc-test";
+#endif
 
     SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server(pipe_path);
-    SearpcNamedPipeClient *pipe_client = searpc_create_named_pipe_client(pipe_path);
-
     cl_must_pass_(searpc_named_pipe_server_start(pipe_server), "named pipe server failed to start");
-    cl_must_pass_(searpc_named_pipe_client_connect(pipe_client), "named pipe client failed to connect");
+#if defined(WIN32)
+    // Wait for the server thread to start
+    Sleep(1000);
+#endif
 
+    SearpcNamedPipeClient *pipe_client = searpc_create_named_pipe_client(pipe_path);
+    cl_must_pass_(searpc_named_pipe_client_connect(pipe_client), "named pipe client failed to connect");
     client_with_pipe_transport = searpc_client_with_named_pipe_transport(pipe_client, "test");
 }
 
