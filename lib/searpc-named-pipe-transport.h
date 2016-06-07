@@ -27,12 +27,14 @@ typedef int SearpcNamedPipe;
 
 // Server side interface.
 
-typedef struct {
+struct _SearpcNamedPipeServer {
     char path[4096];
     pthread_t listener_thread;
     GList *handlers;
     SearpcNamedPipe pipe_fd;
-} SearpcNamedPipeServer;
+};
+
+typedef struct _SearpcNamedPipeServer SearpcNamedPipeServer;
 
 SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path);
 
@@ -40,10 +42,12 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server);
 
 // Client side interface.
 
-typedef struct {
+struct _SearpcNamedPipeClient {
     char path[4096];
     SearpcNamedPipe pipe_fd;
-} SearpcNamedPipeClient;
+};
+
+typedef struct _SearpcNamedPipeClient SearpcNamedPipeClient;
 
 SearpcNamedPipeClient* searpc_create_named_pipe_client(const char *path);
 
