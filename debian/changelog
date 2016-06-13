@@ -1,0 +1,8 @@
+libsearpc (3.0.7-4) unstable; urgency=medium
+
+  * split package libsearpc and libsearpc-dev
+  * updated the debian/copyright notice so people know who's responisble for the packaging
+  * rewrote the rules file, much simpler now
+  * prep for release on github
+
+ -- m.eik michalke <meik.michalke@hhu.de>  Mon, 13 Jun 2016 18:25:06 +0200
