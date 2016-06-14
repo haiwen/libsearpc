@@ -55,4 +55,6 @@ SearpcClient * searpc_client_with_named_pipe_transport(SearpcNamedPipeClient *cl
 
 int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client);
 
+void searpc_free_client_with_pipe_transport (SearpcClient *client);
+
 #endif // SEARPC_NAMED_PIPE_TRANSPORT_H
