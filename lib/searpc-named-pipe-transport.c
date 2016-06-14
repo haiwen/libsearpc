@@ -99,7 +99,7 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
     }
 
     if (g_file_test (un_path, G_FILE_TEST_EXISTS)) {
-        g_warning ("socket file exists, delete it anyway\n");
+        g_debug ("socket file exists, delete it anyway\n");
         if (g_unlink (un_path) < 0) {
             g_warning ("delete socket file failed : %s\n", strerror(errno));
             goto failed;
@@ -113,7 +113,7 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
         goto failed;
     }
 
-    if (listen(pipe_fd, 3) < 0) {
+    if (listen(pipe_fd, 10) < 0) {
         g_warning ("failed to listen to unix socket: %s\n", strerror(errno));
         goto failed;
     }
@@ -217,7 +217,7 @@ static void* named_pipe_client_handler(void *arg)
     size_t bufsize = 4096;
     char *buf = g_malloc(bufsize);
 
-    g_warning ("start to serve on pipe client\n");
+    g_debug ("start to serve on pipe client\n");
 
     while (1) {
         if (pipe_read_n(connfd, &len, sizeof(uint32_t)) < 0) {
@@ -230,7 +230,7 @@ static void* named_pipe_client_handler(void *arg)
             buf = realloc(buf, bufsize);
         }
 
-        if (pipe_read_n(connfd, buf, len) < 0) {
+        if (pipe_read_n(connfd, buf, len) < 0 || len == 0) {
             g_warning("failed to read rpc request: %s", strerror(errno));
             g_free (buf);
             break;
@@ -247,13 +247,13 @@ static void* named_pipe_client_handler(void *arg)
         g_free (body);
 
         if (pipe_write_n(connfd, &ret_len, sizeof(uint32_t)) < 0) {
-            g_warning("failed to send rpc resopnse: %s", strerror(errno));
+            g_warning("failed to send rpc response(%s): %s", ret_str, strerror(errno));
             g_free (ret_str);
             break;
         }
 
         if (pipe_write_n(connfd, ret_str, ret_len) < 0) {
-            g_warning("failed to send rpc resopnse: %s", strerror(errno));
+            g_warning("failed to send rpc response: %s", strerror(errno));
             g_free (ret_str);
             break;
         }
@@ -279,7 +279,7 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
 
     g_strlcpy (servaddr.sun_path, client->path, sizeof(servaddr.sun_path));
     if (connect(client->pipe_fd, (struct sockaddr *)&servaddr, (socklen_t)sizeof(servaddr)) < 0) {
-        g_warning ("pipe client failed to connect to server\n");
+        g_warning ("pipe client failed to connect to server: %s\n", strerror(errno));
         return -1;
     }
 
@@ -310,14 +310,28 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
 
 #endif // !defined(WIN32)
 
-    g_warning ("pipe client connectd to server\n");
+    g_debug ("pipe client connected to server\n");
     return 0;
+}
+
+void searpc_free_client_with_pipe_transport (SearpcClient *client)
+{
+    ClientTransportData *data = (ClientTransportData *)(client->arg);
+    SearpcNamedPipeClient *pipe_client = data->client;
+#if defined(WIN32)
+    CloseHandle(pipe_client->pipe_fd);
+#else
+    close(pipe_client->pipe_fd);
+#endif
+    g_free (pipe_client);
+    g_free (data);
+    searpc_client_free (client);
 }
 
 char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len)
 {
-    g_warning ("searpc_named_pipe_send is called\n");
+    g_debug ("searpc_named_pipe_send is called\n");
     ClientTransportData *data = arg;
     SearpcNamedPipeClient *client = data->client;
 
