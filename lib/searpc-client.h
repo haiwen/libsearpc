@@ -22,13 +22,15 @@ typedef int (*AsyncTransportSend)(void *arg, gchar *fcall_str,
 
 typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
 
-typedef struct {
+struct _SearpcClient {
     TransportCB send;
     void *arg;
     
     AsyncTransportSend async_send;
     void *async_arg;
-} SearpcClient;
+};
+
+typedef struct _SearpcClient SearpcClient;
 
 SearpcClient *searpc_client_new ();
 
