@@ -415,25 +415,24 @@ static void * do_pipe_connect_and_request(void *arg)
 void
 test_searpc__pipe_concurrent_clients (void)
 {
-    // 5 concurrent clients, and run the test for 20 times.
-    int n_clients = 5;
+    // M concurrent clients, and run the test for N times.
+    int m_clients = 5;
     int n_times = 20;
 
     int i;
     for (i = 0; i < n_times; i++) {
-        pthread_t *threads = g_new0(pthread_t, n_clients);
+        g_usleep(100000);
+        pthread_t *threads = g_new0(pthread_t, m_clients);
 
         int j;
-        for (j = 0; j < n_clients; j++) {
+        for (j = 0; j < m_clients; j++) {
             pthread_create(&threads[j], NULL, do_pipe_connect_and_request, NULL);
         }
 
         void *ret;
-        for (j = 0; j < n_clients; j++) {
+        for (j = 0; j < m_clients; j++) {
             pthread_join(threads[j], &ret);
         }
-        g_usleep(5000);
-
         g_free (threads);
     }
 }
@@ -478,5 +477,5 @@ test_searpc__cleanup (void)
     searpc_free_client_with_pipe_transport(client_with_pipe_transport);
 
     /* free memory for memory debug with valgrind */
-    searpc_server_final();
+    // searpc_server_final();
 }
