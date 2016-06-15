@@ -31,6 +31,6 @@ Package: libsearpc-dev
 Section: libdevel
 Architecture: any
 Depends:
-    libsearpc (= ${binary:Version})
+    libsearpc1 (= ${binary:Version})
 Conflicts: seafile
 Description: Development files for the libsearpc package.
