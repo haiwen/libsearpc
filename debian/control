@@ -1,4 +1,4 @@
-Source: libsearpc
+Source: libsearpc1
 Section: net
 Priority: extra
 Maintainer: m.eik michalke <meik.michalke@hhu.de>
@@ -13,7 +13,7 @@ Build-Depends:
 Standards-Version: 3.9.5
 Homepage: http://seafile.com
 
-Package: libsearpc
+Package: libsearpc1
 Section: libs
 Architecture: any
 Depends:
