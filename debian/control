@@ -21,6 +21,7 @@ Depends:
     ${misc:Depends},
     python,
     libglib2.0-0
+Conflicts: seafile
 Description: Libsearpc for Seafile client
     Searpc is a simple C language RPC framework based on GObject system.
     Searpc handles the serialization/deserialization part of RPC, the transport
@@ -31,4 +32,5 @@ Section: libdevel
 Architecture: any
 Depends:
     libsearpc (= ${binary:Version})
+Conflicts: seafile
 Description: Development files for the libsearpc package.
