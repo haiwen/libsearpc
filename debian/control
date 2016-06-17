@@ -19,7 +19,7 @@ Architecture: any
 Depends:
     ${shlibs:Depends},
     ${misc:Depends},
-    python,
+    ${python:Depends},
     libglib2.0-0
 Conflicts: seafile
 Description: Libsearpc for Seafile client
@@ -32,8 +32,9 @@ Section: libdevel
 Architecture: any
 Depends:
     ${misc:Depends},
-    libsearpc1 (= ${binary:Version}),
-    python
+    python (>= 2.7) | python2 (>= 2.7),
+    python (<< 2.8) | python2 (<< 2.8),
+    libsearpc1 (= ${binary:Version})
 Conflicts: seafile
 Description: Development files for the libsearpc1 package.
  This package contains the development files for the libsearpc1 package.
