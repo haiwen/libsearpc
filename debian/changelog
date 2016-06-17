@@ -1,8 +1,9 @@
-libsearpc1 (3.0.7-5) UNRELEASED; urgency=medium
+libsearpc1 (3.0.7-5ubuntu1) UNRELEASED; urgency=medium
 
   * repackaging with cleaned up orig.tar.xz archives
+  * added symbol file
 
- -- m.eik michalke <meik.michalke@hhu.de>  Thu, 16 Jun 2016 14:31:49 +0200
+ -- m.eik michalke <meik.michalke@hhu.de>  Fri, 17 Jun 2016 12:09:14 +0200
 
 libsearpc1 (3.0.7-4) unstable; urgency=medium
 
