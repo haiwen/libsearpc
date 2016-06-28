@@ -6,6 +6,7 @@
  */
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include "clar_test.h"
 

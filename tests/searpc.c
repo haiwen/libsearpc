@@ -336,22 +336,15 @@ test_searpc__json_return_type (void)
     json_decref(result);
 }
 
-// The macro `json_object_foreach` is not defined in older versions of
-// libjansson.
-#ifndef json_object_foreach
-#define json_object_foreach(object, key, value) \
-    for(key = json_object_iter_key(json_object_iter(object)); \
-        key && (value = json_object_iter_value(json_object_key_to_iter(key))); \
-        key = json_object_iter_key(json_object_iter_next(object, json_object_key_to_iter(key))))
-#endif
-
 json_t *
 count_json_kvs (const json_t *obj, GError **error)
 {
     int count = 0;
-    const char *key;
-    const json_t *value;
-    json_object_foreach(((json_t*)obj), key, value) {
+
+    json_t *member;
+    member = json_object_iter ((json_t*)obj);
+    while (member != NULL) {
+        member = json_object_iter_next ((json_t*)obj, member);
         count++;
     }
 
