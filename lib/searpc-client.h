@@ -3,6 +3,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <jansson.h>
 
 #ifndef DFT_DOMAIN
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
@@ -63,6 +64,10 @@ GList*
 searpc_client_call__objlist (SearpcClient *client, const char *fname,
                              GType object_type,
                              GError **error, int n_params, ...);
+
+json_t *
+searpc_client_call__json (SearpcClient *client, const char *fname,
+                          GError **error, int n_params, ...);
 
 
 char* searpc_client_transport_send (SearpcClient *client,
