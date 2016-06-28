@@ -499,6 +499,9 @@ ssize_t pipe_read_n (SearpcNamedPipe fd, void *vptr, size_t n)
         NULL);                  // not overlapped I/O
 
     if (!success || bytes_read != (DWORD)n) {
+        if (GetLastError() == ERROR_BROKEN_PIPE) {
+            return 0;
+        }
         G_WARNING_WITH_LAST_ERROR("failed to read from pipe");
         return -1;
     }
