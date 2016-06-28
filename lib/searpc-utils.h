@@ -66,7 +66,7 @@ inline static const json_t *json_array_get_json_or_null_element (json_t *array, 
 inline static void json_array_add_json_or_null_element (json_t *array, const json_t *value)
 {
     if (value) {
-        json_t *obj = json_deep_copy(value);
+        json_t *obj = json_deep_copy((json_t*)value);
         json_array_append_new (array, obj);
     } else {
         json_array_append_new (array, json_null ());
