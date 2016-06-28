@@ -388,6 +388,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
             if (result) g_object_unref ((GObject*)result);
         } else if (strcmp(data->ret_type, "objlist") == 0) {
             clean_objlist ((GList *)result);
+        } else if (strcmp(data->ret_type, "json") == 0) {
+            json_decref ((json_t *)result);
         }
     }
     g_free (data);
