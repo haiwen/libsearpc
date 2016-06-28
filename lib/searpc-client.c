@@ -132,6 +132,8 @@ searpc_client_call (SearpcClient *client, const char *fname,
     else if (strcmp(ret_type, "objlist") == 0)
         *((GList **)ret_ptr) = searpc_client_fret__objlist (gobject_type, fret,
                                                             ret_len, error);
+    else if (strcmp(ret_type, "json") == 0)
+        *((json_t **)ret_ptr) = searpc_client_fret__json(fret, ret_len, error);
     else
         g_warning ("unrecognized return type %s\n", ret_type);
     
@@ -372,6 +374,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
         } else if (strcmp(data->ret_type, "objlist") == 0) {
             result = (void *)searpc_client_fret__objlist (
                 data->gtype, retstr, len, &error);
+        } else if (strcmp(data->ret_type, "json") == 0) {
+            result = (void *)searpc_client_fret__json (retstr, len, &error);
         }
 
         data->callback (result, data->cbdata, error);
@@ -515,6 +519,25 @@ searpc_client_async_call__objlist (SearpcClient *client,
                                       n_params, args);
     va_end (args);
     return ret;   
+}
+
+int
+searpc_client_async_call__json (SearpcClient *client,
+                                const char *fname,
+                                AsyncCallback callback, void *cbdata,
+                                int n_params, ...)
+{
+    g_return_val_if_fail (fname != NULL, -1);
+
+    va_list args;
+    int ret;
+
+    va_start (args, n_params);
+    ret = searpc_client_async_call_v (client, fname, callback, "json",
+                                      0, cbdata,
+                                      n_params, args);
+    va_end (args);
+    return ret;
 }
 
 

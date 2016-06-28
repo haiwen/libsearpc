@@ -109,6 +109,12 @@ searpc_client_async_call__objlist (SearpcClient *client,
                                    GType object_type, void *cbdata,
                                    int n_params, ...);
 
+int
+searpc_client_async_call__json (SearpcClient *client,
+                                const char *fname,
+                                AsyncCallback callback, void *cbdata,
+                                int n_params, ...);
+
 
 /* called by the transport layer, the rpc layer should be able to
  * modify the str, but not take ownership of it */

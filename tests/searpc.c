@@ -357,6 +357,19 @@ test_searpc__simple_call_async (void)
                                       2, "string", "hello", "int", 10);
 }
 
+void async_callback_json (void *result, void *user_data, GError *error)
+{
+    cl_assert(json_integer_value(json_object_get((json_t*)result, "hello")) == 10);
+}
+
+void
+test_searpc__simple_call_async_json (void)
+{
+    searpc_client_async_call__json (client, "get_maman_bar_json",
+                                    async_callback_json, NULL,
+                                    2, "string", "hello", "int", 10);
+}
+
 void
 test_searpc__pipe_simple_call (void)
 {
