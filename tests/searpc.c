@@ -183,6 +183,7 @@ sample_async_send (void *arg, gchar *fcall_str,
 
     searpc_client_generic_callback (ret, ret_len, rpc_priv, NULL);
 
+    g_free (ret);
     return 0;
 }
 
@@ -311,7 +312,7 @@ test_searpc__objlist_call (void)
 }
 
 json_t *
-get_maman_bar_json (const char *name, int num, GError **error)
+simple_json_rpc (const char *name, int num, GError **error)
 {
     json_t * ret = json_object();
     json_object_set_new (ret, name, json_integer (num));
@@ -324,11 +325,13 @@ test_searpc__json_return_type (void)
     json_t *result;
     GError *error = NULL;
 
-    result = searpc_client_call__json (client, "get_maman_bar_json",
+    result = searpc_client_call__json (client, "simple_json_rpc",
                                        &error, 2,
                                        "string", "year",
                                        "int", 2016);
     cl_assert (error == NULL);
+    cl_assert (json_integer_value(json_object_get(result, "year")) == 2016);
+    json_decref(result);
 }
 
 json_t *
@@ -362,7 +365,11 @@ test_searpc__json_param_type (void)
 
     cl_assert_ (error == NULL, error ? error->message : "");
     int count = json_integer_value(json_object_get((json_t*)result, "number_of_kvs"));
-    cl_assert_(count == 2, json_dumps(result, JSON_INDENT(2)));
+    char *msg = json_dumps(result, JSON_INDENT(2));
+    cl_assert_(count == 2, msg);
+    free (msg);
+    json_decref(param);
+    json_decref(result);
 }
 
 
@@ -399,7 +406,7 @@ void async_callback_json (void *result, void *user_data, GError *error)
 void
 test_searpc__simple_call_async_json (void)
 {
-    searpc_client_async_call__json (client, "get_maman_bar_json",
+    searpc_client_async_call__json (client, "simple_json_rpc",
                                     async_callback_json, NULL,
                                     2, "string", "hello", "int", 10);
 }
@@ -520,7 +527,7 @@ test_searpc__initialize (void)
                                      searpc_signature_object__string());
     searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list",
                                      searpc_signature_objlist__string_int());
-    searpc_server_register_function ("test", get_maman_bar_json, "get_maman_bar_json",
+    searpc_server_register_function ("test", simple_json_rpc, "simple_json_rpc",
                                      searpc_signature_json__string_int());
     searpc_server_register_function ("test", count_json_kvs, "count_json_kvs",
                                      searpc_signature_json__json());

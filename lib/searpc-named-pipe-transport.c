@@ -263,6 +263,8 @@ static void* named_pipe_client_handler(void *arg)
             g_free (ret_str);
             break;
         }
+
+        g_free (ret_str);
     }
 
 #if !defined(WIN32)
@@ -385,7 +387,9 @@ request_to_json (const char *service, const char *fcall_str, size_t fcall_len)
 
     g_free (temp_request);
 
-    return json_dumps (object, 0);
+    char *str = json_dumps (object, 0);
+    json_decref (object);
+    return str;
 }
 
 static int
