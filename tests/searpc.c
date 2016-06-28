@@ -310,6 +310,28 @@ test_searpc__objlist_call (void)
     g_list_free (result);
 }
 
+json_t *
+get_maman_bar_json (const char *name, int num, GError **error)
+{
+    json_t * ret = json_object();
+    json_object_set_new (ret, name, json_integer (num));
+    return ret;
+}
+
+void
+test_searpc__json_call (void)
+{
+    json_t *result;
+    GError *error = NULL;
+
+    result = searpc_client_call__json (client, "get_maman_bar_json",
+                                       &error, 2,
+                                       "string", "year",
+                                       "int", 2016);
+    cl_assert (error == NULL);
+}
+
+
 void simple_callback (void *result, void *user_data, GError *error)
 {
     char *res = (char *)result;
@@ -452,6 +474,8 @@ test_searpc__initialize (void)
                                      searpc_signature_object__string());
     searpc_server_register_function ("test", get_maman_bar_list, "get_maman_bar_list",
                                      searpc_signature_objlist__string_int());
+    searpc_server_register_function ("test", get_maman_bar_json, "get_maman_bar_json",
+                                     searpc_signature_json__string_int());
 
     /* sample client */
     client = searpc_client_new();

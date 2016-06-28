@@ -22,6 +22,9 @@ static GList*
 searpc_client_fret__objlist (GType gtype, char *data,
                              size_t len, GError **error);
 
+static json_t *
+searpc_client_fret__json (char *data, size_t len, GError **error);
+
 
 static void clean_objlist(GList *list)
 {
@@ -295,6 +298,38 @@ searpc_client_call__objlist (SearpcClient *client, const char *fname,
     g_free (fret);
     return ret;
 }
+
+json_t *
+searpc_client_call__json (SearpcClient *client, const char *fname,
+                          GError **error, int n_params, ...)
+{
+    g_return_val_if_fail (fname != NULL, NULL);
+
+    va_list args;
+    gsize len, ret_len;
+    char *fstr;
+
+    va_start (args, n_params);
+    fstr = fcall_to_str (fname, n_params, args, &len);
+    va_end (args);
+    if (!fstr) {
+        g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
+        return NULL;
+    }
+
+    char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
+    if (!fret) {
+        g_free (fstr);
+        g_set_error (error, DFT_DOMAIN, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);
+        return NULL;
+    }
+
+    json_t *ret = searpc_client_fret__json (fret, ret_len, error);
+    g_free (fstr);
+    g_free (fret);
+    return ret;
+}
+
 
 
 typedef struct {
@@ -618,6 +653,27 @@ searpc_client_fret__objlist (GType gtype, char *data, size_t len, GError **error
         }
         json_decref(object);
         return g_list_reverse(ret);
+    }
+    return NULL;
+}
+
+json_t *
+searpc_client_fret__json (char *data, size_t len, GError **error)
+{
+    json_t *object = NULL;
+
+    if (handle_ret_common(data, len, &object, error) == 0) {
+        const json_t *ret_obj = json_object_get (object, "ret");
+        if (json_is_null(ret_obj)) {
+            json_decref(object);
+            return NULL;
+        }
+
+        g_assert (ret_obj);
+        json_t *ret = json_deep_copy(ret_obj);
+
+        json_decref(object);
+        return ret;
     }
     return NULL;
 }

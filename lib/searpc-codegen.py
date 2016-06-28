@@ -45,6 +45,12 @@ type_table = {
                 "searpc_set_objlist_to_ret_object",
                 "",
                 "NULL"),
+    "json": ("const json_t*",
+             "json_t*",
+             "",
+             "searpc_set_json_to_ret_object",
+             "",
+             "NULL"),
 }
 
 marshal_template = r"""
