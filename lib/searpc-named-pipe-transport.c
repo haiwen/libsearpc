@@ -349,13 +349,17 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     uint32_t len = json_len;
     if (pipe_write_n(client->pipe_fd, &len, sizeof(uint32_t)) < 0) {
         g_warning("failed to send rpc call: %s", strerror(errno));
+        free (json_str);
         return NULL;
     }
 
     if (pipe_write_n(client->pipe_fd, json_str, json_len) < 0) {
         g_warning("failed to send rpc call: %s", strerror(errno));
+        free (json_str);
         return NULL;
     }
+
+    free (json_str);
 
     if (pipe_read_n(client->pipe_fd, &len, sizeof(uint32_t)) < 0) {
         g_warning("failed to read rpc response: %s", strerror(errno));

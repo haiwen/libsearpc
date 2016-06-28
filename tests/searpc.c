@@ -228,6 +228,7 @@ test_searpc__simple_call (void)
                                          2, "string", "hello", "int", 10);
     cl_assert (error->message);
     g_free (result);
+    g_error_free(error);
 }
 
 void
@@ -240,6 +241,7 @@ test_searpc__invalid_call (void)
                                          2, "string", "hello", "int", 2);
     cl_assert (error != NULL);
     g_free (result);
+    g_error_free (error);
 }
 
 GObject *
@@ -384,6 +386,7 @@ void simple_callback_error (void *result, void *user_data, GError *error)
 {
     cl_assert (result == NULL);
     cl_assert (error != NULL);
+    g_error_free (error);
 }
 
 void
