@@ -8,4 +8,5 @@ func_table = [
     [ "object", ["string"] ],
     [ "objlist", ["string", "int"] ],
     [ "json", ["string", "int"] ],
+    [ "json", ["json"]],
 ]
