@@ -13,6 +13,6 @@ before_install:
 script:
  - ./configure
  - make -j8
- - make check
+ - make check -j8
 notifications:
     email: false

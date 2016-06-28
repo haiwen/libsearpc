@@ -220,8 +220,14 @@ static void* named_pipe_client_handler(void *arg)
     g_debug ("start to serve on pipe client\n");
 
     while (1) {
+        len = 0;
         if (pipe_read_n(connfd, &len, sizeof(uint32_t)) < 0) {
             g_warning("failed to read rpc request size: %s", strerror(errno));
+            break;
+        }
+
+        if (len == 0) {
+            g_debug("EOF reached, pipe connection lost");
             break;
         }
 

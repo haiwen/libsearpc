@@ -370,7 +370,6 @@ test_searpc__pipe_simple_call (void)
     g_free (result);
 
     /* error should return */
-    result = NULL;
     result = searpc_client_call__string (client_with_pipe_transport, "get_substring", &error,
                                          2, "string", "hello", "int", 10);
     cl_assert (error->message);
