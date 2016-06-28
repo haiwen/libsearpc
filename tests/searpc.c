@@ -319,7 +319,7 @@ get_maman_bar_json (const char *name, int num, GError **error)
 }
 
 void
-test_searpc__json_call (void)
+test_searpc__json_return_type (void)
 {
     json_t *result;
     GError *error = NULL;
@@ -329,6 +329,40 @@ test_searpc__json_call (void)
                                        "string", "year",
                                        "int", 2016);
     cl_assert (error == NULL);
+}
+
+json_t *
+count_json_kvs (const json_t *obj, GError **error)
+{
+    int count = 0;
+    const char *key;
+    const json_t *value;
+    json_object_foreach(((json_t*)obj), key, value) {
+        count++;
+    }
+
+    json_t * ret = json_object();
+    json_object_set_new (ret, "number_of_kvs", json_integer (count));
+    return ret;
+}
+
+void
+test_searpc__json_param_type (void)
+{
+    json_t *result;
+    GError *error = NULL;
+
+    json_t *param = json_object();
+    json_object_set_new (param, "a", json_integer (1));
+    json_object_set_new (param, "b", json_integer (2));
+
+    result = searpc_client_call__json (client, "count_json_kvs",
+                                       &error, 1,
+                                       "json", param);
+
+    cl_assert_ (error == NULL, error ? error->message : "");
+    int count = json_integer_value(json_object_get((json_t*)result, "number_of_kvs"));
+    cl_assert_(count == 2, json_dumps(result, JSON_INDENT(2)));
 }
 
 
@@ -488,6 +522,8 @@ test_searpc__initialize (void)
                                      searpc_signature_objlist__string_int());
     searpc_server_register_function ("test", get_maman_bar_json, "get_maman_bar_json",
                                      searpc_signature_json__string_int());
+    searpc_server_register_function ("test", count_json_kvs, "count_json_kvs",
+                                     searpc_signature_json__json());
 
     /* sample client */
     client = searpc_client_new();
@@ -513,5 +549,5 @@ test_searpc__cleanup (void)
     searpc_free_client_with_pipe_transport(client_with_pipe_transport);
 
     /* free memory for memory debug with valgrind */
-    // searpc_server_final();
+    searpc_server_final();
 }

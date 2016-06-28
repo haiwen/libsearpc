@@ -57,3 +57,18 @@ inline static json_int_t json_array_get_int_element (json_t *array, size_t index
 {
     return json_integer_value (json_array_get (array, index));
 }
+
+inline static const json_t *json_array_get_json_or_null_element (json_t *array, size_t index)
+{
+    return json_array_get (array, index);
+}
+
+inline static void json_array_add_json_or_null_element (json_t *array, const json_t *value)
+{
+    if (value) {
+        json_t *obj = json_deep_copy(value);
+        json_array_append_new (array, obj);
+    } else {
+        json_array_append_new (array, json_null ());
+    }
+}

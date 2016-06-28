@@ -79,6 +79,8 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
 	    json_array_append_new (array, json_integer (*((gint64 *)value)));
         else if (strcmp(type, "string") == 0)
             json_array_add_string_or_null_element (array, (char *)value);
+        else if (strcmp(type, "json") == 0)
+            json_array_add_json_or_null_element (array, (const json_t *)value);
         else {
             g_warning ("unrecognized parameter type %s\n", type);
             return NULL;

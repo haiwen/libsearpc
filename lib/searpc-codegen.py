@@ -47,9 +47,9 @@ type_table = {
                 "NULL"),
     "json": ("const json_t*",
              "json_t*",
-             "",
+             "json_array_get_json_or_null_element",
              "searpc_set_json_to_ret_object",
-             "",
+             "json_array_add_json_or_null_element",
              "NULL"),
 }
 
