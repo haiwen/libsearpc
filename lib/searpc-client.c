@@ -691,7 +691,7 @@ searpc_client_fret__json (char *data, size_t len, GError **error)
 
     if (handle_ret_common(data, len, &object, error) == 0) {
         const json_t *ret_obj = json_object_get (object, "ret");
-        if (json_is_null(ret_obj)) {
+        if (!ret_obj || json_is_null(ret_obj)) {
             json_decref(object);
             return NULL;
         }
