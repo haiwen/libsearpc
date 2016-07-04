@@ -9,7 +9,8 @@ AC_CONFIG_MACRO_DIR([m4])
 
 
 AM_INIT_AUTOMAKE([1.9 foreign])
-AC_MINGW32
+#AC_MINGW32
+AC_CANONICAL_BUILD
 # Checks for programs.
 AC_PROG_CC
 LT_INIT
@@ -44,11 +45,11 @@ AC_ARG_ENABLE(server-pkg,
 dnl - check if the macro WIN32 is defined on this compiler.
 AC_MSG_CHECKING(for WIN32)
 
-if test "$MINGW32" = yes; then
+if test "$build_os" = "mingw32" -o "$build_os" = "mingw64"; then
   bwin32=true
   LIB_WS32=-lws2_32
   AC_SUBST(LIB_WS32)
-  AC_MSG_RESULT(compile in mingw32)
+  AC_MSG_RESULT(compile in mingw)
 fi
 
 AM_CONDITIONAL([WIN32], [test "$MINGW32" = "yes"])
