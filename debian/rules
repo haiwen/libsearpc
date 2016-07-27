@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+%:
+	dh $@ --with python2 --with autotools_dev --builddirectory=build
+
+override_dh_auto_configure:
+	./autogen.sh
+	dh_auto_configure -- --disable-compile-demo
+
+override_dh_strip:
+	# emptying the dependency_libs field in .la files
+	sed -i "/dependency_libs/ s/'.*'/''/" `find debian/ -name '*.la'`
+	dh_strip

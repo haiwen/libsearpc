@@ -1,0 +1,39 @@
+Source: libsearpc1
+Section: net
+Priority: extra
+Maintainer: m.eik michalke <meik.michalke@hhu.de>
+Build-Depends:
+    debhelper (>= 7),
+    autotools-dev,
+    intltool,
+    libglib2.0-dev,
+    python,
+    libtool,
+    libjansson-dev
+Standards-Version: 3.9.5
+Homepage: http://seafile.com
+
+Package: libsearpc1
+Section: libs
+Architecture: any
+Depends:
+    ${shlibs:Depends},
+    ${misc:Depends},
+    ${python:Depends}
+Conflicts: seafile
+Description: SeaRPC library for Seafile client
+ SeaRPC is a simple C language RPC framework based on GObject system.
+ SeaRPC handles the serialization/deserialization part of RPC, the transport
+ part is left to users.
+
+Package: libsearpc-dev
+Section: libdevel
+Architecture: any
+Depends:
+    ${misc:Depends},
+    python2 (>= 2.7) | python (>= 2.7),
+    python2 (<< 2.8) | python (<< 2.8),
+    libsearpc1 (= ${binary:Version})
+Conflicts: seafile
+Description: Development files for the libsearpc1 package.
+ This package contains the development files for the libsearpc1 package.
