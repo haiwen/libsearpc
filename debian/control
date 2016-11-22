@@ -37,3 +37,12 @@ Depends:
 Conflicts: seafile
 Description: Development files for the libsearpc1 package.
  This package contains the development files for the libsearpc1 package.
+
+Package: libsearpc-dbg
+Section: debug
+Architecture: any
+Depends:
+    libsearpc1 (= ${binary:Version}),
+    ${misc:Depends},
+Description: Debugging symbols for the libsearpc1 package.
+ This package contains the debugging symbols for the libsearpc1 package.
