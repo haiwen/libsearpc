@@ -1,14 +1,14 @@
 AM_CPPFLAGS = -I$(top_srcdir)/lib
 
 ACLOCAL_AMFLAGS = -I m4
-GNU_STANDARD_FILES = README.markdown COPYING AUTHORS ChangeLog NEWS
+GNU_STANDARD_FILES = README.markdown AUTHORS ChangeLog NEWS
 
 pcfiles = libsearpc.pc
 
 pkgconfig_DATA = $(pcfiles)
 pkgconfigdir = $(libdir)/pkgconfig
 
-EXTRA_DIST = $(GNU_STANDARD_FILES)
+EXTRA_DIST = $(GNU_STANDARD_FILES) LICENSE.txt
 
 EXTRA_DIST += libsearpc.pc.in
 
