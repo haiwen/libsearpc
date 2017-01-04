@@ -1,14 +1,18 @@
+sudo: false
 language: c
 compiler:
  - gcc
  - clang
+addons:
+  apt:
+    packages:
+      - libjansson-dev
 before_install:
- - sudo apt-get install libjansson-dev
  - git clean -x -f
  - ./autogen.sh
 script:
  - ./configure
  - make -j8
- - make check
+ - make check -j8
 notifications:
     email: false

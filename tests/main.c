@@ -5,6 +5,9 @@
  * For full terms see the included COPYING file.
  */
 
+#include <glib.h>
+#include <glib-object.h>
+
 #include "clar_test.h"
 
 /*
@@ -22,6 +25,13 @@ int __cdecl main(int argc, char *argv[])
 int main(int argc, char *argv[])
 #endif
 {
+#if !GLIB_CHECK_VERSION(2, 36, 0)
+    g_type_init ();
+#endif
+
+#ifndef WIN32
+    signal (SIGPIPE, SIG_IGN);
+#endif
 	/* Run the test suite */
 	return clar_test(argc, argv);
 }

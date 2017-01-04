@@ -3,6 +3,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <jansson.h>
 
 #ifndef DFT_DOMAIN
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
@@ -22,13 +23,15 @@ typedef int (*AsyncTransportSend)(void *arg, gchar *fcall_str,
 
 typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
 
-typedef struct {
+struct _SearpcClient {
     TransportCB send;
     void *arg;
     
     AsyncTransportSend async_send;
     void *async_arg;
-} SearpcClient;
+};
+
+typedef struct _SearpcClient SearpcClient;
 
 SearpcClient *searpc_client_new ();
 
@@ -61,6 +64,10 @@ GList*
 searpc_client_call__objlist (SearpcClient *client, const char *fname,
                              GType object_type,
                              GError **error, int n_params, ...);
+
+json_t *
+searpc_client_call__json (SearpcClient *client, const char *fname,
+                          GError **error, int n_params, ...);
 
 
 char* searpc_client_transport_send (SearpcClient *client,
@@ -101,6 +108,12 @@ searpc_client_async_call__objlist (SearpcClient *client,
                                    AsyncCallback callback, 
                                    GType object_type, void *cbdata,
                                    int n_params, ...);
+
+int
+searpc_client_async_call__json (SearpcClient *client,
+                                const char *fname,
+                                AsyncCallback callback, void *cbdata,
+                                int n_params, ...);
 
 
 /* called by the transport layer, the rpc layer should be able to

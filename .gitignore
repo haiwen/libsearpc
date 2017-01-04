@@ -8,6 +8,7 @@
 .deps
 *.db
 *.gz
+compile
 config.*
 autom4te.cache/*
 aclocal.m4
@@ -51,6 +52,6 @@ tests/searpc-signature.h
 tests/rpc_table.stamp
 tests/rpc_table.tmp
 tests/clar.suite
-
-
-
+tests/.clarcache
+tests/*.trs
+test-driver

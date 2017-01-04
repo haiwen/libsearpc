@@ -22,6 +22,9 @@ static GList*
 searpc_client_fret__objlist (GType gtype, char *data,
                              size_t len, GError **error);
 
+static json_t *
+searpc_client_fret__json (char *data, size_t len, GError **error);
+
 
 static void clean_objlist(GList *list)
 {
@@ -76,6 +79,8 @@ fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
 	    json_array_append_new (array, json_integer (*((gint64 *)value)));
         else if (strcmp(type, "string") == 0)
             json_array_add_string_or_null_element (array, (char *)value);
+        else if (strcmp(type, "json") == 0)
+            json_array_add_json_or_null_element (array, (const json_t *)value);
         else {
             g_warning ("unrecognized parameter type %s\n", type);
             return NULL;
@@ -129,6 +134,8 @@ searpc_client_call (SearpcClient *client, const char *fname,
     else if (strcmp(ret_type, "objlist") == 0)
         *((GList **)ret_ptr) = searpc_client_fret__objlist (gobject_type, fret,
                                                             ret_len, error);
+    else if (strcmp(ret_type, "json") == 0)
+        *((json_t **)ret_ptr) = searpc_client_fret__json(fret, ret_len, error);
     else
         g_warning ("unrecognized return type %s\n", ret_type);
     
@@ -296,6 +303,38 @@ searpc_client_call__objlist (SearpcClient *client, const char *fname,
     return ret;
 }
 
+json_t *
+searpc_client_call__json (SearpcClient *client, const char *fname,
+                          GError **error, int n_params, ...)
+{
+    g_return_val_if_fail (fname != NULL, NULL);
+
+    va_list args;
+    gsize len, ret_len;
+    char *fstr;
+
+    va_start (args, n_params);
+    fstr = fcall_to_str (fname, n_params, args, &len);
+    va_end (args);
+    if (!fstr) {
+        g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
+        return NULL;
+    }
+
+    char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
+    if (!fret) {
+        g_free (fstr);
+        g_set_error (error, DFT_DOMAIN, TRANSPORT_ERROR_CODE, TRANSPORT_ERROR);
+        return NULL;
+    }
+
+    json_t *ret = searpc_client_fret__json (fret, ret_len, error);
+    g_free (fstr);
+    g_free (fret);
+    return ret;
+}
+
+
 
 typedef struct {
     SearpcClient *client;
@@ -337,6 +376,8 @@ searpc_client_generic_callback (char *retstr, size_t len,
         } else if (strcmp(data->ret_type, "objlist") == 0) {
             result = (void *)searpc_client_fret__objlist (
                 data->gtype, retstr, len, &error);
+        } else if (strcmp(data->ret_type, "json") == 0) {
+            result = (void *)searpc_client_fret__json (retstr, len, &error);
         }
 
         data->callback (result, data->cbdata, error);
@@ -347,9 +388,11 @@ searpc_client_generic_callback (char *retstr, size_t len,
             if (result) g_object_unref ((GObject*)result);
         } else if (strcmp(data->ret_type, "objlist") == 0) {
             clean_objlist ((GList *)result);
+        } else if (strcmp(data->ret_type, "json") == 0) {
+            json_decref ((json_t *)result);
         }
     }
-    g_free (data);
+    // g_free (data);
 
     return 0;
 }
@@ -381,11 +424,11 @@ searpc_client_async_call_v (SearpcClient *client,
     data->cbdata = cbdata;
 
     ret = client->async_send (client->async_arg, fstr, len, data);
-    if (ret < 0) {
-        g_free (data);
-        return -1;
-    }
-    return 0;
+
+    g_free(data);
+    g_free(fstr);
+
+    return ret;
 }
 
 int
@@ -480,6 +523,25 @@ searpc_client_async_call__objlist (SearpcClient *client,
                                       n_params, args);
     va_end (args);
     return ret;   
+}
+
+int
+searpc_client_async_call__json (SearpcClient *client,
+                                const char *fname,
+                                AsyncCallback callback, void *cbdata,
+                                int n_params, ...)
+{
+    g_return_val_if_fail (fname != NULL, -1);
+
+    va_list args;
+    int ret;
+
+    va_start (args, n_params);
+    ret = searpc_client_async_call_v (client, fname, callback, "json",
+                                      0, cbdata,
+                                      n_params, args);
+    va_end (args);
+    return ret;
 }
 
 
@@ -618,6 +680,27 @@ searpc_client_fret__objlist (GType gtype, char *data, size_t len, GError **error
         }
         json_decref(object);
         return g_list_reverse(ret);
+    }
+    return NULL;
+}
+
+json_t *
+searpc_client_fret__json (char *data, size_t len, GError **error)
+{
+    json_t *object = NULL;
+
+    if (handle_ret_common(data, len, &object, error) == 0) {
+        const json_t *ret_obj = json_object_get (object, "ret");
+        if (!ret_obj || json_is_null(ret_obj)) {
+            json_decref(object);
+            return NULL;
+        }
+
+        g_assert (ret_obj);
+        json_t *ret = json_deep_copy(ret_obj);
+
+        json_decref(object);
+        return ret;
     }
     return NULL;
 }
