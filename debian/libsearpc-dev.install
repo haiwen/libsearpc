@@ -3,4 +3,3 @@ usr/lib/pkgconfig
 usr/lib/libsearpc.a
 usr/lib/libsearpc.la
 usr/lib/libsearpc.so
-usr/bin/searpc-codegen.py

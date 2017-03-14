@@ -1,0 +1,2 @@
+library-package-name-for-application usr/bin/searpc-codegen.py
+application-in-library-section python usr/bin/searpc-codegen.py
