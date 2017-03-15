@@ -1,4 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 """
 Generate function define macros.
@@ -109,7 +114,7 @@ def generate_marshal(ret_type, arg_types):
 def gen_marshal_functions(f):
     from rpc_table import func_table
     for item in func_table:
-        print >>f, generate_marshal(item[0], item[1])
+        print(generate_marshal(item[0], item[1]), file=f)
 
 
 marshal_register_item = r"""
@@ -136,11 +141,11 @@ def generate_marshal_register_item(ret_type, arg_types):
 
 def gen_marshal_register_function(f):
     from rpc_table import func_table
-    print >>f, "static void register_marshals()"""
-    print >>f, "{"
+    print("static void register_marshals()""", file=f)
+    print("{", file=f)
     for item in func_table:
-        print >>f, generate_marshal_register_item(item[0], item[1]),
-    print >>f, "}"
+        print(generate_marshal_register_item(item[0], item[1]), end=' ', file=f)
+    print("}", file=f)
 
 signature_template = r"""
 inline static gchar *
@@ -170,7 +175,7 @@ def generate_signature(ret_type, arg_types):
 def gen_signature_list():
     f = open('searpc-signature.h', 'w')
     for item in func_table:
-        print >>f,generate_signature(item[0], item[1])
+        print(generate_signature(item[0], item[1]), file=f)
     f.close()
 
 
@@ -184,8 +189,8 @@ if __name__ == "__main__":
         f = os.path.basename(abspath)
         mod = f[:f.rfind('.')]
         sys.path.append(d)
-        rpc_mod = __import__(mod, globals(), locals(), [], -1)
-        print "loaded func_table from %s" % (rpc_mod.__file__)
+        rpc_mod = __import__(mod, globals(), locals(), [], 0)
+        print("loaded func_table from %s" % (rpc_mod.__file__))
         func_table = rpc_mod.func_table
     else:
         # load from default rpc_table.py
