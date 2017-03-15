@@ -32,8 +32,7 @@ Depends:
     ${misc:Depends},
     python2 (>= 2.7) | python (>= 2.7),
     python2 (<< 2.8) | python (<< 2.8),
-    libsearpc1 (= ${binary:Version}),
-    python-searpc (>= ${source:Version}),
+    libsearpc1 (= ${binary:Version})
 Conflicts: seafile
 Description: Development files for the libsearpc1 package.
  This package contains the development files for the libsearpc1 package.
