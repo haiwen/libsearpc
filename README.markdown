@@ -1,4 +1,4 @@
-Introduction [![Build Status](https://secure.travis-ci.org/haiwen/libsearpc.png?branch=master)](http://travis-ci.org/haiwen/libsearpc)
+Introduction [![Build Status](https://secure.travis-ci.org/haiwen/libsearpc.svg?branch=master)](http://travis-ci.org/haiwen/libsearpc)
 ============
 
 Searpc is a simple C language RPC framework based on GObject system. Searpc
