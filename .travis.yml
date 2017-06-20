@@ -1,5 +1,11 @@
 sudo: false
 language: c
+sudo: false
+addons:
+  # See http://docs.travis-ci.com/user/apt/
+  apt:
+    packages:
+      - libjansson-dev
 compiler:
  - gcc
  - clang
