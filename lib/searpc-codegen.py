@@ -112,7 +112,6 @@ def write_file(f, s):
     f.write('\n')
 
 def gen_marshal_functions(f):
-    from rpc_table import func_table
     for item in func_table:
         write_file(f, generate_marshal(item[0], item[1]))
 
@@ -140,7 +139,6 @@ def generate_marshal_register_item(ret_type, arg_types):
         signature_name=signature_name)
 
 def gen_marshal_register_function(f):
-    from rpc_table import func_table
     write_file(f, "static void register_marshals()""")
     write_file(f,  "{")
     for item in func_table:
