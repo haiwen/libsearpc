@@ -30,8 +30,7 @@ Section: libdevel
 Architecture: any
 Depends:
     ${misc:Depends},
-    python2 (>= 2.7) | python (>= 2.7),
-    python2 (<< 2.8) | python (<< 2.8),
+    python (>= 2.7),
     libsearpc1 (= ${binary:Version})
 Conflicts: seafile
 Description: Development files for the libsearpc1 package.
