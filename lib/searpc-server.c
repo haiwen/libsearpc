@@ -279,7 +279,20 @@ searpc_server_call_function (const char *svc_name,
         return error_to_json (511, buf, ret_len);
     }
 
-    const char *fname = json_string_value (json_array_get(array, 0));
+    const json_t *request_array = json_array_get(array, 0);
+    if (!request_array) {
+        char buf[256];
+        snprintf (buf, 255, "request array is empty");
+        json_decref (array);
+        return error_to_json (500, buf, ret_len);
+    }
+    const char *fname = json_string_value (request_array);
+    if (!fname) {
+        char buf[256];
+        snprintf (buf, 255, "first request parameter is not a string");
+        json_decref (array);
+        return error_to_json (500, buf, ret_len);
+    }
     FuncItem *fitem = g_hash_table_lookup(service->func_table, fname);
     if (!fitem) {
         char buf[256];
