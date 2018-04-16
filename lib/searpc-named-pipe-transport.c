@@ -213,6 +213,7 @@ static void* named_pipe_client_handler(void *arg)
     // SearpcNamedPipeServer *server = data->server;
     SearpcNamedPipe connfd = data->connfd;
 
+    uint32_t ilen;
     size_t len;
     size_t bufsize = 4096;
     char *buf = g_malloc(bufsize);
@@ -220,16 +221,18 @@ static void* named_pipe_client_handler(void *arg)
     g_debug ("start to serve on pipe client\n");
 
     while (1) {
-        len = 0;
-        if (pipe_read_n(connfd, &len, sizeof(size_t)) < 0) {
+        ilen = 0;
+        if (pipe_read_n(connfd, &ilen, sizeof(uint32_t)) < 0) {
             g_warning("failed to read rpc request size: %s", strerror(errno));
             break;
         }
 
-        if (len == 0) {
+        if (ilen == 0) {
             g_debug("EOF reached, pipe connection lost");
             break;
         }
+
+        len = (size_t) ilen;
 
         while (bufsize < len) {
             bufsize *= 2;
@@ -247,12 +250,15 @@ static void* named_pipe_client_handler(void *arg)
             break;
         }
 
+        uint32_t ret_ilen;
         size_t ret_len;
         char *ret_str = searpc_server_call_function (service, body, strlen(body), &ret_len);
         g_free (service);
         g_free (body);
 
-        if (pipe_write_n(connfd, &ret_len, sizeof(size_t)) < 0) {
+        ret_ilen = (uint32_t) ret_len;
+
+        if (pipe_write_n(connfd, &ret_ilen, sizeof(uint32_t)) < 0) {
             g_warning("failed to send rpc response(%s): %s", ret_str, strerror(errno));
             g_free (ret_str);
             break;
@@ -347,7 +353,9 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     size_t json_len = strlen(json_str);
 
     size_t len = json_len;
-    if (pipe_write_n(client->pipe_fd, &len, sizeof(size_t)) < 0) {
+    uint32_t ilen = (uint32_t) len;
+
+    if (pipe_write_n(client->pipe_fd, &ilen, sizeof(uint32_t)) < 0) {
         g_warning("failed to send rpc call: %s", strerror(errno));
         free (json_str);
         return NULL;
@@ -360,11 +368,14 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     }
 
     free (json_str);
+    ilen = 0;
 
-    if (pipe_read_n(client->pipe_fd, &len, sizeof(size_t)) < 0) {
+    if (pipe_read_n(client->pipe_fd, &ilen, sizeof(uint32_t)) < 0) {
         g_warning("failed to read rpc response: %s", strerror(errno));
         return NULL;
     }
+
+    len = (size_t) ilen;
 
     char *buf = g_malloc(len);
 
