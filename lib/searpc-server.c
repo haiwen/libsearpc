@@ -303,7 +303,7 @@ searpc_server_call_function (const char *svc_name,
 }
 
 char* 
-searpc_compute_signature(gchar *ret_type, int pnum, ...)
+searpc_compute_signature(const gchar *ret_type, int pnum, ...)
 {
     va_list ap;
     int i = 0;

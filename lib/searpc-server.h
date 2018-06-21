@@ -96,6 +96,6 @@ gchar *searpc_server_call_function (const char *service,
  *
  * Compute function signature.
  */
-char* searpc_compute_signature (gchar *ret_type, int pnum, ...);
+char* searpc_compute_signature (const gchar *ret_type, int pnum, ...);
 
 #endif
