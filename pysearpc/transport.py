@@ -6,3 +6,11 @@ class SearpcTransport(object):
     """
     def send(self, request_str):
         raise NotImplementedError
+
+
+class NamedPipeTransport(SearpcTransport):
+    def __init__(self, pipe_path):
+        self.pipe_path = pipe_path
+
+    def send(self, fcall_str):
+        pass

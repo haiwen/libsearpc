@@ -14,6 +14,6 @@ script:
  - ./configure
  - make -j4
  - make check -j4
- - cd pysearpc && python test_pysearpc.py
+ - python pysearpc/test_pysearpc.py
 notifications:
     email: false

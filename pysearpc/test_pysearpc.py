@@ -2,24 +2,23 @@
 #coding: UTF-8
 
 import json
+import os
 import sys
 import unittest
-from operator import add
+from operator import add, mul
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, '..')
 from pysearpc import (
-    SearpcClient, SearpcError, SearpcTransport, searpc_func, searpc_server
+    SearpcClient, SearpcError, SearpcTransport, searpc_func, searpc_server, NamedPipeTransport
 )
 
 SVCNAME = 'test-service'
 
-def multi(a, b):
-    return a * b
-
 def init_server():
     searpc_server.create_service(SVCNAME)
     searpc_server.register_function(SVCNAME, add, 'add')
-    searpc_server.register_function(SVCNAME, multi, 'multi')
+    searpc_server.register_function(SVCNAME, mul, 'multi')
 
 
 class DummyTransport(SearpcTransport):
@@ -39,14 +38,32 @@ class SampleRpcClient(SearpcClient):
     def add(self, x, y):
         pass
 
+    @searpc_func("string", ["string", "int"])
+    def multi(self, x, y):
+        pass
+
 class SearpcTest(unittest.TestCase):
     def setUp(self):
         init_server()
         self.client = SampleRpcClient()
 
-    def testNormalTransport(self):
+    def test_normal_transport(self):
+        self.run_common()
+
+    @unittest.skip('not implemented yet')
+    def test_pipe_transport(self):
+        self.client.transport = NamedPipeTransport('/tmp/libsearpc-test.sock')
+        self.run_common()
+
+    def run_common(self):
         v = self.client.add(1, 2)
         self.assertEqual(v, 3)
+
+        v = self.client.multi(1, 2)
+        self.assertEqual(v, 2)
+
+        v = self.client.multi('abc', 2)
+        self.assertEqual(v, 'abcabc')
 
 if __name__ == '__main__':
     unittest.main()
