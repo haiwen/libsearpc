@@ -1,5 +1,5 @@
 sudo: false
-language: c
+language: python
 compiler:
  - gcc
  - clang
@@ -12,7 +12,8 @@ before_install:
  - ./autogen.sh
 script:
  - ./configure
- - make -j8
- - make check -j8
+ - make -j4
+ - make check -j4
+ - python pysearpc/test_pysearpc.py
 notifications:
     email: false
