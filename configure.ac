@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([libsearpc], [3.0.8], [info@seafile.com])
+AC_INIT([libsearpc], [3.1.0], [info@seafile.com])
 AC_CONFIG_SRCDIR([lib/searpc-server.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
