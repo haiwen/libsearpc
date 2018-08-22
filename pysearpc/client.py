@@ -85,6 +85,19 @@ def _fret_objlist(ret_str):
 
     return l
 
+def _fret_json(ret_str):
+    try:
+        dicts = json.loads(ret_str)
+    except:
+        raise SearpcError('Invalid response format')
+
+    if dicts.has_key('err_code'):
+        raise SearpcError(dicts['err_msg'])
+
+    if dicts['ret']:
+        return dicts['ret']
+    else:
+        return None
 
 def searpc_func(ret_type, param_types):
 
@@ -101,6 +114,8 @@ def searpc_func(ret_type, param_types):
             fret = _fret_int
         elif ret_type == "string":
             fret = _fret_string
+        elif ret_type == "json":
+            fret = _fret_json
         else:
             raise SearpcError('Invial return type')
 
