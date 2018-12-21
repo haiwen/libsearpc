@@ -28,6 +28,22 @@ char *searpc_marshal_set_ret_common (json_t *object, gsize *len, GError *error);
 void searpc_server_init (RegisterMarshalFunc register_func);
 
 /**
+ * searpc_server_init_with_slow_log:
+ *
+ * Inititalize searpc server with slow log file.
+ */
+int
+searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
+                                  const char *slow_log_path,
+                                  gint64 slow_threshold_in);
+
+/**
+ * Used in log rotate.
+ */
+int
+searpc_server_reopen_slow_log (const char *slow_log_path);
+
+/**
  * searpc_server_final:
  * 
  * Free the server structure.

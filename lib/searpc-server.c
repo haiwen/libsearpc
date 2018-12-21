@@ -9,8 +9,10 @@
 #include "searpc-server.h"
 #include "searpc-utils.h"
 
-#ifdef PROFILE
-    #include <sys/time.h>
+#ifdef __linux__
+#include <sys/time.h>
+#include <sys/errno.h>
+#include <pthread.h>
 #endif
 
 struct FuncItem;
@@ -33,6 +35,12 @@ typedef struct {
 
 static GHashTable *marshal_table;
 static GHashTable *service_table;
+
+#ifdef __linux__
+static FILE *slow_log_fp = NULL;
+static gint64 slow_threshold;
+static pthread_mutex_t slow_log_lock;
+#endif
 
 static void
 func_item_free (FuncItem *item)
@@ -185,6 +193,54 @@ searpc_server_init (RegisterMarshalFunc register_func)
     register_func ();
 }
 
+#ifdef __linux__
+
+int
+searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
+                                  const char *slow_log_path,
+                                  gint64 slow_threshold_in)
+{
+    if (slow_log_path) {
+        slow_log_fp = fopen (slow_log_path, "a+");
+        if (!slow_log_fp) {
+            g_warning ("Failed to open RPC slow log file %s: %s\n", slow_log_path, strerror(errno));
+            return -1;
+        }
+        slow_threshold = slow_threshold_in;
+
+        pthread_mutex_init (&slow_log_lock, NULL);
+    }
+
+    searpc_server_init (register_func);
+
+    return 0;
+}
+
+int
+searpc_server_reopen_slow_log (const char *slow_log_path)
+{
+    FILE *fp, *oldfp;
+
+    if ((fp = fopen (slow_log_path, "a+")) == NULL) {
+        g_warning ("Failed to open RPC slow log file %s\n", slow_log_path);
+        return -1;
+    }
+
+    pthread_mutex_lock (&slow_log_lock);
+    oldfp = slow_log_fp;
+    slow_log_fp = fp;
+    pthread_mutex_unlock (&slow_log_lock);
+
+    if (fclose(oldfp) < 0) {
+        g_warning ("Failed to close old RPC slow log file\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+#endif
+
 void
 searpc_server_final()
 {
@@ -244,6 +300,33 @@ searpc_server_register_function (const char *svc_name,
     return TRUE;
 }
 
+#ifdef __linux__
+
+static void
+print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
+                             const struct timeval *start,
+                             const struct timeval *intv)
+{
+    if ((gint64)intv->tv_sec < slow_threshold)
+        return;
+
+    char time_buf[64];
+    gint64 intv_int = ((gint64)intv->tv_sec) * G_USEC_PER_SEC + (gint64)intv->tv_usec;
+    double intv_double = ((double)intv_int)/G_USEC_PER_SEC;
+
+    strftime(time_buf, 64, "%Y/%m/%d:%H:%M:%S", localtime(&start->tv_sec));
+
+    pthread_mutex_lock (&slow_log_lock);
+
+    fprintf (slow_log_fp, "%s - %s - %.*s - %.3f\n",
+             time_buf, svc_name, (int)len, func, intv_double);
+    fflush (slow_log_fp);
+
+    pthread_mutex_unlock (&slow_log_lock);
+}
+
+#endif
+
 /* Called by RPC transport. */
 char* 
 searpc_server_call_function (const char *svc_name,
@@ -255,10 +338,12 @@ searpc_server_call_function (const char *svc_name,
     json_error_t jerror;
     GError *error = NULL;
 
-#ifdef PROFILE
+#ifdef __linux__
     struct timeval start, end, intv;
 
-    gettimeofday(&start, NULL);
+    if (slow_log_fp) {
+        gettimeofday(&start, NULL);
+    }
 #endif
 
     service = g_hash_table_lookup (service_table, svc_name);
@@ -290,11 +375,12 @@ searpc_server_call_function (const char *svc_name,
 
     ret = fitem->marshal->mfunc (fitem->func, array, ret_len);
 
-#ifdef PROFILE
-    gettimeofday(&end, NULL);
-    timersub(&end, &start, &intv);
-    g_debug ("[searpc] Time spend in call %s: %ds %dus\n",
-             fname, intv.tv_sec, intv.tv_usec);
+#ifdef __linux__
+    if (slow_log_fp) {
+        gettimeofday(&end, NULL);
+        timersub(&end, &start, &intv);
+        print_slow_log_if_necessary (svc_name, func, len, &start, &intv);
+    }
 #endif
 
     json_decref(array);
