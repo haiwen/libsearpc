@@ -307,19 +307,20 @@ print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
                              const struct timeval *start,
                              const struct timeval *intv)
 {
-    if ((gint64)intv->tv_sec < slow_threshold)
-        return;
-
     char time_buf[64];
-    gint64 intv_int = ((gint64)intv->tv_sec) * G_USEC_PER_SEC + (gint64)intv->tv_usec;
-    double intv_double = ((double)intv_int)/G_USEC_PER_SEC;
+    gint64 intv_in_usec = ((gint64)intv->tv_sec) * G_USEC_PER_SEC + (gint64)intv->tv_usec;
+    gint64 intv_in_msec = intv_in_usec/1000;
+    double intv_in_sec = ((double)intv_in_usec)/G_USEC_PER_SEC;
+
+    if (intv_in_msec < slow_threshold)
+        return;
 
     strftime(time_buf, 64, "%Y/%m/%d:%H:%M:%S", localtime(&start->tv_sec));
 
     pthread_mutex_lock (&slow_log_lock);
 
     fprintf (slow_log_fp, "%s - %s - %.*s - %.3f\n",
-             time_buf, svc_name, (int)len, func, intv_double);
+             time_buf, svc_name, (int)len, func, intv_in_sec);
     fflush (slow_log_fp);
 
     pthread_mutex_unlock (&slow_log_lock);
