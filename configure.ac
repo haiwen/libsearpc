@@ -69,6 +69,20 @@ fi
 AM_CONDITIONAL([MACOS], [test "$bmac" = "yes"])
 AC_SUBST(MACOS)
 
+AC_MSG_CHECKING(for FreeBSD)
+
+if test "$(uname -s)" = "FreeBSD"; then
+   bfbsd=yes
+fi
+
+if test x$bfbsd = "xyes"; then
+  server_pkg=no
+  AC_MSG_RESULT(compile in FreeBSD)
+fi
+
+AM_CONDITIONAL([FBSD], [test "$bfbsd" = "yes"])
+AC_SUBST(FBSD)
+
 # Checks for libraries.
 
 GLIB_REQUIRED=2.26.0
