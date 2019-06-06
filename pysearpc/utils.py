@@ -5,7 +5,7 @@ from pysearpc.errors import NetworkError
 
 def recvall(fd, total):
     remain = total
-    data = ''
+    data = b''
     while remain > 0:
         try:
             new = fd.recv(remain)

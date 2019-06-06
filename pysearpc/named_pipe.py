@@ -2,6 +2,7 @@
 RPC client/server implementation based on named pipe transport.
 """
 
+from builtins import object
 import json
 import logging
 import os
@@ -56,7 +57,7 @@ class NamedPipeTransport(SearpcTransport):
         # "I" for unsiged int
         header = struct.pack('I', len(body))
         sendall(self.pipe_fd, header)
-        sendall(self.pipe_fd, body)
+        sendall(self.pipe_fd, body.encode(encoding='utf-8'))
 
         resp_header = recvall(self.pipe_fd, 4)
         # logger.info('resp_header is %s', resp_header)
@@ -64,7 +65,7 @@ class NamedPipeTransport(SearpcTransport):
         # logger.info('resp_size is %s', resp_size)
         resp = recvall(self.pipe_fd, resp_size)
         # logger.info('resp is %s', resp)
-        return resp
+        return resp.decode(encoding='utf-8')
 
 
 class NamedPipeClient(SearpcClient):
@@ -141,10 +142,10 @@ class PipeHandlerThread(Thread):
             req = recvall(self.pipe_fd, req_size)
             # logger.info('req is %s', req)
 
-            data = json.loads(req)
+            data = json.loads(req.decode(encoding='utf-8'))
             resp = searpc_server.call_function(data['service'], data['request'])
             # logger.info('resp is %s', resp)
 
             resp_header = struct.pack('I', len(resp))
             sendall(self.pipe_fd, resp_header)
-            sendall(self.pipe_fd, resp)
+            sendall(self.pipe_fd, resp.encode(encoding='utf-8'))
