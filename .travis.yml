@@ -11,6 +11,8 @@ addons:
   apt:
     packages:
       - libjansson-dev
+install:
+ - pip install future
 before_install:
  - git clean -x -f
  - ./autogen.sh
