@@ -24,9 +24,13 @@ def init_server():
     searpc_server.register_function(SVCNAME, add, 'add')
     searpc_server.register_function(SVCNAME, mul, 'multi')
     searpc_server.register_function(SVCNAME, json_func, 'json_func')
+    searpc_server.register_function(SVCNAME, get_str, 'get_str')
 
 def json_func(a, b):
     return {'a': a, 'b': b}
+
+def get_str():
+    return u'这是一个测试'
 
 
 class DummyTransport(SearpcTransport):
@@ -47,6 +51,10 @@ class RpcMixin(object):
 
     @searpc_func("json", ["string", "int"])
     def json_func(self, x, y):
+        pass
+
+    @searpc_func("string", [])
+    def get_str(self):
         pass
 
 class DummyRpcClient(SearpcClient, RpcMixin):
@@ -97,6 +105,9 @@ class SearpcTest(unittest.TestCase):
 
         v = client.json_func(1, 2)
         self.assertEqual(v, json_func(1, 2))
+
+        v = client.get_str()
+        self.assertEqual(v, u'这是一个测试')
 
 def setup_logging(level=logging.INFO):
     kw = {
