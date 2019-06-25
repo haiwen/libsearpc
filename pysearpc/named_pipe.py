@@ -2,6 +2,8 @@
 RPC client/server implementation based on named pipe transport.
 """
 
+from future import standard_library
+standard_library.install_aliases()
 from builtins import object
 import json
 import logging
@@ -9,6 +11,7 @@ import os
 import socket
 import struct
 from threading import Thread
+import queue
 
 from .client import SearpcClient
 from .server import searpc_server
@@ -69,20 +72,35 @@ class NamedPipeTransport(SearpcTransport):
 
 
 class NamedPipeClient(SearpcClient):
-    def __init__(self, socket_path, service_name):
+    def __init__(self, socket_path, service_name, pool_size=5):
         self.socket_path = socket_path
         self.service_name = service_name
-        self.transport = NamedPipeTransport(socket_path)
-        self.connected = False
+        self.pool_size = pool_size
+        self._pool = queue.Queue(pool_size)
 
-    def stop(self):
-        self.transport.stop()
+    def _create_transport(self):
+        transport = NamedPipeTransport(self.socket_path)
+        transport.connect()
+        return transport
+
+    def _get_transport(self):
+        try:
+            transport = self._pool.get(False)
+        except:
+            transport = self._create_transport()
+        return transport
+
+    def _return_transport(self, transport):
+        try:
+            self._pool.put(transport, False)
+        except queue.Full:
+            transport.stop()
 
     def call_remote_func_sync(self, fcall_str):
-        if not self.connected:
-            self.transport.connect()
-            self.connected = True
-        return self.transport.send(self.service_name, fcall_str)
+        transport = self._get_transport()
+        ret_str = transport.send(self.service_name, fcall_str)
+        self._return_transport(transport)
+        return ret_str
 
 
 class NamedPipeServer(object):

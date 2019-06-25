@@ -83,7 +83,6 @@ class SearpcTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.named_pipe_client.stop()
         cls.named_pipe_server.stop()
 
     def test_normal_transport(self):
