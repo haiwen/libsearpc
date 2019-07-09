@@ -521,7 +521,8 @@ ssize_t pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n)
         NULL);                  // not overlapped I/O
 
     if (!success || bytes_written != (DWORD)n) {
-        G_WARNING_WITH_LAST_ERROR("failed to read command from the pipe");
+        G_WARNING_WITH_LAST_ERROR("failed to write to named pipe");
+        return -1;
     }
 
     FlushFileBuffers(fd);
