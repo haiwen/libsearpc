@@ -2,8 +2,7 @@
 AM_CFLAGS = @GLIB_CFLAGS@ \
 	@JANSSON_CFLAGS@ \
 	-I${top_builddir}/lib \
-	-I${top_srcdir}/lib \
-	-DG_LOG_DOMAIN=\"Searpc\"
+	-I${top_srcdir}/lib
 
 lib_LTLIBRARIES = libsearpc.la
 
