@@ -100,7 +100,7 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
     }
 
     if (g_file_test (un_path, G_FILE_TEST_EXISTS)) {
-        g_debug ("socket file exists, delete it anyway\n");
+        g_message ("socket file exists, delete it anyway\n");
         if (g_unlink (un_path) < 0) {
             g_warning ("delete socket file failed : %s\n", strerror(errno));
             goto failed;
@@ -193,7 +193,7 @@ static void* named_pipe_listen(void *arg)
             break;
         }
 
-        g_debug ("Accepted a named pipe client\n");
+        /* g_debug ("Accepted a named pipe client\n"); */
 
         pthread_t *handler = g_malloc(sizeof(pthread_t));
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
@@ -218,17 +218,17 @@ static void* named_pipe_client_handler(void *arg)
     guint32 bufsize = 4096;
     char *buf = g_malloc(bufsize);
 
-    g_debug ("start to serve on pipe client\n");
+    g_message ("start to serve on pipe client\n");
 
     while (1) {
         len = 0;
         if (pipe_read_n(connfd, &len, sizeof(guint32)) < 0) {
-            g_warning("failed to read rpc request size: %s", strerror(errno));
+            g_warning("failed to read rpc request size: %s\n", strerror(errno));
             break;
         }
 
         if (len == 0) {
-            g_debug("EOF reached, pipe connection lost");
+            /* g_debug("EOF reached, pipe connection lost"); */
             break;
         }
 
@@ -238,7 +238,7 @@ static void* named_pipe_client_handler(void *arg)
         }
 
         if (pipe_read_n(connfd, buf, len) < 0 || len == 0) {
-            g_warning("failed to read rpc request: %s", strerror(errno));
+            g_warning("failed to read rpc request: %s\n", strerror(errno));
             g_free (buf);
             break;
         }
@@ -255,13 +255,13 @@ static void* named_pipe_client_handler(void *arg)
 
         len = (guint32)ret_len;
         if (pipe_write_n(connfd, &len, sizeof(guint32)) < 0) {
-            g_warning("failed to send rpc response(%s): %s", ret_str, strerror(errno));
+            g_warning("failed to send rpc response(%s): %s\n", ret_str, strerror(errno));
             g_free (ret_str);
             break;
         }
 
         if (pipe_write_n(connfd, ret_str, ret_len) < 0) {
-            g_warning("failed to send rpc response: %s", strerror(errno));
+            g_warning("failed to send rpc response: %s\n", strerror(errno));
             g_free (ret_str);
             break;
         }
@@ -320,7 +320,7 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
 
 #endif // !defined(WIN32)
 
-    g_debug ("pipe client connected to server\n");
+    /* g_debug ("pipe client connected to server\n"); */
     return 0;
 }
 
@@ -341,7 +341,7 @@ void searpc_free_client_with_pipe_transport (SearpcClient *client)
 char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len)
 {
-    g_debug ("searpc_named_pipe_send is called\n");
+    /* g_debug ("searpc_named_pipe_send is called\n"); */
     ClientTransportData *data = arg;
     SearpcNamedPipeClient *client = data->client;
 
@@ -349,13 +349,13 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     guint32 len = (guint32)strlen(json_str);
 
     if (pipe_write_n(client->pipe_fd, &len, sizeof(guint32)) < 0) {
-        g_warning("failed to send rpc call: %s", strerror(errno));
+        g_warning("failed to send rpc call: %s\n", strerror(errno));
         free (json_str);
         return NULL;
     }
 
     if (pipe_write_n(client->pipe_fd, json_str, len) < 0) {
-        g_warning("failed to send rpc call: %s", strerror(errno));
+        g_warning("failed to send rpc call: %s\n", strerror(errno));
         free (json_str);
         return NULL;
     }
@@ -363,14 +363,14 @@ char *searpc_named_pipe_send(void *arg, const gchar *fcall_str,
     free (json_str);
 
     if (pipe_read_n(client->pipe_fd, &len, sizeof(guint32)) < 0) {
-        g_warning("failed to read rpc response: %s", strerror(errno));
+        g_warning("failed to read rpc response: %s\n", strerror(errno));
         return NULL;
     }
 
     char *buf = g_malloc(len);
 
     if (pipe_read_n(client->pipe_fd, buf, len) < 0) {
-        g_warning("failed to read rpc response: %s", strerror(errno));
+        g_warning("failed to read rpc response: %s\n", strerror(errno));
         g_free (buf);
         return NULL;
     }
