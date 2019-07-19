@@ -529,31 +529,6 @@ ssize_t pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n)
     return 0;
 }
 
-static char *locale_to_utf8 (const gchar *src)
-{
-    if (!src)
-        return NULL;
-
-    gsize bytes_read = 0;
-    gsize bytes_written = 0;
-    GError *error = NULL;
-    gchar *dst = NULL;
-
-    dst = g_locale_to_utf8
-        (src,                   /* locale specific string */
-         strlen(src),           /* len of src */
-         &bytes_read,           /* length processed */
-         &bytes_written,        /* output length */
-         &error);
-
-    if (error) {
-        return NULL;
-    }
-
-    return dst;
-}
-
-
 // http://stackoverflow.com/questions/3006229/get-a-text-from-the-error-code-returns-from-the-getlasterror-function
 // The caller is responsible to free the returned message.
 char* formatErrorMessage()
@@ -566,11 +541,12 @@ char* formatErrorMessage()
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
                    NULL,
                    error_code,
-                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   /* EN_US */
+                   MAKELANGID(LANG_ENGLISH, 0x01),
                    buf,
                    sizeof(buf) - 1,
                    NULL);
-    return locale_to_utf8(buf);
+    return g_strdup(buf);
 }
 
 #endif // !defined(WIN32)
