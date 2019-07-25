@@ -1,5 +1,6 @@
+from builtins import object
 import json
-from common import SearpcError
+from .common import SearpcError
 
 def _fret_int(ret_str):
     try:
@@ -7,10 +8,10 @@ def _fret_int(ret_str):
     except:
         raise SearpcError('Invalid response format')
 
-    if dicts.has_key('err_code'):
+    if 'err_code' in dicts:
         raise SearpcError(dicts['err_msg'])
 
-    if dicts.has_key('ret'):
+    if 'ret' in dicts:
         return dicts['ret']
     else:
         raise SearpcError('Invalid response format')
@@ -21,10 +22,10 @@ def _fret_string(ret_str):
     except:
         raise SearpcError('Invalid response format')
 
-    if dicts.has_key('err_code'):
+    if 'err_code' in dicts:
         raise SearpcError(dicts['err_msg'])
 
-    if dicts.has_key('ret'):
+    if 'ret' in dicts:
         return dicts['ret']
     else:
         raise SearpcError('Invalid response format')
@@ -61,7 +62,7 @@ def _fret_obj(ret_str):
     except:
         raise SearpcError('Invalid response format')
 
-    if dicts.has_key('err_code'):
+    if 'err_code' in dicts:
         raise SearpcError(dicts['err_msg'])
 
     if dicts['ret']:
@@ -75,7 +76,7 @@ def _fret_objlist(ret_str):
     except:
         raise SearpcError('Invalid response format')
 
-    if dicts.has_key('err_code'):
+    if 'err_code' in dicts:
         raise SearpcError(dicts['err_msg'])
 
     l = []
@@ -91,7 +92,7 @@ def _fret_json(ret_str):
     except:
         raise SearpcError('Invalid response format')
 
-    if dicts.has_key('err_code'):
+    if 'err_code' in dicts:
         raise SearpcError(dicts['err_msg'])
 
     if dicts['ret']:

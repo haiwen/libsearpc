@@ -1,6 +1,8 @@
+from builtins import str
+from builtins import object
 import json
 
-from common import SearpcError
+from .common import SearpcError
 
 class SearpcService(object):
     def __init__(self, name):
@@ -25,7 +27,7 @@ class SearpcServer(object):
         """input str -> output str"""
         try:
             argv = json.loads(fcallstr)
-        except Exception, e:
+        except Exception as e:
             raise SearpcError('bad call str: ' + str(e))
 
         service = self.services[svcname]
@@ -41,7 +43,7 @@ class SearpcServer(object):
     def call_function(self, svcname, fcallstr):
         try:
             retVal = self._call_function(svcname, fcallstr)
-        except Exception, e:
+        except Exception as e:
             ret = {'err_code': 555, 'err_msg': str(e)}
         else:
             ret = {'ret': retVal}

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 
+from __future__ import print_function
+from builtins import str
 import string
 import sys
 
@@ -29,7 +31,7 @@ def gen_fcall_funcs_array(arg_types):
         pyfuncname = "fcall__" + "_".join(arg_types)
         tmplist = []
         for arg in arg_types:
-            tmplist.append(string.capitalize(arg))
+            tmplist.append(arg.capitalize())
 
         cfuncname = "SearpcClient_Fcall__" + "_".join(tmplist)
 
@@ -47,7 +49,7 @@ def gen_fret_funcs_array(ret_type):
         cfuncname = "SearpcClient_Fret__Void"
     else:
         pyfuncname = "fret__" + ret_type
-        cfuncname = "SearpcClient_Fret__" + string.capitalize(ret_type)
+        cfuncname = "SearpcClient_Fret__" + ret_type.capitalize()
 
     return string.Template(func_item_template)\
             .substitute(pyfuncname=pyfuncname,
@@ -79,8 +81,8 @@ def gen_module_funcs_array():
     array = fcall_array
     array += fret_array
 
-    print string.Template(module_func_array_template)\
-            .substitute(array=array)
+    print(string.Template(module_func_array_template)\
+            .substitute(array=array))
 
 
 type_table = {
@@ -128,7 +130,7 @@ def gen_fcall_func(arg_types):
 
     tmplist = []
     for arg in arg_types:
-        tmplist.append(string.capitalize(arg))
+        tmplist.append(arg.capitalize())
     Suffix = "_".join(tmplist)
     suffix = "_".join(arg_types)
     def_args = ""
@@ -161,7 +163,7 @@ def gen_fcall_list():
             arg_types_list.append(item[1])
 
     for item in arg_types_list:
-        print gen_fcall_func(item)
+        print(gen_fcall_func(item))
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+from builtins import bytes
 import os
 import socket
 
@@ -5,7 +6,7 @@ from pysearpc.errors import NetworkError
 
 def recvall(fd, total):
     remain = total
-    data = ''
+    data = bytearray()
     while remain > 0:
         try:
             new = fd.recv(remain)
@@ -16,10 +17,10 @@ def recvall(fd, total):
         if n <= 0:
             raise NetworkError("Failed to read from socket")
         else:
-            data += new
+            data.extend(new)
             remain -= n
 
-    return data
+    return bytes(data)
 
 def sendall(fd, data):
     total = len(data)
