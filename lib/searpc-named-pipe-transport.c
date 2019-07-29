@@ -33,7 +33,7 @@ static char* formatErrorMessage();
 #endif // defined(WIN32)
 
 static void* named_pipe_listen(void *arg);
-static void* named_pipe_client_handler(void *arg);
+static void named_pipe_client_handler(void *data, void *user_data);
 static char* searpc_named_pipe_send(void *arg, const gchar *fcall_str, size_t fcall_len, size_t *ret_len);
 
 static char * request_to_json(const char *service, const char *fcall_str, size_t fcall_len);
@@ -71,10 +71,27 @@ SearpcNamedPipeClient* searpc_create_named_pipe_client(const char *path)
     return client;
 }
 
-SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path)
+SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path, int named_pipe_server_thread_pool_size)
 {
+    GError *error = NULL;
+
     SearpcNamedPipeServer *server = g_malloc0(sizeof(SearpcNamedPipeServer));
     memcpy(server->path, path, strlen(path) + 1);
+    server->named_pipe_server_thread_pool = g_thread_pool_new (named_pipe_client_handler,
+                                                               NULL,
+                                                               named_pipe_server_thread_pool_size,
+                                                               FALSE,
+                                                               &error);
+    if (!server->named_pipe_server_thread_pool) {
+        if (error) {
+            g_warning ("Falied to create named pipe server thread pool : %s\n", error->message);
+            g_clear_error (&error);
+        } else {
+            g_warning ("Falied to create named pipe server thread pool.\n");
+        }
+        g_free (server);
+        return NULL;
+    }
     return server;
 }
 
@@ -151,14 +168,10 @@ static void* named_pipe_listen(void *arg)
 #if !defined(WIN32)
     while (1) {
         int connfd = accept (server->pipe_fd, NULL, 0);
-        pthread_t *handler = g_malloc(sizeof(pthread_t));
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
         data->server = server;
         data->connfd = connfd;
-        // TODO(low priority): Instead of using a thread to handle each client,
-        // use select(unix)/iocp(windows) to do it.
-        pthread_create(handler, NULL, named_pipe_client_handler, data);
-        server->handlers = g_list_append(server->handlers, handler);
+        g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
     }
 
 #else // !defined(WIN32)
@@ -195,24 +208,20 @@ static void* named_pipe_listen(void *arg)
 
         /* g_debug ("Accepted a named pipe client\n"); */
 
-        pthread_t *handler = g_malloc(sizeof(pthread_t));
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
         data->server = server;
         data->connfd = connfd;
-        // TODO(low priority): Instead of using a thread to handle each client,
-        // use select(unix)/iocp(windows) to do it.
-        pthread_create(handler, NULL, named_pipe_client_handler, data);
-        server->handlers = g_list_append(server->handlers, handler);
+        g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
     }
 #endif // !defined(WIN32)
     return NULL;
 }
 
-static void* named_pipe_client_handler(void *arg)
+static void named_pipe_client_handler(void *data, void *user_data)
 {
-    ServerHandlerData *data = arg;
+    ServerHandlerData *handler_data = data;
     // SearpcNamedPipeServer *server = data->server;
-    SearpcNamedPipe connfd = data->connfd;
+    SearpcNamedPipe connfd = handler_data->connfd;
 
     guint32 len;
     guint32 bufsize = 4096;
@@ -275,8 +284,6 @@ static void* named_pipe_client_handler(void *arg)
     DisconnectNamedPipe(connfd);
     CloseHandle(connfd);
 #endif // !defined(WIN32)
-
-    return NULL;
 }
 
 
