@@ -144,7 +144,10 @@ searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
 void
 searpc_set_json_to_ret_object (json_t *object, json_t *ret)
 {
-    json_object_set_new (object, "ret", ret);
+    if (ret == NULL)
+        json_object_set_new(object, "ret", json_null ());
+    else
+        json_object_set_new (object, "ret", ret);
 }
 
 char *
