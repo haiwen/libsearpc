@@ -27,6 +27,8 @@ static const char *pipe_path = "\\\\.\\pipe\\libsearpc-test";
 #define MAMAN_IS_BAR_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), MAMAN_TYPE_BAR))
 #define MAMAN_BAR_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), MAMAN_TYPE_BAR, MamanBarClass))
 
+#define NAMED_PIPE_SERVER_THREAD_POOL_SIZE 50
+
 typedef struct _MamanBar        MamanBar;
 typedef struct _MamanBarClass   MamanBarClass;
 
@@ -545,7 +547,7 @@ test_searpc__initialize (void)
     client->async_send = sample_async_send;
     client->async_arg = "test_async";
 
-    SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server(pipe_path);
+    SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server(pipe_path, NAMED_PIPE_SERVER_THREAD_POOL_SIZE);
     cl_must_pass_(searpc_named_pipe_server_start(pipe_server), "named pipe server failed to start");
 #if defined(WIN32)
     // Wait for the server thread to start
