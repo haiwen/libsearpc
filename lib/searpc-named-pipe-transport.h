@@ -32,11 +32,12 @@ struct _SearpcNamedPipeServer {
     pthread_t listener_thread;
     GList *handlers;
     SearpcNamedPipe pipe_fd;
+    GThreadPool *named_pipe_server_thread_pool;
 };
 
 typedef struct _SearpcNamedPipeServer SearpcNamedPipeServer;
 
-SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path);
+SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path, int named_pipe_server_thread_pool_size);
 
 int searpc_named_pipe_server_start(SearpcNamedPipeServer *server);
 
