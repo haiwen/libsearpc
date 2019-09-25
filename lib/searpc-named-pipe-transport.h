@@ -30,7 +30,6 @@ typedef int SearpcNamedPipe;
 struct _SearpcNamedPipeServer {
     char path[4096];
     pthread_t listener_thread;
-    GList *handlers;
     SearpcNamedPipe pipe_fd;
     GThreadPool *named_pipe_server_thread_pool;
 };
