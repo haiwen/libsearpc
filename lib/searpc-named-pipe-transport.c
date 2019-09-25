@@ -158,7 +158,6 @@ failed:
 }
 
 typedef struct {
-    SearpcNamedPipeServer *server;
     SearpcNamedPipe connfd;
 } ServerHandlerData;
 
@@ -169,7 +168,6 @@ static void* named_pipe_listen(void *arg)
     while (1) {
         int connfd = accept (server->pipe_fd, NULL, 0);
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
-        data->server = server;
         data->connfd = connfd;
         g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
     }
@@ -209,7 +207,6 @@ static void* named_pipe_listen(void *arg)
         /* g_debug ("Accepted a named pipe client\n"); */
 
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
-        data->server = server;
         data->connfd = connfd;
         g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
     }
@@ -220,7 +217,6 @@ static void* named_pipe_listen(void *arg)
 static void named_pipe_client_handler(void *data, void *user_data)
 {
     ServerHandlerData *handler_data = data;
-    // SearpcNamedPipeServer *server = data->server;
     SearpcNamedPipe connfd = handler_data->connfd;
 
     guint32 len;
@@ -248,7 +244,6 @@ static void named_pipe_client_handler(void *data, void *user_data)
 
         if (pipe_read_n(connfd, buf, len) < 0 || len == 0) {
             g_warning("failed to read rpc request: %s\n", strerror(errno));
-            g_free (buf);
             break;
         }
 
@@ -284,6 +279,8 @@ static void named_pipe_client_handler(void *data, void *user_data)
     DisconnectNamedPipe(connfd);
     CloseHandle(connfd);
 #endif // !defined(WIN32)
+    g_free (data);
+    g_free (buf);
 }
 
 
