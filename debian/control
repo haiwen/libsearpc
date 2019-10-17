@@ -8,6 +8,7 @@ Build-Depends:
     intltool,
     libglib2.0-dev,
     python,
+    python-future,
     libtool,
     libjansson-dev
 Standards-Version: 3.9.5
