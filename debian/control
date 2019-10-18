@@ -8,7 +8,6 @@ Build-Depends:
     intltool,
     libglib2.0-dev,
     python,
-    python-future,
     libtool,
     libjansson-dev
 Standards-Version: 3.9.5
@@ -52,7 +51,8 @@ Multi-Arch: foreign
 Architecture: all
 Depends: ${python:Depends},
 	 ${shlibs:Depends},
-	 ${misc:Depends}
+	 ${misc:Depends},
+	 python-future
 Description: simple and easy-to-use C language RPC framework
  Searpc handles the serialization/deserialization part of RPC, the
  transport part is left to users.
