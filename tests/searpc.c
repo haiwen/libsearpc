@@ -547,7 +547,7 @@ test_searpc__initialize (void)
     client->async_send = sample_async_send;
     client->async_arg = "test_async";
 
-    SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server(pipe_path, NAMED_PIPE_SERVER_THREAD_POOL_SIZE);
+    SearpcNamedPipeServer *pipe_server = searpc_create_named_pipe_server_with_threadpool(pipe_path, NAMED_PIPE_SERVER_THREAD_POOL_SIZE);
     cl_must_pass_(searpc_named_pipe_server_start(pipe_server), "named pipe server failed to start");
 #if defined(WIN32)
     // Wait for the server thread to start

@@ -36,7 +36,9 @@ struct _SearpcNamedPipeServer {
 
 typedef struct _SearpcNamedPipeServer SearpcNamedPipeServer;
 
-SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path, int named_pipe_server_thread_pool_size);
+SearpcNamedPipeServer* searpc_create_named_pipe_server(const char *path);
+
+SearpcNamedPipeServer* searpc_create_named_pipe_server_with_threadpool(const char *path, int named_pipe_server_thread_pool_size);
 
 int searpc_named_pipe_server_start(SearpcNamedPipeServer *server);
 
