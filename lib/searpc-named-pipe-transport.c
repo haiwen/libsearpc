@@ -377,6 +377,7 @@ void searpc_free_client_with_pipe_transport (SearpcClient *client)
     close(pipe_client->pipe_fd);
 #endif
     g_free (pipe_client);
+    g_free (data->service);
     g_free (data);
     searpc_client_free (client);
 }
