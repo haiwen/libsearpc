@@ -43,8 +43,8 @@ static int request_from_json (const char *content, size_t len, char **service, c
 static void json_object_set_string_member (json_t *object, const char *key, const char *value);
 static const char * json_object_get_string_member (json_t *object, const char *key);
 
-static ssize_t pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n);
-static ssize_t pipe_read_n(SearpcNamedPipe fd, void *vptr, size_t n);
+static gssize pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n);
+static gssize pipe_read_n(SearpcNamedPipe fd, void *vptr, size_t n);
 
 typedef struct {
     SearpcNamedPipeClient* client;
@@ -481,11 +481,11 @@ json_object_get_string_member (json_t *object, const char *key)
 #if !defined(WIN32)
 
 // Write "n" bytes to a descriptor.
-ssize_t
+gssize
 pipe_write_n(int fd, const void *vptr, size_t n)
 {
     size_t      nleft;
-    ssize_t     nwritten;
+    gssize     nwritten;
     const char  *ptr;
 
     ptr = vptr;
@@ -506,11 +506,11 @@ pipe_write_n(int fd, const void *vptr, size_t n)
 }
 
 // Read "n" bytes from a descriptor.
-ssize_t
+gssize
 pipe_read_n(int fd, void *vptr, size_t n)
 {
     size_t  nleft;
-    ssize_t nread;
+    gssize nread;
     char    *ptr;
 
     ptr = vptr;
@@ -532,7 +532,7 @@ pipe_read_n(int fd, void *vptr, size_t n)
 
 #else // !defined(WIN32)
 
-ssize_t pipe_read_n (SearpcNamedPipe fd, void *vptr, size_t n)
+gssize pipe_read_n (SearpcNamedPipe fd, void *vptr, size_t n)
 {
     DWORD bytes_read;
     BOOL success = ReadFile(
@@ -553,7 +553,7 @@ ssize_t pipe_read_n (SearpcNamedPipe fd, void *vptr, size_t n)
     return n;
 }
 
-ssize_t pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n)
+gssize pipe_write_n(SearpcNamedPipe fd, const void *vptr, size_t n)
 {
     DWORD bytes_written;
     BOOL success = WriteFile(
