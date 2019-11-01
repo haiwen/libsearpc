@@ -1,6 +1,12 @@
 #ifndef SEARPC_SERVER_H
 #define SEARPC_SERVER_H
 
+#ifdef LIBSEARPC_EXPORTS
+#define LIBSEARPC_API __declspec(dllexport)
+#else
+#define LIBSEARPC_API
+#endif
+
 #include <glib.h>
 #include <glib-object.h>
 #include <jansson.h>
@@ -13,11 +19,17 @@ typedef gchar* (*SearpcMarshalFunc) (void *func, json_t *param_array,
     gsize *ret_len);
 typedef void (*RegisterMarshalFunc) (void);
 
+LIBSEARPC_API
 void searpc_set_string_to_ret_object (json_t *object, char *ret);
+LIBSEARPC_API
 void searpc_set_int_to_ret_object (json_t *object, json_int_t ret);
+LIBSEARPC_API
 void searpc_set_object_to_ret_object (json_t *object, GObject *ret);
+LIBSEARPC_API
 void searpc_set_objlist_to_ret_object (json_t *object, GList *ret);
+LIBSEARPC_API
 void searpc_set_json_to_ret_object (json_t *object, json_t *ret);
+LIBSEARPC_API
 char *searpc_marshal_set_ret_common (json_t *object, gsize *len, GError *error);
 
 /**
@@ -25,6 +37,7 @@ char *searpc_marshal_set_ret_common (json_t *object, gsize *len, GError *error);
  *
  * Inititalize searpc server.
  */
+LIBSEARPC_API
 void searpc_server_init (RegisterMarshalFunc register_func);
 
 /**
@@ -32,7 +45,7 @@ void searpc_server_init (RegisterMarshalFunc register_func);
  *
  * Inititalize searpc server with slow log file.
  */
-int
+LIBSEARPC_API int
 searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
                                   const char *slow_log_path,
                                   gint64 slow_threshold_in);
@@ -40,7 +53,7 @@ searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
 /**
  * Used in log rotate.
  */
-int
+LIBSEARPC_API int
 searpc_server_reopen_slow_log (const char *slow_log_path);
 
 /**
@@ -48,6 +61,7 @@ searpc_server_reopen_slow_log (const char *slow_log_path);
  * 
  * Free the server structure.
  */
+LIBSEARPC_API
 void searpc_server_final ();
 
 /**
@@ -58,6 +72,7 @@ void searpc_server_final ();
  *
  * @svc_name: Service name.
  */
+LIBSEARPC_API
 int searpc_create_service (const char *svc_name);
 
 /**
@@ -65,6 +80,7 @@ int searpc_create_service (const char *svc_name);
  *
  * Remove the service from the server.
  */
+LIBSEARPC_API
 void searpc_remove_service (const char *svc_name);
 
 /**
@@ -75,6 +91,7 @@ void searpc_remove_service (const char *svc_name);
  * @signature: the signature of the marshal, register_marshal() will take
  * owner of this string.
  */
+LIBSEARPC_API
 gboolean searpc_server_register_marshal (gchar *signature,
                                          SearpcMarshalFunc marshal);
 
@@ -86,6 +103,7 @@ gboolean searpc_server_register_marshal (gchar *signature,
  * @signature: the signature of the function, register_function() will take
  * owner of this string.
  */
+LIBSEARPC_API
 gboolean searpc_server_register_function (const char *service,
                                           void* func,
                                           const gchar *fname,
@@ -102,6 +120,7 @@ gboolean searpc_server_register_function (const char *service,
  *
  * Returns the serialized representatio of the returned value.
  */
+LIBSEARPC_API
 gchar *searpc_server_call_function (const char *service,
                                     gchar *func, gsize len, gsize *ret_len);
 
@@ -112,6 +131,7 @@ gchar *searpc_server_call_function (const char *service,
  *
  * Compute function signature.
  */
+LIBSEARPC_API
 char* searpc_compute_signature (const gchar *ret_type, int pnum, ...);
 
 #endif
