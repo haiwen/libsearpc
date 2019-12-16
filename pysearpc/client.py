@@ -1,6 +1,7 @@
 from builtins import object
 import json
 from .common import SearpcError
+from time import sleep
 
 def _fret_int(ret_str):
     try:
@@ -123,7 +124,16 @@ def searpc_func(ret_type, param_types):
         def newfunc(self, *args):
             array = [func.__name__] + list(args)
             fcall_str = json.dumps(array)
-            ret_str = self.call_remote_func_sync(fcall_str)
+            retry = 0
+            while retry < 200:
+                try:
+                    ret_str = self.call_remote_func_sync(fcall_str)
+                except:
+                    retry += 1
+                    sleep (0.05)
+                    continue
+                else:
+                    break
             if fret:
                 return fret(ret_str)
 
