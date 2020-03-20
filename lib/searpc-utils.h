@@ -2,15 +2,23 @@
 #include <glib-object.h>
 #include <jansson.h>
 
+#ifdef LIBSEARPC_EXPORTS
+#define LIBSEARPC_API __declspec(dllexport)
+#else
+#define LIBSEARPC_API
+#endif
+
 #define SEARPC_JSON_DOMAIN g_quark_from_string("SEARPC_JSON")
 
 typedef enum {
     SEARPC_JSON_ERROR_LOAD,
     SEARPC_JSON_ERROR_PACK,
     SEARPC_JSON_ERROR_UPACK
-} SEARPCJSONERROR;
+} LIBSEARPC_API SEARPCJSONERROR;
 
+LIBSEARPC_API
 json_t *json_gobject_serialize (GObject *);
+LIBSEARPC_API
 GObject *json_gobject_deserialize (GType , json_t *);
 
 inline static void setjetoge(const json_error_t *jerror, GError **error)

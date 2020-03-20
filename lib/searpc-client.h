@@ -1,6 +1,12 @@
 #ifndef SEARPC_CLIENT_H
 #define SEARPC_CLIENT_H
 
+#ifdef LIBSEARPC_EXPORTS
+#define LIBSEARPC_API __declspec(dllexport)
+#else
+#define LIBSEARPC_API
+#endif
+
 #include <glib.h>
 #include <glib-object.h>
 #include <jansson.h>
@@ -31,85 +37,88 @@ struct _SearpcClient {
     void *async_arg;
 };
 
-typedef struct _SearpcClient SearpcClient;
+typedef struct _SearpcClient LIBSEARPC_API SearpcClient;
 
+LIBSEARPC_API
 SearpcClient *searpc_client_new ();
 
-void searpc_client_free (SearpcClient *client);
+LIBSEARPC_API void
+searpc_client_free (SearpcClient *client);
 
-void
+LIBSEARPC_API void
 searpc_client_call (SearpcClient *client, const char *fname,
                     const char *ret_type, GType gobject_type,
                     void *ret_ptr, GError **error,
                     int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_call__int (SearpcClient *client, const char *fname,
                          GError **error, int n_params, ...);
 
-gint64
+LIBSEARPC_API gint64
 searpc_client_call__int64 (SearpcClient *client, const char *fname,
                            GError **error, int n_params, ...);
 
-char *
+LIBSEARPC_API char *
 searpc_client_call__string (SearpcClient *client, const char *fname,
                             GError **error, int n_params, ...);
 
-GObject *
+LIBSEARPC_API GObject *
 searpc_client_call__object (SearpcClient *client, const char *fname,
                             GType object_type,
                             GError **error, int n_params, ...);
 
-GList*
+LIBSEARPC_API GList*
 searpc_client_call__objlist (SearpcClient *client, const char *fname,
                              GType object_type,
                              GError **error, int n_params, ...);
 
-json_t *
+LIBSEARPC_API json_t *
 searpc_client_call__json (SearpcClient *client, const char *fname,
                           GError **error, int n_params, ...);
 
 
-char* searpc_client_transport_send (SearpcClient *client,
-                                    const gchar *fcall_str,
-                                    size_t fcall_len,
-                                    size_t *ret_len);
+LIBSEARPC_API char*
+searpc_client_transport_send (SearpcClient *client,
+                              const gchar *fcall_str,
+                              size_t fcall_len,
+                              size_t *ret_len);
 
 
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__int (SearpcClient *client,
                                const char *fname,
                                AsyncCallback callback, void *cbdata,
                                int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__int64 (SearpcClient *client,
                                  const char *fname,
                                  AsyncCallback callback, void *cbdata,
                                  int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__string (SearpcClient *client,
                                   const char *fname,
                                   AsyncCallback callback, void *cbdata,
                                   int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__object (SearpcClient *client,
                                   const char *fname,
                                   AsyncCallback callback, 
                                   GType object_type, void *cbdata,
                                   int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__objlist (SearpcClient *client,
                                    const char *fname,
                                    AsyncCallback callback, 
                                    GType object_type, void *cbdata,
                                    int n_params, ...);
 
-int
+LIBSEARPC_API int
 searpc_client_async_call__json (SearpcClient *client,
                                 const char *fname,
                                 AsyncCallback callback, void *cbdata,
@@ -118,7 +127,7 @@ searpc_client_async_call__json (SearpcClient *client,
 
 /* called by the transport layer, the rpc layer should be able to
  * modify the str, but not take ownership of it */
-int
+LIBSEARPC_API int
 searpc_client_generic_callback (char *retstr, size_t len,
                                 void *vdata, const char *errstr);
 
