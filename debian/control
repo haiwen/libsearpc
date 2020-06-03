@@ -4,10 +4,11 @@ Priority: extra
 Maintainer: m.eik michalke <meik.michalke@hhu.de>
 Build-Depends:
     debhelper (>= 7),
+    dh-python,
     autotools-dev,
     intltool,
     libglib2.0-dev,
-    python,
+    python3 (>= 3.5),
     libtool,
     libjansson-dev
 Standards-Version: 3.9.5
@@ -30,7 +31,7 @@ Section: libdevel
 Architecture: any
 Depends:
     ${misc:Depends},
-    python (>= 2.7),
+    python3 (>= 3.5),
     libsearpc1 (= ${binary:Version})
 Conflicts: seafile
 Description: Development files for the libsearpc1 package.
@@ -49,9 +50,10 @@ Package: python-searpc
 Section: python
 Multi-Arch: foreign
 Architecture: all
-Depends: ${python:Depends},
+Depends: ${python3:Depends},
 	 ${shlibs:Depends},
-	 ${misc:Depends}
+	 ${misc:Depends},
+     python3-future
 Description: simple and easy-to-use C language RPC framework
  Searpc handles the serialization/deserialization part of RPC, the
  transport part is left to users.
