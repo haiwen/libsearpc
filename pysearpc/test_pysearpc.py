@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #coding: UTF-8
 
-from builtins import object
 import json
 import logging
 import os

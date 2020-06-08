@@ -1,5 +1,3 @@
-
-from builtins import object
 class SearpcTransport(object):
     """
     A transport is repsonsible to send the serialized request to the
