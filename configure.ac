@@ -98,7 +98,7 @@ PKG_CHECK_MODULES(JANSSON, [jansson >= $JANSSON_REQUIRED])
 AC_SUBST(JANSSON_CFLAGS)
 AC_SUBST(JANSSON_LIBS)
 
-AM_PATH_PYTHON([2.4])
+AM_PATH_PYTHON([3.5])
 if test "$bwin32" = true; then
    if test x$PYTHON_DIR != x; then
    # set pyexecdir to somewhere like /c/Python26/Lib/site-packages
