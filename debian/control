@@ -52,8 +52,7 @@ Multi-Arch: foreign
 Architecture: all
 Depends: ${python3:Depends},
 	 ${shlibs:Depends},
-	 ${misc:Depends},
-     python3-future
+	 ${misc:Depends}
 Description: simple and easy-to-use C language RPC framework
  Searpc handles the serialization/deserialization part of RPC, the
  transport part is left to users.
