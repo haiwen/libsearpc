@@ -1,4 +1,3 @@
-from builtins import bytes
 import os
 import socket
 
