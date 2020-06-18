@@ -83,6 +83,9 @@ fi
 AM_CONDITIONAL([FBSD], [test "$bfbsd" = "yes"])
 AC_SUBST(FBSD)
 
+AC_ARG_WITH([python3], [AS_HELP_STRING([--with-python3], [use python3])],
+	[with_python3="yes"],[])
+
 # Checks for libraries.
 
 GLIB_REQUIRED=2.26.0
@@ -98,10 +101,10 @@ PKG_CHECK_MODULES(JANSSON, [jansson >= $JANSSON_REQUIRED])
 AC_SUBST(JANSSON_CFLAGS)
 AC_SUBST(JANSSON_LIBS)
 
-if test "$bwin32" = "true" -o "$bmac" = "yes"; then
-   AM_PATH_PYTHON([2.7])
-else
+if test "$with_python3" = "yes"; then
    AM_PATH_PYTHON([3.5])
+else
+   AM_PATH_PYTHON([2.7])
 fi
 
 if test "$bwin32" = true; then
