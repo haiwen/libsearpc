@@ -15,6 +15,8 @@
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
 #endif
 
+G_BEGIN_DECLS
+
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 
@@ -137,5 +139,6 @@ searpc_client_generic_callback (char *retstr, size_t len,
 #define TRANSPORT_ERROR  "Transport Error"
 #define TRANSPORT_ERROR_CODE 500
 
+G_END_DECLS
 
 #endif

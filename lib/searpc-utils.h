@@ -10,6 +10,8 @@
 
 #define SEARPC_JSON_DOMAIN g_quark_from_string("SEARPC_JSON")
 
+G_BEGIN_DECLS
+
 typedef enum {
     SEARPC_JSON_ERROR_LOAD,
     SEARPC_JSON_ERROR_PACK,
@@ -80,3 +82,5 @@ inline static void json_array_add_json_or_null_element (json_t *array, const jso
         json_array_append_new (array, json_null ());
     }
 }
+
+G_END_DECLS

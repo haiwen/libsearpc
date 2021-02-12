@@ -16,6 +16,8 @@
 #include <windows.h>
 #endif
 
+G_BEGIN_DECLS
+
 // Implementatin of a searpc transport based on named pipe. It uses unix domain
 // sockets on linux/osx, and named pipes on windows.
 //
@@ -71,5 +73,7 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client);
 
 LIBSEARPC_API
 void searpc_free_client_with_pipe_transport (SearpcClient *client);
+
+G_END_DECLS
 
 #endif // SEARPC_NAMED_PIPE_TRANSPORT_H
