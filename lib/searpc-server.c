@@ -318,7 +318,7 @@ print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
     if (intv_in_msec < slow_threshold)
         return;
 
-    strftime(time_buf, 64, "%Y/%m/%d:%H:%M:%S", localtime(&start->tv_sec));
+    strftime(time_buf, 64, "%Y/%m/%d %H:%M:%S", localtime(&start->tv_sec));
 
     pthread_mutex_lock (&slow_log_lock);
 
