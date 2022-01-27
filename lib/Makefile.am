@@ -4,6 +4,10 @@ AM_CFLAGS = @GLIB_CFLAGS@ \
 	-I${top_builddir}/lib \
 	-I${top_srcdir}/lib
 
+if MACOS
+AM_CFLAGS += -arch x86_64 -arch arm64
+endif
+
 lib_LTLIBRARIES = libsearpc.la
 
 include_HEADERS = searpc-client.h searpc-server.h searpc-utils.h searpc.h searpc-named-pipe-transport.h
