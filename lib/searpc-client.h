@@ -1,15 +1,19 @@
 #ifndef SEARPC_CLIENT_H
 #define SEARPC_CLIENT_H
 
+#include <glib.h>
+#include <glib-object.h>
+#include <jansson.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef LIBSEARPC_EXPORTS
 #define LIBSEARPC_API __declspec(dllexport)
 #else
 #define LIBSEARPC_API
 #endif
-
-#include <glib.h>
-#include <glib-object.h>
-#include <jansson.h>
 
 #ifndef DFT_DOMAIN
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
@@ -136,6 +140,10 @@ searpc_client_generic_callback (char *retstr, size_t len,
  * set in GError */
 #define TRANSPORT_ERROR  "Transport Error"
 #define TRANSPORT_ERROR_CODE 500
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

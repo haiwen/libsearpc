@@ -1,12 +1,6 @@
 #ifndef SEARPC_NAMED_PIPE_TRANSPORT_H
 #define SEARPC_NAMED_PIPE_TRANSPORT_H
 
-#ifdef LIBSEARPC_EXPORTS
-#define LIBSEARPC_API __declspec(dllexport)
-#else
-#define LIBSEARPC_API
-#endif
-
 #include <pthread.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -14,6 +8,16 @@
 
 #if defined(WIN32)
 #include <windows.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef LIBSEARPC_EXPORTS
+#define LIBSEARPC_API __declspec(dllexport)
+#else
+#define LIBSEARPC_API
 #endif
 
 // Implementatin of a searpc transport based on named pipe. It uses unix domain
@@ -71,5 +75,9 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client);
 
 LIBSEARPC_API
 void searpc_free_client_with_pipe_transport (SearpcClient *client);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SEARPC_NAMED_PIPE_TRANSPORT_H
