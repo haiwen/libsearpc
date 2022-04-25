@@ -1,15 +1,19 @@
 #ifndef SEARPC_SERVER_H
 #define SEARPC_SERVER_H
 
+#include <glib.h>
+#include <glib-object.h>
+#include <jansson.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef LIBSEARPC_EXPORTS
 #define LIBSEARPC_API __declspec(dllexport)
 #else
 #define LIBSEARPC_API
 #endif
-
-#include <glib.h>
-#include <glib-object.h>
-#include <jansson.h>
 
 #ifndef DFT_DOMAIN
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
@@ -133,5 +137,9 @@ gchar *searpc_server_call_function (const char *service,
  */
 LIBSEARPC_API
 char* searpc_compute_signature (const gchar *ret_type, int pnum, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
