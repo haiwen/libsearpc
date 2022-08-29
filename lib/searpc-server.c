@@ -39,6 +39,7 @@ static GHashTable *service_table;
 #ifdef __linux__
 static FILE *slow_log_fp = NULL;
 static gint64 slow_threshold;
+static gboolean slow_filtered;
 static pthread_mutex_t slow_log_lock;
 #endif
 
@@ -201,7 +202,8 @@ searpc_server_init (RegisterMarshalFunc register_func)
 int
 searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
                                   const char *slow_log_path,
-                                  gint64 slow_threshold_in)
+                                  gint64 slow_threshold_in,
+                                  gboolean slow_filtered_in)
 {
     if (slow_log_path) {
         slow_log_fp = fopen (slow_log_path, "a+");
@@ -210,6 +212,7 @@ searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
             return -1;
         }
         slow_threshold = slow_threshold_in;
+        slow_filtered = slow_filtered_in;
 
         pthread_mutex_init (&slow_log_lock, NULL);
     }
@@ -305,6 +308,35 @@ searpc_server_register_function (const char *svc_name,
 
 #ifdef __linux__
 
+static gboolean
+rpc_include_passwd (const char *fname) {
+    if (g_strcmp0 (fname, "seafile_create_repo") == 0 || 
+        g_strcmp0 (fname, "create_virtual_repo") == 0 || 
+        g_strcmp0 (fname, "create_org_virtual_repo") == 0 || 
+        g_strcmp0 (fname, "seafile_create_org_repo") == 0 || 
+        g_strcmp0 (fname, "add_group_owned_repo") == 0 || 
+        g_strcmp0 (fname, "org_add_group_owned_repo") == 0 || 
+        g_strcmp0 (fname, "share_subdir_to_user") == 0 || 
+        g_strcmp0 (fname, "share_subdir_to_group") == 0 ||
+        g_strcmp0 (fname, "org_share_subdir_to_user") == 0 || 
+        g_strcmp0 (fname, "org_share_subdir_to_group") == 0 || 
+        g_strcmp0 (fname, "seafile_change_repo_passwd") == 0 ||
+        g_strcmp0 (fname, "seafile_set_passwd") == 0 || 
+        g_strcmp0 (fname, "reset_repo_passwd") == 0 || 
+        g_strcmp0 (fname, "get_secret_key") == 0 || 
+        g_strcmp0 (fname, "generate_magic_and_random_key") == 0 ||
+        g_strcmp0 (fname, "seafile_get_secret_key") == 0 ||
+        g_strcmp0 (fname, "add_emailuser") == 0 || 
+        g_strcmp0 (fname, "validate_emailuser") == 0 || 
+        g_strcmp0 (fname, "update_emailuser") == 0 || 
+        g_strcmp0 (fname, "add_ldap_user") == 0 || 
+        g_strcmp0 (fname, "update_ldap_user") == 0) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
                              const struct timeval *start,
@@ -381,9 +413,11 @@ searpc_server_call_function (const char *svc_name,
 
 #ifdef __linux__
     if (slow_log_fp) {
-        gettimeofday(&end, NULL);
-        timersub(&end, &start, &intv);
-        print_slow_log_if_necessary (svc_name, func, len, &start, &intv);
+        if (!slow_filtered || !rpc_include_passwd (fitem->fname)) {
+            gettimeofday(&end, NULL);
+            timersub(&end, &start, &intv);
+            print_slow_log_if_necessary (svc_name, func, len, &start, &intv);
+        }
     }
 #endif
 
