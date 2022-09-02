@@ -53,7 +53,7 @@ LIBSEARPC_API int
 searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
                                   const char *slow_log_path,
                                   gint64 slow_threshold_in,
-                                  gboolean slow_filtered_in);
+                                  GList *filtered_funcs_in);
 
 /**
  * Used in log rotate.
