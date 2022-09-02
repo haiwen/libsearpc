@@ -39,6 +39,7 @@ static GHashTable *service_table;
 #ifdef __linux__
 static FILE *slow_log_fp = NULL;
 static gint64 slow_threshold;
+static GList *filtered_funcs;
 static pthread_mutex_t slow_log_lock;
 #endif
 
@@ -201,7 +202,8 @@ searpc_server_init (RegisterMarshalFunc register_func)
 int
 searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
                                   const char *slow_log_path,
-                                  gint64 slow_threshold_in)
+                                  gint64 slow_threshold_in,
+                                  GList *filtered_funcs_in)
 {
     if (slow_log_path) {
         slow_log_fp = fopen (slow_log_path, "a+");
@@ -210,6 +212,7 @@ searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
             return -1;
         }
         slow_threshold = slow_threshold_in;
+        filtered_funcs = filtered_funcs_in;
 
         pthread_mutex_init (&slow_log_lock, NULL);
     }
@@ -305,6 +308,21 @@ searpc_server_register_function (const char *svc_name,
 
 #ifdef __linux__
 
+static gboolean
+rpc_include_passwd (const char *fname) {
+    GList *ptr;
+    char *rpc_name;
+
+    for (ptr = filtered_funcs; ptr; ptr = ptr->next) {
+        rpc_name = ptr->data;
+        if (g_strcmp0 (fname, rpc_name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static void
 print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
                              const struct timeval *start,
@@ -381,9 +399,11 @@ searpc_server_call_function (const char *svc_name,
 
 #ifdef __linux__
     if (slow_log_fp) {
-        gettimeofday(&end, NULL);
-        timersub(&end, &start, &intv);
-        print_slow_log_if_necessary (svc_name, func, len, &start, &intv);
+        if (!filtered_funcs || !rpc_include_passwd (fitem->fname)) {
+            gettimeofday(&end, NULL);
+            timersub(&end, &start, &intv);
+            print_slow_log_if_necessary (svc_name, func, len, &start, &intv);
+        }
     }
 #endif
 
