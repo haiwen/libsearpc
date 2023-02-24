@@ -338,19 +338,27 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
 
 #else // !defined(WIN32)
     SearpcNamedPipe pipe_fd;
-    pipe_fd = CreateFile(
-        client->path,           // pipe name
-        GENERIC_READ |          // read and write access
-        GENERIC_WRITE,
-        0,                      // no sharing
-        NULL,                   // default security attributes
-        OPEN_EXISTING,          // opens existing pipe
-        0,                      // default attributes
-        NULL);                  // no template file
 
-    if (pipe_fd == INVALID_HANDLE_VALUE) {
-        G_WARNING_WITH_LAST_ERROR("Failed to connect to named pipe");
-        return -1;
+    for (;;) {
+        pipe_fd = CreateFile(
+            client->path,           // pipe name
+            GENERIC_READ |          // read and write access
+            GENERIC_WRITE,
+            0,                      // no sharing
+            NULL,                   // default security attributes
+            OPEN_EXISTING,          // opens existing pipe
+            0,                      // default attributes
+            NULL);                  // no template file
+
+        if (pipe_fd != INVALID_HANDLE_VALUE) {
+            break;
+        }
+
+        /* wait with default timeout (approx. 50ms) */
+        if (GetLastError() != ERROR_PIPE_BUSY || !WaitNamedPipe(client->path, NMPWAIT_USE_DEFAULT_WAIT)) {
+            G_WARNING_WITH_LAST_ERROR("Failed to connect to named pipe");
+            return -1;
+        }
     }
 
     DWORD mode = PIPE_READMODE_MESSAGE;
