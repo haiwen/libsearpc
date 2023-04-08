@@ -67,7 +67,7 @@ searpc_server_reopen_slow_log (const char *slow_log_path);
  * Free the server structure.
  */
 LIBSEARPC_API
-void searpc_server_final ();
+void searpc_server_final (void);
 
 /**
  * searpc_create_service:
