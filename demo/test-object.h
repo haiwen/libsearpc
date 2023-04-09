@@ -4,6 +4,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+GType test_object_get_type (void);
+
 #define TEST_OBJECT_TYPE            (test_object_get_type())
 #define TEST_OBJECT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TEST_OBJECT_TYPE, TestObject))
 #define IS_TEST_OBJCET(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TEST_OBJCET_TYPE))
