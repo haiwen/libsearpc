@@ -42,6 +42,15 @@ AC_ARG_ENABLE(server-pkg,
     AC_HELP_STRING([--enable-server-pkg], [enable static compile]),
     [server_pkg=$enableval],[server_pkg="no"])
 
+# option: compile-universal
+# default: no
+AC_ARG_ENABLE([compile-universal],
+[AS_HELP_STRING([--enable-compile-universal],
+[compile seafile universal @<:@default: no@:>@])],
+[compile_universal=${enableval}], [compile_demo=no])
+
+AM_CONDITIONAL([COMPILE_UNIVERSAL], [test x${compile_universal} = xyes])
+
 dnl - check if the macro WIN32 is defined on this compiler.
 AC_MSG_CHECKING(for WIN32)
 
