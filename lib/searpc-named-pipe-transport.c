@@ -333,6 +333,7 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
     g_strlcpy (servaddr.sun_path, client->path, sizeof(servaddr.sun_path));
     if (connect(client->pipe_fd, (struct sockaddr *)&servaddr, (socklen_t)sizeof(servaddr)) < 0) {
         g_warning ("pipe client failed to connect to server: %s\n", strerror(errno));
+        close(client->pipe_fd);
         return -1;
     }
 
@@ -364,6 +365,7 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
     DWORD mode = PIPE_READMODE_MESSAGE;
     if (!SetNamedPipeHandleState(pipe_fd, &mode, NULL, NULL)) {
         G_WARNING_WITH_LAST_ERROR("Failed to set named pipe mode");
+        CloseHandle (pipe_fd);
         return -1;
     }
 
