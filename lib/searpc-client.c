@@ -36,7 +36,7 @@ static void clean_objlist(GList *list)
 
 
 SearpcClient *
-searpc_client_new ()
+searpc_client_new (void)
 {
     return g_new0 (SearpcClient, 1);
 }

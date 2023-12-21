@@ -44,7 +44,7 @@ struct _SearpcClient {
 typedef struct _SearpcClient LIBSEARPC_API SearpcClient;
 
 LIBSEARPC_API
-SearpcClient *searpc_client_new ();
+SearpcClient *searpc_client_new (void);
 
 LIBSEARPC_API void
 searpc_client_free (SearpcClient *client);

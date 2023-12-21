@@ -204,7 +204,7 @@ get_substring (const gchar *orig_str, int sub_len, GError **error)
 }
 
 static SearpcClient *
-do_create_client_with_pipe_transport()
+do_create_client_with_pipe_transport(void)
 {
     SearpcNamedPipeClient *pipe_client = searpc_create_named_pipe_client(pipe_path);
     cl_must_pass_(searpc_named_pipe_client_connect(pipe_client), "named pipe client failed to connect");

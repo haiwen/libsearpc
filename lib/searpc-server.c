@@ -248,7 +248,7 @@ searpc_server_reopen_slow_log (const char *slow_log_path)
 #endif
 
 void
-searpc_server_final()
+searpc_server_final(void)
 {
     g_hash_table_destroy (service_table);
     g_hash_table_destroy (marshal_table);

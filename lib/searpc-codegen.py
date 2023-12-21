@@ -139,7 +139,7 @@ def generate_marshal_register_item(ret_type, arg_types):
         signature_name=signature_name)
 
 def gen_marshal_register_function(f):
-    write_file(f, "static void register_marshals()""")
+    write_file(f, "static void register_marshals(void)""")
     write_file(f,  "{")
     for item in func_table:
         write_file(f, generate_marshal_register_item(item[0], item[1]))
@@ -147,7 +147,7 @@ def gen_marshal_register_function(f):
 
 signature_template = r"""
 inline static gchar *
-${signature_name}()
+${signature_name}(void)
 {
     return searpc_compute_signature (${args});
 }
