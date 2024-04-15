@@ -1,4 +1,4 @@
-prefix=(DESTDIR)@prefix@
+prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
@@ -8,4 +8,4 @@ Description: Simple C rpc library
 Version: @VERSION@
 Libs: -L${libdir} -lsearpc
 Cflags: -I${includedir} -I${includedir}/searpc
-Requires: gobject-2.0 gio-2.0 jansson
+Requires: gobject-2.0 >= 2.26.0 gio-2.0 jansson >= 2.2.1
