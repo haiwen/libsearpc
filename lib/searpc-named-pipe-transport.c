@@ -87,6 +87,7 @@ SearpcNamedPipeServer* searpc_create_named_pipe_server_with_threadpool (const ch
 
     SearpcNamedPipeServer *server = g_malloc0(sizeof(SearpcNamedPipeServer));
     memcpy(server->path, path, strlen(path) + 1);
+    server->pool_size = named_pipe_server_thread_pool_size;
     server->named_pipe_server_thread_pool = g_thread_pool_new (handle_named_pipe_client_with_threadpool,
                                                                NULL,
                                                                named_pipe_server_thread_pool_size,
@@ -180,9 +181,12 @@ static void* named_pipe_listen(void *arg)
         int connfd = accept (server->pipe_fd, NULL, 0);
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
         data->connfd = connfd;
-        if (server->named_pipe_server_thread_pool)
+        if (server->named_pipe_server_thread_pool) {
+            if (g_thread_pool_get_num_threads (server->named_pipe_server_thread_pool) >= server->pool_size) {
+                g_warning("The rpc server thread pool is full, the maximum number of threads is %d\n", server->pool_size);
+            }
             g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
-        else {
+        } else {
             pthread_t handler;
             pthread_attr_t attr;
             pthread_attr_init(&attr);

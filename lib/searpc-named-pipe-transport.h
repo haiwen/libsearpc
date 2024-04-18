@@ -42,6 +42,7 @@ struct _SearpcNamedPipeServer {
     pthread_t listener_thread;
     SearpcNamedPipe pipe_fd;
     GThreadPool *named_pipe_server_thread_pool;
+    int pool_size;
 };
 
 typedef struct _SearpcNamedPipeServer LIBSEARPC_API SearpcNamedPipeServer;
