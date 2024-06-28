@@ -151,6 +151,7 @@ main(int argc, char *argv[])
         pac_ret = (packet *)buf;
         pac_ret->length = htons((uint16_t)ret_len);
         memcpy(pac_ret->data, res, ret_len);
+        free(res);
 
         /* send the ret packet */
         if (writen (connfd, buf, PACKET_HEADER_LENGTH + ret_len) == -1) {
