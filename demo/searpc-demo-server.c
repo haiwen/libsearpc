@@ -129,8 +129,6 @@ main(int argc, char *argv[])
     }
 
     while (1) {
-        GError *error = NULL;
-
         clilen = sizeof(client_addr);
         connfd = accept(listenfd, (struct sockaddr *)&client_addr, &clilen);
         if (connfd < 0) {
