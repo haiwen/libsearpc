@@ -70,7 +70,7 @@ searpc_create_service (const char *svc_name)
 
     service = g_new0 (SearpcService, 1);
     service->name = g_strdup(svc_name);
-    service->func_table = g_hash_table_new_full (g_str_hash, g_str_equal, 
+    service->func_table = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                  NULL, (GDestroyNotify)func_item_free);
 
     g_hash_table_insert (service_table, service->name, service);
@@ -127,7 +127,7 @@ void
 searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
 {
     GList *ptr;
-    
+
     if (ret == NULL)
         json_object_set_new (object, "ret", json_null ());
     else {
@@ -254,7 +254,7 @@ searpc_server_final(void)
     g_hash_table_destroy (marshal_table);
 }
 
-gboolean 
+gboolean
 searpc_server_register_marshal (gchar *signature, SearpcMarshalFunc marshal)
 {
     MarshalItem *mitem;
@@ -275,7 +275,7 @@ searpc_server_register_marshal (gchar *signature, SearpcMarshalFunc marshal)
     return TRUE;
 }
 
-gboolean 
+gboolean
 searpc_server_register_function (const char *svc_name,
                                  void *func, const gchar *fname, gchar *signature)
 {
@@ -350,7 +350,7 @@ print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
 #endif
 
 /* Called by RPC transport. */
-char* 
+char*
 searpc_server_call_function (const char *svc_name,
                              gchar *func, gsize len, gsize *ret_len)
 {
@@ -374,14 +374,14 @@ searpc_server_call_function (const char *svc_name,
         snprintf (buf, 255, "cannot find service %s.", svc_name);
         return error_to_json (501, buf, ret_len);
     }
-    
+
     array = json_loadb (func, len, 0 ,&jerror);
-    
+
     if (!array) {
         char buf[512];
         setjetoge(&jerror,&error);
         snprintf (buf, 511, "failed to load RPC call: %s\n", error->message);
-        json_decref (array);        
+        json_decref (array);
         g_error_free(error);
         return error_to_json (511, buf, ret_len);
     }
@@ -412,7 +412,7 @@ searpc_server_call_function (const char *svc_name,
     return ret;
 }
 
-char* 
+char*
 searpc_compute_signature(const gchar *ret_type, int pnum, ...)
 {
     va_list ap;
@@ -420,9 +420,9 @@ searpc_compute_signature(const gchar *ret_type, int pnum, ...)
     char *ret;
 
     GChecksum *cksum = g_checksum_new (G_CHECKSUM_MD5);
-    
+
     g_checksum_update (cksum, (const guchar*)ret_type, -1);
-    
+
     va_start(ap, pnum);
     for (; i<pnum; i++) {
         char *ptype = va_arg (ap, char *);

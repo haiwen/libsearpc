@@ -34,7 +34,7 @@ static char *transport_callback(void *arg, const char *fcall_str,
     int fd, ret;
     char buf[BUFLEN];
     packet *pac, *pac_ret;
-   
+
     fd = (int)(long) arg;
     pac = (packet *)buf;
 
@@ -47,14 +47,14 @@ static char *transport_callback(void *arg, const char *fcall_str,
         fprintf (stderr, "write failed: %s\n", strerror(errno));
         exit(-1);
     }
-    
+
     /* read the returned packet */
     pac_ret = read_packet(fd, buf);
     if (pac_ret == NULL) {
         fprintf(stderr, "read packet failed: %s\n", strerror(errno));
         exit(-1);
     }
-    
+
     *ret_len = ntohs(pac_ret->length);
 
     return g_strndup(pac_ret->data, *ret_len);
@@ -65,7 +65,7 @@ void
 searpc_set_objlist_to_ret_object (json_t *object, GList *ret)
 {
     GList *ptr;
-    
+
     if (ret == NULL)
         json_object_set_new (object, "ret", json_null ());
     else {
@@ -141,9 +141,9 @@ rpc_glist_test(int sockfd, struct sockaddr_in *servaddr, SearpcClient *rpc_clien
     if (error != NULL) {
         fprintf(stderr, "error: %s\n", error->message);
         exit(-1);
-    } 
+    }
     else printf("%s\n", json_dumps (object, JSON_INDENT(2)));
-    
+
     json_t *array = json_object_get (object, "ret");
     if (json_array_size(array) != count) {
         printf("Glisttest fail.\n");

@@ -61,7 +61,7 @@ start_rpc_service(void)
     searpc_create_service("searpc-demo");
 
     /* The first parameter is the implementation function.
-     * The second parameter is the name of the rpc function the 
+     * The second parameter is the name of the rpc function the
      * client would call.
      * The third parameter is the signature.
      */
@@ -143,7 +143,7 @@ main(int argc, char *argv[])
         if (pac == NULL) {
             fprintf(stderr, "read packet failed: %s\n", strerror(errno));
             exit(-1);
-        }                              
+        }
 
         gsize ret_len;
         int fcall_len = ntohs(pac->length);
