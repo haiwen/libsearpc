@@ -139,8 +139,8 @@ First write rpc_table.py to contain the rpc function signatures as follows:
 
 Add makefile rule:
 
-    searpc-signature.h searpc-marshal.h: rpc_table.py
-        python searpc-codegen.py rpc_table.py
+    searpc-signature.h searpc-marshal.h &: rpc_table.py
+        searpc-codegen.py $<
 
 `searpc-signature.h` and `searpc-marshal.h` will be created containing the
 function signatures and corresponding marshals. `searpc-marshal.h` also contains
