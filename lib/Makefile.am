@@ -10,6 +10,10 @@ AM_CFLAGS += -arch x86_64 -arch arm64
 endif
 endif
 
+if COMPILE_EPOLL
+AM_CFLAGS += -DCOMPILE_EPOLL
+endif
+
 lib_LTLIBRARIES = libsearpc.la
 
 include_HEADERS = searpc-client.h searpc-server.h searpc-utils.h searpc.h searpc-named-pipe-transport.h
