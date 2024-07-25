@@ -51,15 +51,6 @@ AC_ARG_ENABLE([compile-universal],
 
 AM_CONDITIONAL([COMPILE_UNIVERSAL], [test x${compile_universal} = xyes])
 
-# option: compile-epoll
-# default: no
-AC_ARG_ENABLE([compile-epoll],
-[AS_HELP_STRING([--enable-compile-epoll],
-[compile epoll@<:@default: no@:>@])],
-[compile_epoll=${enableval}], [compile_epoll=no])
-
-AM_CONDITIONAL([COMPILE_EPOLL], [test x${compile_epoll} = xyes])
-
 dnl - check if the macro WIN32 is defined on this compiler.
 AC_MSG_CHECKING(for WIN32)
 

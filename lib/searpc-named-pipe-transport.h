@@ -41,9 +41,8 @@ struct _SearpcNamedPipeServer {
     char path[4096];
     pthread_t listener_thread;
     SearpcNamedPipe pipe_fd;
-#ifdef COMPILE_EPOLL
+    gboolean use_epoll;
     int epoll_fd;
-#endif
     GThreadPool *named_pipe_server_thread_pool;
     int pool_size;
 };
