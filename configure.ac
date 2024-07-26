@@ -47,7 +47,7 @@ AC_ARG_ENABLE(server-pkg,
 AC_ARG_ENABLE([compile-universal],
 [AS_HELP_STRING([--enable-compile-universal],
 [compile seafile universal @<:@default: no@:>@])],
-[compile_universal=${enableval}], [compile_demo=no])
+[compile_universal=${enableval}], [compile_universal=no])
 
 AM_CONDITIONAL([COMPILE_UNIVERSAL], [test x${compile_universal} = xyes])
 

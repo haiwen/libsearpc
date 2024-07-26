@@ -8,6 +8,10 @@
   #include <sys/socket.h>
   #include <sys/un.h>
   #include <unistd.h>
+#ifdef __linux__
+  #include <fcntl.h>
+  #include <sys/epoll.h>
+#endif
 #endif // !defined(WIN32)
 
 #include <glib.h>
@@ -154,6 +158,28 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
         goto failed;
     }
 
+#ifdef __linux__
+    if (server->use_epoll) {
+        int epoll_fd;
+        struct epoll_event event;
+
+        epoll_fd = epoll_create1(0);
+        if (epoll_fd < 0) {
+            g_warning ("failed to open an epoll file descriptor: %s\n", strerror(errno));
+            goto failed;
+        }
+
+        event.events = EPOLLIN;
+        event.data.fd = pipe_fd;
+        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, pipe_fd, &event) == -1) {
+            g_warning ("failed to add pipe fd to epoll list: %s\n", strerror(errno));
+            goto failed;
+        }
+
+        server->epoll_fd = epoll_fd;
+    }
+#endif
+
     server->pipe_fd = pipe_fd;
 
 #endif // !defined(WIN32)
@@ -171,16 +197,264 @@ failed:
 
 typedef struct {
     SearpcNamedPipe connfd;
+    char *buffer;
+    guint32 len;
+    guint32 header_offset;
+    guint32 offset;
+    SearpcNamedPipeServer *server;
+    gboolean use_epoll;
 } ServerHandlerData;
+
+// EPOLL
+#ifdef __linux__
+
+// This function will keep reading until the following conditions are met:
+// 1. the socket has beed closed.
+// 2. there is no more readable data in the system cache;
+// 3. the requested size has been read;
+// 4. an unrecoverable error has been encountered;
+// The first two cases are not errors.
+gssize
+epoll_read_n(int fd, void *vptr, size_t n)
+{
+    size_t  nleft;
+    gssize nread;
+    char    *ptr;
+
+    ptr = vptr;
+    nleft = n;
+    while (nleft > 0) {
+        if ( (nread = read(fd, ptr, nleft)) < 0) {
+            if (errno == EINTR)
+                nread = 0;      /* and call read() again */
+            else if (errno == EAGAIN)
+                break;
+            else
+                return(-1);
+        } else if (nread == 0)
+            break;              /* EOF */
+
+        nleft -= nread;
+        ptr   += nread;
+    }
+    return(n - nleft);      /* return >= 0 */
+}
+
+static void epoll_handler(void *data)
+{
+    ServerHandlerData *handler_data = data;
+    SearpcNamedPipe connfd = handler_data->connfd;
+    SearpcNamedPipeServer *server = handler_data->server;
+    const char *buf = handler_data->buffer;
+    guint32 len = handler_data->len;
+    char *ret_str = NULL;
+    int ret = 0;
+
+    char *service, *body;
+    if (request_from_json (buf, len, &service, &body) < 0) {
+        ret = -1;
+        goto out;
+    }
+
+    gsize ret_len;
+    ret_str = searpc_server_call_function (service, body, strlen(body), &ret_len);
+    g_free (service);
+    g_free (body);
+
+    len = (guint32)ret_len;
+    if (pipe_write_n(connfd, &len, sizeof(guint32)) < 0) {
+        ret = -1;
+        goto out;
+    }
+
+    if (pipe_write_n(connfd, ret_str, ret_len) < 0) {
+        ret = -1;
+        goto out;
+    }
+
+    g_free (handler_data->buffer);
+    handler_data->buffer = NULL;
+    handler_data->len = 0;
+    handler_data->header_offset = 0;
+    handler_data->offset = 0;
+    struct epoll_event event;
+    event.events = EPOLLIN | EPOLLRDHUP;
+    event.data.ptr = (void *)handler_data;
+
+    if (epoll_ctl (server->epoll_fd, EPOLL_CTL_ADD, connfd, &event) == -1) {
+        ret = -1;
+        g_warning ("failed to add client fd to epoll list: %s\n", strerror(errno));
+        goto out;
+    }
+
+out:
+    if (ret < 0) {
+        close (connfd);
+        g_free (handler_data->buffer);
+        g_free (handler_data);
+    }
+    g_free (ret_str);
+}
+
+static int
+read_client_request (int connfd, ServerHandlerData *data)
+{
+    char *buf;
+    int n;
+
+    // read length of request.
+    if (data->header_offset != 4) {
+        n = epoll_read_n(connfd, (void *)&(data->len) + data->header_offset, sizeof(guint32) - data->header_offset);
+        if (n < 0) {
+            g_warning("Failed to read rpc request size: %s\n", strerror(errno));
+            return -1;
+        }
+        data->header_offset += n;
+        if (data->header_offset < 4) {
+            return 0;
+        } else if (data->header_offset > 4) {
+            g_warning("Failed to read rpc request size\n");
+            return -1;
+        }
+        if (data->len == 0) {
+            return -1;
+        }
+    }
+
+    if (!data->buffer) {
+        data->buffer = g_new0 (char, data->len);
+    }
+
+    // read content of request.
+    n = epoll_read_n(connfd, data->buffer + data->offset, data->len - data->offset);
+    if (n < 0) {
+        g_warning ("Failed to read rpc request: %s\n", strerror(errno));
+        return -1;
+    }
+    data->offset += n;
+
+    return 0;
+}
+
+int set_nonblocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags < 0) {
+        return -1;
+    }
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+static void
+epoll_listen (SearpcNamedPipeServer *server)
+{
+#define MAX_EVENTS 1000
+    struct epoll_event event;
+    struct epoll_event events[MAX_EVENTS];
+    int connfd;
+    int n_events;
+    int i;
+
+    while (1) {
+        n_events = epoll_wait (server->epoll_fd, events, MAX_EVENTS, 1000);
+        if (n_events <= 0) {
+            if (n_events < 0) {
+                g_warning ("Failed to call waits for events on the epoll: %s\n", strerror(errno));
+            }
+            continue;
+        }
+        for (i = 0; i < n_events; i++) {
+            if (events[i].data.fd == server->pipe_fd) {
+                if (!(events[i].events & EPOLLIN)) {
+                    continue;
+                }
+                // new client connection
+                connfd = accept (server->pipe_fd, NULL, 0);
+                if (connfd < 0) {
+                    g_warning ("Failed to accept new client connection: %s\n", strerror(errno));
+                    continue;
+                }
+
+                if (set_nonblocking(connfd) < 0) {
+                    close(connfd);
+                    g_warning ("Failed to set connection to noblocking.\n");
+                    continue;
+                }
+
+                event.events = EPOLLIN | EPOLLRDHUP;
+                ServerHandlerData *data = g_new0(ServerHandlerData, 1);
+                data->use_epoll = TRUE;
+                data->connfd = connfd;
+                data->server = server;
+                event.data.ptr = (void *)data;
+                if (epoll_ctl (server->epoll_fd, EPOLL_CTL_ADD, connfd, &event) == -1) {
+                    g_warning ("Failed to add client fd to epoll list: %s\n", strerror(errno));
+                    epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
+                    close (connfd);
+                    g_free (data);
+                    continue;
+                }
+                g_message ("start to serve on pipe client\n");
+            } else {
+                ServerHandlerData *data = (ServerHandlerData *)events[i].data.ptr;
+                connfd = data->connfd;
+                if (events[i].events & (EPOLLHUP | EPOLLRDHUP)) {
+                    if (data->len > 0)
+                        g_free (data->buffer);
+                    g_free (data);
+                    epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
+                    close (connfd);
+                    continue;
+                }
+                int rc = read_client_request (connfd, data);
+                if (rc < 0) {
+                    if (data->len)
+                        g_free (data->buffer);
+                    g_free (data);
+                    epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
+                    close (connfd);
+                    continue;
+                } else if (data->header_offset != 4 || data->len != data->offset) {
+                    // Continue reading request.
+                    continue;
+                }
+
+                // After reading the contents of a request, remove the socket from the epoll and do not read the next request for a while to prevent client errors.
+                // After the worker finishes processing the current request, we will add the socket back into the epoll.
+                epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
+                if (server->named_pipe_server_thread_pool) {
+                    if (g_thread_pool_get_num_threads (server->named_pipe_server_thread_pool) >= server->pool_size) {
+                        g_warning("The rpc server thread pool is full, the maximum number of threads is %d\n", server->pool_size);
+                    }
+                    g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
+                } else {
+                    pthread_t handler;
+                    pthread_attr_t attr;
+                    pthread_attr_init(&attr);
+                    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+                    pthread_create(&handler, &attr, handle_named_pipe_client_with_thread, data);
+                }
+            }
+        }
+    }
+}
+#endif
 
 static void* named_pipe_listen(void *arg)
 {
     SearpcNamedPipeServer *server = arg;
+
 #if !defined(WIN32)
+#ifdef __linux__
+    if (server->use_epoll) {
+        epoll_listen (server);
+        return NULL;
+    }
+#endif
     while (1) {
         int connfd = accept (server->pipe_fd, NULL, 0);
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
         data->connfd = connfd;
+        data->use_epoll = FALSE;
         if (server->named_pipe_server_thread_pool) {
             if (g_thread_pool_get_num_threads (server->named_pipe_server_thread_pool) >= server->pool_size) {
                 g_warning("The rpc server thread pool is full, the maximum number of threads is %d\n", server->pool_size);
@@ -194,7 +468,6 @@ static void* named_pipe_listen(void *arg)
             pthread_create(&handler, &attr, handle_named_pipe_client_with_thread, data);
         }
     }
-
 #else // !defined(WIN32)
     while (1) {
         HANDLE connfd = INVALID_HANDLE_VALUE;
@@ -231,6 +504,7 @@ static void* named_pipe_listen(void *arg)
 
         ServerHandlerData *data = g_malloc(sizeof(ServerHandlerData));
         data->connfd = connfd;
+        data->use_epoll = FALSE;
         if (server->named_pipe_server_thread_pool)
             g_thread_pool_push (server->named_pipe_server_thread_pool, data, NULL);
         else {
@@ -247,6 +521,13 @@ static void* named_pipe_listen(void *arg)
 
 static void* handle_named_pipe_client_with_thread(void *arg)
 {
+#ifdef __linux__
+    ServerHandlerData *handler_data = arg;
+    if (handler_data->use_epoll) {
+        epoll_handler (arg);
+        return NULL;
+    }
+#endif
     named_pipe_client_handler(arg);
 
     return NULL;
@@ -254,6 +535,13 @@ static void* handle_named_pipe_client_with_thread(void *arg)
 
 static void handle_named_pipe_client_with_threadpool(void *data, void *user_data)
 {
+#ifdef __linux__
+    ServerHandlerData *handler_data = data;
+    if (handler_data->use_epoll) {
+        epoll_handler (data);
+        return;
+    }
+#endif
     named_pipe_client_handler(data);
 }
 
@@ -325,7 +613,6 @@ static void named_pipe_client_handler(void *data)
     g_free (data);
     g_free (buf);
 }
-
 
 int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client)
 {
