@@ -299,13 +299,12 @@ out:
 static int
 read_client_request (int connfd, ServerHandlerData *data)
 {
-    guint32 len = data->len;
     char *buf;
     int n;
 
     // read length of request.
     if (data->header_offset != 4) {
-        n = epoll_read_n(connfd, (void *)&len + data->header_offset, sizeof(guint32) - data->header_offset);
+        n = epoll_read_n(connfd, (void *)&(data->len) + data->header_offset, sizeof(guint32) - data->header_offset);
         if (n < 0) {
             g_warning("Failed to read rpc request size: %s\n", strerror(errno));
             return -1;
@@ -317,18 +316,17 @@ read_client_request (int connfd, ServerHandlerData *data)
             g_warning("Failed to read rpc request size\n");
             return -1;
         }
-        if (len == 0) {
+        if (data->len == 0) {
             return -1;
         }
     }
 
-    data->len = len;
     if (!data->buffer) {
-        data->buffer = g_new0 (char, len);
+        data->buffer = g_new0 (char, data->len);
     }
 
     // read content of request.
-    n = epoll_read_n(connfd, data->buffer + data->offset, len - data->offset);
+    n = epoll_read_n(connfd, data->buffer + data->offset, data->len - data->offset);
     if (n < 0) {
         g_warning ("Failed to read rpc request: %s\n", strerror(errno));
         return -1;
@@ -415,11 +413,8 @@ epoll_listen (SearpcNamedPipeServer *server)
                     epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
                     close (connfd);
                     continue;
-                } else if (data->header_offset != 4) {
-                    // Continue reading request length.
-                    continue;
-                } else if (data->len != data->offset) {
-                    // Continue reading request content.
+                } else if (data->header_offset != 4 || data->len != data->offset) {
+                    // Continue reading request.
                     continue;
                 }
 
