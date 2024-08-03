@@ -64,7 +64,7 @@ static char *
 fcall_to_str (const char *fname, int n_params, va_list args, gsize *len)
 {
     json_t *array;
-    
+
     array = json_array ();
     json_array_append_new (array, json_string(fname));
 
@@ -114,7 +114,7 @@ searpc_client_call (SearpcClient *client, const char *fname,
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return;
     }
- 
+
     char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
     if (!fret) {
         g_free (fstr);
@@ -138,7 +138,7 @@ searpc_client_call (SearpcClient *client, const char *fname,
         *((json_t **)ret_ptr) = searpc_client_fret__json(fret, ret_len, error);
     else
         g_warning ("unrecognized return type %s\n", ret_type);
-    
+
     g_free (fstr);
     g_free (fret);
 }
@@ -160,7 +160,7 @@ searpc_client_call__int (SearpcClient *client, const char *fname,
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return 0;
     }
- 
+
     char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
     if (!fret) {
         g_free (fstr);
@@ -191,7 +191,7 @@ searpc_client_call__int64 (SearpcClient *client, const char *fname,
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return 0;
     }
- 
+
     char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
     if (!fret) {
         g_free (fstr);
@@ -222,7 +222,7 @@ searpc_client_call__string (SearpcClient *client, const char *fname,
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return NULL;
     }
- 
+
     char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
     if (!fret) {
         g_free (fstr);
@@ -255,7 +255,7 @@ searpc_client_call__object (SearpcClient *client, const char *fname,
         g_set_error (error, DFT_DOMAIN, 0, "Invalid Parameter");
         return NULL;
     }
- 
+
     char *fret = searpc_client_transport_send (client, fstr, len, &ret_len);
     if (!fret) {
         g_free (fstr);
@@ -414,7 +414,7 @@ searpc_client_async_call_v (SearpcClient *client,
     fstr = fcall_to_str (fname, n_params, args, &len);
     if (!fstr)
         return -1;
-    
+
     int ret;
     AsyncCallData *data = g_new0(AsyncCallData, 1);
     data->client = client;
@@ -488,7 +488,7 @@ searpc_client_async_call__string (SearpcClient *client,
 int
 searpc_client_async_call__object (SearpcClient *client,
                                   const char *fname,
-                                  AsyncCallback callback, 
+                                  AsyncCallback callback,
                                   GType object_type, void *cbdata,
                                   int n_params, ...)
 {
@@ -508,7 +508,7 @@ searpc_client_async_call__object (SearpcClient *client,
 int
 searpc_client_async_call__objlist (SearpcClient *client,
                                    const char *fname,
-                                   AsyncCallback callback, 
+                                   AsyncCallback callback,
                                    GType object_type, void *cbdata,
                                    int n_params, ...)
 {
@@ -522,7 +522,7 @@ searpc_client_async_call__objlist (SearpcClient *client,
                                       object_type, cbdata,
                                       n_params, args);
     va_end (args);
-    return ret;   
+    return ret;
 }
 
 int
@@ -580,7 +580,7 @@ handle_ret_common (char *data, size_t len, json_t **object, GError **error)
 
     return 0;
 }
-    
+
 
 char *
 searpc_client_fret__string (char *data, size_t len, GError **error)
@@ -641,7 +641,7 @@ searpc_client_fret__object (GType gtype, char *data, size_t len, GError **error)
             json_decref(object);
             return NULL;
         }
-        
+
         ret = json_gobject_deserialize(gtype, member);
         json_decref(object);
         return ret;
@@ -670,7 +670,7 @@ searpc_client_fret__objlist (GType gtype, char *data, size_t len, GError **error
             json_t *member = json_array_get (array, i);
             GObject *obj = json_gobject_deserialize(gtype, member);
             if (obj == NULL) {
-                g_set_error (error, DFT_DOMAIN, 503, 
+                g_set_error (error, DFT_DOMAIN, 503,
                              "Invalid data: object list contains null");
                 clean_objlist(ret);
                 json_decref(object);
