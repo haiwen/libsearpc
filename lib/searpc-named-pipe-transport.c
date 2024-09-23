@@ -240,6 +240,37 @@ epoll_read_n(int fd, void *vptr, size_t n)
     return(n - nleft);      /* return >= 0 */
 }
 
+// This function will keep writing until the following conditions are met:
+// 1. the socket has beed closed.
+// 2. the requested size has been writed;
+// 3. an unrecoverable error has been encountered;
+// The first two cases are not errors.
+gssize
+epoll_write_n(int fd, const void *vptr, size_t n)
+{
+    size_t      nleft;
+    gssize     nwritten;
+    const char  *ptr;
+
+    ptr = vptr;
+    nleft = n;
+    while (nleft > 0) {
+        if ( (nwritten = write(fd, ptr, nleft)) <= 0)
+        {
+            if (errno == EAGAIN)
+                nwritten = 0;       /* and call write() again */
+            else if (nwritten < 0 && errno == EINTR)
+                nwritten = 0;       /* and call write() again */
+            else
+                return(-1);         /* error */
+        }
+
+        nleft -= nwritten;
+        ptr   += nwritten;
+    }
+    return(n);
+}
+
 static void epoll_handler(void *data)
 {
     ServerHandlerData *handler_data = data;
@@ -262,12 +293,12 @@ static void epoll_handler(void *data)
     g_free (body);
 
     len = (guint32)ret_len;
-    if (pipe_write_n(connfd, &len, sizeof(guint32)) < 0) {
+    if (epoll_write_n(connfd, &len, sizeof(guint32)) < 0) {
         ret = -1;
         goto out;
     }
 
-    if (pipe_write_n(connfd, ret_str, ret_len) < 0) {
+    if (epoll_write_n(connfd, ret_str, ret_len) < 0) {
         ret = -1;
         goto out;
     }
