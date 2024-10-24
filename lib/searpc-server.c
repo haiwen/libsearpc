@@ -41,6 +41,7 @@ static FILE *slow_log_fp = NULL;
 static gint64 slow_threshold;
 static GList *filtered_funcs;
 static pthread_mutex_t slow_log_lock;
+static gboolean log_to_stdout = FALSE;
 #endif
 
 static void
@@ -205,7 +206,11 @@ searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
                                   gint64 slow_threshold_in,
                                   GList *filtered_funcs_in)
 {
-    if (slow_log_path) {
+    const char *log_to_stdout_env = g_getenv("SEAFILE_LOG_TO_STDOUT");
+    if (g_strcmp0(log_to_stdout_env, "true") == 0) {
+        slow_log_fp = stdout;
+        log_to_stdout = TRUE;
+    } else if (slow_log_path) {
         slow_log_fp = fopen (slow_log_path, "a+");
         if (!slow_log_fp) {
             g_warning ("Failed to open RPC slow log file %s: %s\n", slow_log_path, strerror(errno));
@@ -226,6 +231,10 @@ int
 searpc_server_reopen_slow_log (const char *slow_log_path)
 {
     FILE *fp, *oldfp;
+
+    if (log_to_stdout) {
+        return 0;
+    }
 
     if ((fp = fopen (slow_log_path, "a+")) == NULL) {
         g_warning ("Failed to open RPC slow log file %s\n", slow_log_path);
@@ -340,7 +349,11 @@ print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
 
     pthread_mutex_lock (&slow_log_lock);
 
-    fprintf (slow_log_fp, "%s - %s - %.*s - %.3f\n",
+    if (log_to_stdout) {
+        fprintf (slow_log_fp, "[seafile-slow-rpc] ");
+    }
+
+    fprintf (slow_log_fp, "[%s] - %s - %.*s - %.3f\n",
              time_buf, svc_name, (int)len, func, intv_in_sec);
     fflush (slow_log_fp);
 
