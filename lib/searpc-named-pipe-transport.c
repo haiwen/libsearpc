@@ -480,7 +480,7 @@ static void named_pipe_client_handler(void *data)
 
         while (bufsize < len) {
             bufsize *= 2;
-            buf = realloc(buf, bufsize);
+            buf = g_realloc(buf, bufsize);
         }
 
         if (pipe_read_n(connfd, buf, len) < 0 || len == 0) {
