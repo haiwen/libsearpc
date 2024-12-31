@@ -318,7 +318,6 @@ epoll_listen (SearpcNamedPipeServer *server)
                     g_free (data);
                     continue;
                 }
-                g_message ("start to serve on pipe client\n");
             } else {
                 ServerHandlerData *data = (ServerHandlerData *)events[i].data.ptr;
                 connfd = data->connfd;
@@ -463,8 +462,6 @@ static void named_pipe_client_handler(void *data)
     guint32 len;
     guint32 bufsize = 4096;
     char *buf = g_malloc(bufsize);
-
-    g_message ("start to serve on pipe client\n");
 
     while (1) {
         len = 0;
