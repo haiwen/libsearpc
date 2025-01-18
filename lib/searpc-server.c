@@ -210,21 +210,18 @@ searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
     if (g_strcmp0(log_to_stdout_env, "true") == 0) {
         slow_log_fp = stdout;
         log_to_stdout = TRUE;
-        slow_threshold = slow_threshold_in;
-        filtered_funcs = filtered_funcs_in;
-
-        pthread_mutex_init (&slow_log_lock, NULL);
     } else if (slow_log_path) {
         slow_log_fp = fopen (slow_log_path, "a+");
         if (!slow_log_fp) {
             g_warning ("Failed to open RPC slow log file %s: %s\n", slow_log_path, strerror(errno));
             return -1;
         }
-        slow_threshold = slow_threshold_in;
-        filtered_funcs = filtered_funcs_in;
-
-        pthread_mutex_init (&slow_log_lock, NULL);
     }
+
+    slow_threshold = slow_threshold_in;
+    filtered_funcs = filtered_funcs_in;
+
+    pthread_mutex_init (&slow_log_lock, NULL);
 
     searpc_server_init (register_func);
 
