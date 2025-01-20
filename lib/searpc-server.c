@@ -354,7 +354,7 @@ print_slow_log_if_necessary (const char *svc_name, const char *func, gsize len,
         fprintf (slow_log_fp, "[seafile-slow-rpc] ");
     }
 
-    fprintf (slow_log_fp, "[%s] - %s - %.*s - %.3f\n",
+    fprintf (slow_log_fp, "[%s] \"%s\" %.*s %.3f\n",
              time_buf, svc_name, (int)len, func, intv_in_sec);
     fflush (slow_log_fp);
 
