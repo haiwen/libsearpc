@@ -13,7 +13,7 @@
     #include <winsock2.h>
     #include <ctype.h>
     #include <ws2tcpip.h>
-    #define UNUSED 
+    #define UNUSED
 #else
     #include <arpa/inet.h>
 #endif
@@ -64,7 +64,7 @@ readn(int fd, char *buf, size_t n)
         if ( (nread = recv(fd, buf, nleft, 0)) < 0) {
 #else
 		if ( (nread = read(fd, buf, nleft)) < 0) {
-#endif          
+#endif
 			if (errno == EINTR)
 				nread = 0;		/* and call read() again */
 			else
@@ -76,7 +76,7 @@ readn(int fd, char *buf, size_t n)
         buf += nread;
 	}
 
-	return(n - nleft);		/* return >= 0 */    
+	return(n - nleft);		/* return >= 0 */
 }
 
 
@@ -101,7 +101,7 @@ read_packet(int sockfd, char *buf)
 
     return pac;
 }
-            
+
 #endif
 
 
