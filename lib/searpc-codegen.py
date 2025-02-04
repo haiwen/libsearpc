@@ -176,11 +176,16 @@ def gen_signature_list():
             write_file(f, generate_signature(item[0], item[1]))
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate function signatures and marshals for using Searpc')
+    parser.add_argument('rpc_mod_file', nargs='?', help='the RPC module file name (default: rpc_table)')
+    args = parser.parse_args()
+
     sys.path.append(os.getcwd())
 
     # load function table
-    if len(sys.argv) == 2:
-        abspath = os.path.abspath(sys.argv[1])
+    if args.rpc_mod_file:
+        abspath = os.path.abspath(args.rpc_mod_file)
         with open(abspath, 'r') as fp:
             exec(fp.read())
         print("loaded func_table from %s" % abspath)
