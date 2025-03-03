@@ -1,0 +1,18 @@
+{
+    "builtin-baseline": "f63682b9182187131b564c1395e4ac8ecb0c5ea8",
+    "dependencies": [
+        "glib",
+        "jansson",
+        "pthreads"
+    ],
+    "overrides": [
+        {
+            "name": "jansson",
+            "version": "2.12-1"
+        },
+        {
+            "name": "pthreads",
+            "version": "3.0.0-4"
+        }
+    ]
+}

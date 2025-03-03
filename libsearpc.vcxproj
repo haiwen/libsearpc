@@ -75,6 +75,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LIBSEARPC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -107,11 +110,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>LIBSEARPC_EXPORTS;WIN32</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\include\glib-2.0;$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\lib\glib-2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>LIBSEARPC_EXPORTS;WIN32</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\include\glib-2.0;$(ProjectDir)vcpkg_installed\x64-windows\x64-windows\lib\glib-2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
