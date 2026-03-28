@@ -111,6 +111,14 @@ SearpcNamedPipeServer* searpc_create_named_pipe_server_with_threadpool (const ch
     return server;
 }
 
+int set_nonblocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags < 0) {
+        return -1;
+    }
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
 {
 #if !defined(WIN32)
@@ -147,7 +155,14 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
         goto failed;
     }
 
-    if (listen(pipe_fd, 10) < 0) {
+    int backlog = 10;
+#ifdef __linux__
+    if (server->use_epoll) {
+        backlog = 1024;
+    }
+#endif
+
+    if (listen(pipe_fd, backlog) < 0) {
         g_warning ("failed to listen to unix socket: %s\n", strerror(errno));
         goto failed;
     }
@@ -166,6 +181,11 @@ int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
         epoll_fd = epoll_create1(0);
         if (epoll_fd < 0) {
             g_warning ("failed to open an epoll file descriptor: %s\n", strerror(errno));
+            goto failed;
+        }
+
+        if (set_nonblocking(pipe_fd) < 0) {
+            g_warning ("Failed to set server to noblocking: %s.\n", strerror(errno));
             goto failed;
         }
 
@@ -298,25 +318,33 @@ epoll_listen (SearpcNamedPipeServer *server)
                 if (!(events[i].events & EPOLLIN)) {
                     continue;
                 }
-                // new client connection
-                connfd = accept (server->pipe_fd, NULL, 0);
-                if (connfd < 0) {
-                    g_warning ("Failed to accept new client connection: %s\n", strerror(errno));
-                    continue;
-                }
 
-                event.events = EPOLLIN | EPOLLRDHUP;
-                ServerHandlerData *data = g_new0(ServerHandlerData, 1);
-                data->use_epoll = TRUE;
-                data->connfd = connfd;
-                data->server = server;
-                event.data.ptr = (void *)data;
-                if (epoll_ctl (server->epoll_fd, EPOLL_CTL_ADD, connfd, &event) == -1) {
-                    g_warning ("Failed to add client fd to epoll list: %s\n", strerror(errno));
-                    epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
-                    close (connfd);
-                    g_free (data);
-                    continue;
+                // new client connection
+                // Accept all connections currently queued in the accept backlog.
+                while (1) {
+                    connfd = accept(server->pipe_fd, NULL, 0);
+                    if (connfd < 0) {
+                        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                            break;
+                        } else {
+                            g_warning ("Failed to accept new client connection: %s\n", strerror(errno));
+                            break;
+                        }
+                    }
+
+                    event.events = EPOLLIN | EPOLLRDHUP;
+                    ServerHandlerData *data = g_new0(ServerHandlerData, 1);
+                    data->use_epoll = TRUE;
+                    data->connfd = connfd;
+                    data->server = server;
+                    event.data.ptr = (void *)data;
+                    if (epoll_ctl (server->epoll_fd, EPOLL_CTL_ADD, connfd, &event) == -1) {
+                        g_warning ("Failed to add client fd to epoll list: %s\n", strerror(errno));
+                        epoll_ctl(server->epoll_fd, EPOLL_CTL_DEL, connfd, NULL);
+                        close (connfd);
+                        g_free (data);
+                        continue;
+                    }
                 }
             } else {
                 ServerHandlerData *data = (ServerHandlerData *)events[i].data.ptr;
