@@ -37,7 +37,7 @@ static int transport_send(void *arg, char *fcall_str,
     int fd, ret;
     char buf[BUFLEN];
     packet *pac, *pac_ret;
-   
+
     pac = (packet *)buf;
 
     /* construct the packet */
@@ -51,8 +51,7 @@ static int transport_send(void *arg, char *fcall_str,
     }
 
     trans->rpc_priv = rpc_priv;
-    g_free (fcall_str);
-    
+
     return 0;
 }
 
