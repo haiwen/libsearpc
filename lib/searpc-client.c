@@ -392,7 +392,7 @@ searpc_client_generic_callback (char *retstr, size_t len,
             json_decref ((json_t *)result);
         }
     }
-    // g_free (data);
+    g_free (data);
 
     return 0;
 }
@@ -414,7 +414,7 @@ searpc_client_async_call_v (SearpcClient *client,
     fstr = fcall_to_str (fname, n_params, args, &len);
     if (!fstr)
         return -1;
-    
+
     int ret;
     AsyncCallData *data = g_new0(AsyncCallData, 1);
     data->client = client;
@@ -425,10 +425,12 @@ searpc_client_async_call_v (SearpcClient *client,
 
     ret = client->async_send (client->async_arg, fstr, len, data);
 
-    g_free(data);
     g_free(fstr);
-
-    return ret;
+    if (ret < 0) {
+        g_free (data);
+        return -1;
+    }
+    return 0;
 }
 
 int
