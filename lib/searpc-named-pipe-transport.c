@@ -111,6 +111,7 @@ SearpcNamedPipeServer* searpc_create_named_pipe_server_with_threadpool (const ch
     return server;
 }
 
+#ifdef __linux__
 int set_nonblocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags < 0) {
@@ -118,6 +119,7 @@ int set_nonblocking(int fd) {
     }
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
+#endif
 
 int searpc_named_pipe_server_start(SearpcNamedPipeServer *server)
 {
