@@ -4,11 +4,5 @@
         "glib",
         "jansson",
         "pthreads"
-    ],
-    "overrides": [
-        {
-            "name": "jansson",
-            "version": "2.12-1"
-        }
     ]
 }
