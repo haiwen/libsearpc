@@ -19,6 +19,8 @@ extern "C" {
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
 #endif
 
+#define LIBSEARPC_ASYNC_API_WORKS 1
+
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 
@@ -36,7 +38,7 @@ typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
 struct _SearpcClient {
     TransportCB send;
     void *arg;
-    
+
     AsyncTransportSend async_send;
     void *async_arg;
 };
@@ -88,7 +90,7 @@ searpc_client_transport_send (SearpcClient *client,
                               size_t fcall_len,
                               size_t *ret_len);
 
-
+#if LIBSEARPC_ASYNC_API_WORKS
 
 LIBSEARPC_API int
 searpc_client_async_call__int (SearpcClient *client,
@@ -128,6 +130,7 @@ searpc_client_async_call__json (SearpcClient *client,
                                 AsyncCallback callback, void *cbdata,
                                 int n_params, ...);
 
+#endif
 
 /* called by the transport layer, the rpc layer should be able to
  * modify the str, but not take ownership of it */
