@@ -36,7 +36,7 @@ typedef void (*AsyncCallback) (void *result, void *user_data, GError *error);
 struct _SearpcClient {
     TransportCB send;
     void *arg;
-    
+
     AsyncTransportSend async_send;
     void *async_arg;
 };
@@ -111,14 +111,14 @@ searpc_client_async_call__string (SearpcClient *client,
 LIBSEARPC_API int
 searpc_client_async_call__object (SearpcClient *client,
                                   const char *fname,
-                                  AsyncCallback callback, 
+                                  AsyncCallback callback,
                                   GType object_type, void *cbdata,
                                   int n_params, ...);
 
 LIBSEARPC_API int
 searpc_client_async_call__objlist (SearpcClient *client,
                                    const char *fname,
-                                   AsyncCallback callback, 
+                                   AsyncCallback callback,
                                    GType object_type, void *cbdata,
                                    int n_params, ...);
 

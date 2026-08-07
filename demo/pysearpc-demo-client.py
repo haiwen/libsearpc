@@ -24,7 +24,7 @@ def recv_all(sock, length):
     return data
 
 class SampleRpcClient(SearpcClient):
-    
+
     def call_remote_func_sync(self, fcall_str):
         """
         called by searpc_func to send the request and receive the result
@@ -34,7 +34,7 @@ class SampleRpcClient(SearpcClient):
         # connect to server
         s.connect((SERVER_ADDR, SERVER_PORT))
         # send the header
-        header = pack('!h', len(fcall_str)); 
+        header = pack('!h', len(fcall_str));
         s.sendall(header)
         # send the JSON data
         s.sendall(fcall_str)

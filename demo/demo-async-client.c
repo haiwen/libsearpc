@@ -68,7 +68,7 @@ transport_read(TcpTransport *trans)
         fprintf(stderr, "read packet failed: %s\n", strerror(errno));
         exit(-1);
     }
-    
+
     ret_len = ntohs(pac->length);
     searpc_client_generic_callback (pac->data, ret_len, trans->rpc_priv, NULL);
     trans->rpc_priv = NULL;
@@ -79,7 +79,7 @@ strlen_callback(void *vresult, void *user_data, GError *error)
 {
     const char *str = user_data;
     int len = *((int *)vresult);
-    
+
     g_assert (strcmp(str, "user data") == 0);
     printf("the length of string 'hello searpc' is %d.\n", len);
 }
